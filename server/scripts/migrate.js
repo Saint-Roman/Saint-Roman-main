@@ -34,6 +34,7 @@ const allFiles = [
   '../supabase/phase13_support_tickets.sql',
   '../supabase/phase14_whatsapp.sql',
   '../supabase/phase15_inventory_automation.sql',
+  '../supabase/phase17_customer_account_linking.sql',
 ];
 
 // Every statement in server/supabase/*.sql is idempotent (create type/policy/trigger are all
