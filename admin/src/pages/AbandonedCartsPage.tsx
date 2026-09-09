@@ -36,8 +36,15 @@ interface AbandonedCart {
 
 interface AbandonedCartsResponse {
   configured: boolean
+  hours: number
   carts: AbandonedCart[]
 }
+
+const HOUR_FILTERS = [
+  { hours: 1, label: '1h' },
+  { hours: 12, label: '12h' },
+  { hours: 24, label: '24h' },
+] as const
 
 function customerName(customer: Customer | null) {
   if (!customer) return 'Unknown customer'
@@ -50,7 +57,10 @@ function customerName(customer: Customer | null) {
 }
 
 export function AbandonedCartsPage() {
-  const { data, loading, error, refetch } = useApiResource<AbandonedCartsResponse>('/abandoned-carts')
+  const [hours, setHours] = useState<number>(24)
+  const { data, loading, error, refetch } = useApiResource<AbandonedCartsResponse>(
+    `/abandoned-carts?hours=${hours}`
+  )
   const [sendingId, setSendingId] = useState<string | null>(null)
 
   async function handleSendReminder(cart: AbandonedCart) {
@@ -68,11 +78,26 @@ export function AbandonedCartsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Abandoned Carts</h1>
-        <p className="text-sm text-muted-foreground">
-          Customers who added items to their cart and left — idle 24h+ with no order placed.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Abandoned Carts</h1>
+          <p className="text-sm text-muted-foreground">
+            Customers who added items to their cart and left — idle {hours}h+ with no order placed.
+            {hours < 24 && ' The WhatsApp reminder itself still only fires after 24h.'}
+          </p>
+        </div>
+        <div className="flex gap-1 rounded-md border p-1">
+          {HOUR_FILTERS.map((filter) => (
+            <Button
+              key={filter.hours}
+              size="sm"
+              variant={hours === filter.hours ? 'default' : 'ghost'}
+              onClick={() => setHours(filter.hours)}
+            >
+              {filter.label}
+            </Button>
+          ))}
+        </div>
       </div>
 
       {data && !data.configured && (

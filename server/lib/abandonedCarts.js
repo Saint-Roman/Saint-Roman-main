@@ -10,13 +10,18 @@ export function isReminderConfigured() {
   return whatsapp.isConfigured() && Boolean(TEMPLATE_NAME);
 }
 
-// A cart counts as abandoned once it's been ABANDON_HOURS since the customer last touched it
-// (POST /api/customer/cart, see server/routes/customer.js) with no order placed since — checkout
-// deletes the row entirely (server/routes/public.js POST /orders) — and no reminder sent yet for
-// this abandonment episode. notified_at is reset to null on every cart touch, so a customer who
-// comes back and abandons again later gets a fresh reminder rather than being silenced forever.
-export async function findAbandonedCarts() {
-  const cutoff = new Date(Date.now() - ABANDON_HOURS * 60 * 60 * 1000).toISOString();
+// A cart counts as abandoned once it's been idle for minIdleHours with no order placed since —
+// checkout deletes the row entirely (server/routes/public.js POST /orders) — and no reminder sent
+// yet for this abandonment episode. notified_at is reset to null on every cart touch, so a
+// customer who comes back and abandons again later gets a fresh reminder rather than being
+// silenced forever.
+//
+// minIdleHours defaults to ABANDON_HOURS (the actual WhatsApp-reminder threshold, used by
+// runScheduledReminders below) but the admin list view (server/routes/abandonedCarts.js) passes a
+// shorter window (1h/12h) to show earlier-stage abandonment too — that's a viewing filter only,
+// it doesn't change when the automatic reminder fires.
+export async function findAbandonedCarts(minIdleHours = ABANDON_HOURS) {
+  const cutoff = new Date(Date.now() - minIdleHours * 60 * 60 * 1000).toISOString();
 
   const { data, error } = await supabaseAdmin
     .from('carts')

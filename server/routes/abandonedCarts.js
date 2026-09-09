@@ -1,19 +1,27 @@
 import { Router } from 'express';
 import { supabaseAdmin } from '../config/supabase.js';
 import { requireAuth } from '../middleware/auth.js';
-import { findAbandonedCarts, cartValue, sendReminder, isReminderConfigured } from '../lib/abandonedCarts.js';
+import { findAbandonedCarts, cartValue, sendReminder, isReminderConfigured, ABANDON_HOURS } from '../lib/abandonedCarts.js';
 
 const router = Router();
 
 router.use(requireAuth);
 
-// List of carts idle for 24h+ with no reminder sent yet for the current abandonment episode —
-// see server/lib/abandonedCarts.js for exactly what "abandoned" means here.
+// Idle-time filter for the admin list view (1h / 12h / 24h) — viewing only, doesn't change when
+// the automatic WhatsApp reminder actually fires (still fixed at ABANDON_HOURS, see
+// server/lib/abandonedCarts.js). Anything else in the query param falls back to ABANDON_HOURS.
+const ALLOWED_HOURS = [1, 12, 24];
+
+// List of carts idle for the requested window with no reminder sent yet for the current
+// abandonment episode — see server/lib/abandonedCarts.js for exactly what "abandoned" means here.
 router.get('/', async (req, res) => {
+  const hours = ALLOWED_HOURS.includes(Number(req.query.hours)) ? Number(req.query.hours) : ABANDON_HOURS;
+
   try {
-    const carts = await findAbandonedCarts();
+    const carts = await findAbandonedCarts(hours);
     res.json({
       configured: isReminderConfigured(),
+      hours,
       carts: carts.map((cart) => ({
         id: cart.id,
         updated_at: cart.updated_at,
