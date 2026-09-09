@@ -31,7 +31,7 @@ function escapeHtml(value: string) {
 
 function formatAddress(addr: PrintableOrder['shipping_address']) {
     if (!addr) return 'No address on file'
-    return [addr.address, addr.city, addr.district, addr.pincode, addr.country].filter(Boolean).map(escapeHtml).join(', ')
+    return [addr.address, addr.city, addr.district, addr.pincode, addr.country].filter((v): v is string => Boolean(v)).map(escapeHtml).join(', ')
 }
 
 // Same "open a dedicated print window, write a self-contained document, window.print()" pattern
