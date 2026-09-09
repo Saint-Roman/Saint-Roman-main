@@ -702,6 +702,10 @@
     <!-- Main Custom js file -->
     <script src="js/function.js"></script>
     <script src="js/currency.js"></script>
+    <!-- Needed for ellora-cart.js's background cart sync (ElloraAuth.getSession()/apiBase) —
+         same CDN + auth.js pairing product-single.html/checkout.html/compare.html already use. -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/ellora-cart.js"></script>
     <script src="js/mega-menu-dynamic.js"></script>
 

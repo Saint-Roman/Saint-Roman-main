@@ -460,6 +460,11 @@ router.post('/orders', requireCustomer, async (req, res) => {
     if (couponUpdateError) console.error(`coupon usage_count update failed for ${appliedCouponCode}:`, couponUpdateError.message);
   }
 
+  // --- Clear the server-side cart mirror (see server/routes/customer.js POST /cart) ---
+  // Converted, not abandoned — best-effort, same as the two updates above.
+  const { error: cartClearError } = await supabaseAdmin.from('carts').delete().eq('customer_id', customerId);
+  if (cartClearError) console.error(`cart clear failed for customer ${customerId}:`, cartClearError.message);
+
   res.status(201).json({ order: { id: order.id, order_number: order.order_number } });
 });
 

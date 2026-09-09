@@ -1,7 +1,11 @@
-// Minimal client-side cart for the Ellora storefront. No server-side cart table —
-// state lives in localStorage until checkout, when it's sent to POST /api/public/orders.
+// Minimal client-side cart for the Ellora storefront. localStorage is still the only source of
+// truth this file itself reads from — checkout (POST /api/public/orders) uses get() directly, not
+// the server sync below. save() also fires a debounced best-effort sync to POST
+// /api/customer/cart purely so the admin Abandoned Carts page can see who has items sitting in
+// their cart, since the backend otherwise has zero visibility into carts at all.
 window.EllroaCart = (function () {
   var KEY = 'ellora_cart';
+  var syncTimer = null;
 
   function get() {
     try {
@@ -13,6 +17,44 @@ window.EllroaCart = (function () {
 
   function save(items) {
     localStorage.setItem(KEY, JSON.stringify(items));
+    scheduleSync();
+  }
+
+  // Debounced so rapid +/- quantity clicks don't fire a request per click. Silently does nothing
+  // if auth.js isn't loaded on this page, there's no logged-in session, or the request fails —
+  // this is telemetry for the admin panel, never something the shopper's flow depends on.
+  function scheduleSync() {
+    if (syncTimer) clearTimeout(syncTimer);
+    syncTimer = setTimeout(doSync, 800);
+  }
+
+  async function doSync() {
+    if (!window.ElloraAuth || typeof window.ElloraAuth.getSession !== 'function') return;
+
+    var session;
+    try {
+      session = await window.ElloraAuth.getSession();
+    } catch (e) {
+      return;
+    }
+    if (!session) return;
+
+    var items = get().map(function (i) {
+      return { variant_id: i.variantId, quantity: i.quantity };
+    });
+
+    try {
+      await fetch(window.ElloraAuth.apiBase + '/cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + session.access_token,
+        },
+        body: JSON.stringify({ items: items }),
+      });
+    } catch (e) {
+      // Network error, server down, whatever — never surface this to the shopper.
+    }
   }
 
   function add(item) {

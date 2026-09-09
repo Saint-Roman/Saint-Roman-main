@@ -30,6 +30,7 @@ import { AiPage } from '@/pages/AiPage'
 import { MediaPage } from '@/pages/MediaPage'
 import { ReturnsPage } from '@/pages/ReturnsPage'
 import { FinancePage } from '@/pages/FinancePage'
+import { AbandonedCartsPage } from '@/pages/AbandonedCartsPage'
 
 function App() {
   return (
@@ -63,6 +64,7 @@ function App() {
               <Route path="/ai" element={<AiPage />} />
               <Route path="/media" element={<MediaPage />} />
               <Route path="/returns" element={<ReturnsPage />} />
+              <Route path="/abandoned-carts" element={<AbandonedCartsPage />} />
               <Route path="/finance" element={<FinancePage />} />
               <Route path="/settings" element={<SettingsPage />} />
             </Route>
