@@ -31,6 +31,8 @@ import mediaRoutes from './routes/media.js';
 import tagsRoutes from './routes/tags.js';
 import customerAccountRoutes from './routes/customer.js';
 import whatsappRoutes from './routes/whatsapp.js';
+import abandonedCartsRoutes from './routes/abandonedCarts.js';
+import { runScheduledReminders } from './lib/abandonedCarts.js';
 const app = express();
 const PORT = process.env.PORT || 4000;
 const CORS_ORIGIN = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',');
@@ -99,6 +101,7 @@ app.use('/api/tags', tagsRoutes);
 // after the other app.use lines:
 app.use('/api/customer', customerAccountRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
+app.use('/api/abandoned-carts', abandonedCartsRoutes);
 app.use((err, req, res, next) => {
   console.error(err);
   if (err.type === 'entity.too.large') {
@@ -110,3 +113,15 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Ellora admin API running on http://localhost:${PORT}`);
 });
+
+// Abandoned-cart reminder scheduler — checks every 30 minutes for carts idle 24h+ and sends a
+// WhatsApp reminder (server/lib/abandonedCarts.js). No-ops entirely until WHATSAPP_TOKEN /
+// WHATSAPP_PHONE_NUMBER_ID / WHATSAPP_ABANDONED_CART_TEMPLATE are all set.
+// NOTE: this only fires while this process is actually running. A free-tier Render web service
+// spins down after ~15 min idle and cold-starts on the next request, so this timer won't fire
+// reliably there — an always-on paid plan, or an external cron hitting a dedicated endpoint,
+// would be needed for this to behave like a real production scheduler.
+const ABANDONED_CART_CHECK_INTERVAL_MS = 30 * 60 * 1000;
+setInterval(() => {
+  runScheduledReminders().catch((err) => console.error('Abandoned-cart scheduler run failed:', err.message));
+}, ABANDONED_CART_CHECK_INTERVAL_MS);

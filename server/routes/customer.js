@@ -209,4 +209,44 @@ router.delete('/wishlist/:productId', async (req, res) => {
     res.json({ success: true });
 });
 
+// ── Cart sync ── the storefront cart itself still lives entirely in the browser's localStorage
+// (html/js/ellora-cart.js) — this just mirrors it server-side on every mutation (best-effort,
+// fire-and-forget from the client) so the admin Abandoned Carts page and reminder scheduler
+// (server/lib/abandonedCarts.js) have something to read. Full-replace, not a diff/patch, since
+// the client always sends its complete current cart.
+router.post('/cart', async (req, res) => {
+    const items = Array.isArray(req.body.items) ? req.body.items : [];
+    const rows = items
+        .filter((i) => i && i.variant_id && Number(i.quantity) > 0)
+        .map((i) => ({ variant_id: i.variant_id, quantity: Math.floor(Number(i.quantity)) }));
+
+    if (rows.length === 0) {
+        // Empty cart — nothing to abandon.
+        const { error } = await supabaseAdmin.from('carts').delete().eq('customer_id', req.customer.id);
+        if (error) return res.status(500).json({ error: 'Failed to sync cart' });
+        return res.json({ success: true });
+    }
+
+    const { data: cart, error: cartError } = await supabaseAdmin
+        .from('carts')
+        .upsert(
+            { customer_id: req.customer.id, notified_at: null, updated_at: new Date().toISOString() },
+            { onConflict: 'customer_id' }
+        )
+        .select('id')
+        .single();
+
+    if (cartError) return res.status(500).json({ error: 'Failed to sync cart' });
+
+    const { error: deleteError } = await supabaseAdmin.from('cart_items').delete().eq('cart_id', cart.id);
+    if (deleteError) return res.status(500).json({ error: 'Failed to sync cart' });
+
+    const { error: insertError } = await supabaseAdmin
+        .from('cart_items')
+        .insert(rows.map((r) => ({ cart_id: cart.id, ...r })));
+    if (insertError) return res.status(500).json({ error: 'Failed to sync cart' });
+
+    res.json({ success: true });
+});
+
 export default router;

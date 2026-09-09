@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { cn } from '@/lib/utils'
-import { LayoutDashboard, FolderTree, Package, Boxes, ClipboardList, Undo2, Users, Wallet, Newspaper, HelpCircle, Tag, BarChart3, Warehouse, LifeBuoy, ScrollText, Image, ImagePlus, UserCog, Megaphone, LineChart, Truck, Contact, Sparkles, Settings, Barcode, Quote } from 'lucide-react'
+import { LayoutDashboard, FolderTree, Package, Boxes, ClipboardList, Undo2, Users, Wallet, Newspaper, HelpCircle, Tag, BarChart3, Warehouse, LifeBuoy, ScrollText, Image, ImagePlus, UserCog, Megaphone, LineChart, Truck, Contact, Sparkles, Settings, Barcode, Quote, ShoppingCart } from 'lucide-react'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -12,6 +12,7 @@ const navItems = [
   { to: '/warehouse', label: 'Warehouse', icon: Warehouse },
   { to: '/shipping', label: 'Shipping', icon: Truck },
   { to: '/returns', label: 'Returns', icon: Undo2 },
+  { to: '/abandoned-carts', label: 'Abandoned Carts', icon: ShoppingCart },
   { to: '/customers', label: 'Customers', icon: Users },
   { to: '/crm', label: 'CRM', icon: Contact },
   { to: '/coupons', label: 'Coupons', icon: Tag },

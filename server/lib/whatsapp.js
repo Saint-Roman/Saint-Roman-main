@@ -70,3 +70,22 @@ export function sendList(to, { headerText, bodyText, buttonLabel, rows }) {
     },
   });
 }
+
+// sendText/sendButtons/sendList above only work within the 24h window after a customer messages
+// first (the auto-reply bot's whole world). Anything WE message first — the abandoned-cart
+// reminder is the only case in this app — is a business-initiated message, which Meta only
+// allows through a pre-approved Message Template (created + approved in Meta Business Manager,
+// outside this app's control). components follows Meta's template-components shape, e.g.
+// [{ type: 'body', parameters: [{ type: 'text', text: 'Priya' }] }] for a template with a {{1}}
+// placeholder in its body — omit entirely for a template with no variables.
+export function sendTemplate(to, templateName, languageCode, components) {
+  return send({
+    to,
+    type: 'template',
+    template: {
+      name: templateName,
+      language: { code: languageCode || 'en' },
+      ...(components && components.length ? { components } : {}),
+    },
+  });
+}
