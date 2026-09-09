@@ -1,41 +1,41 @@
 (function ($) {
-    "use strict";
-	
-	var $window = $(window); 
-	var $body = $('body'); 
+	"use strict";
+
+	var $window = $(window);
+	var $body = $('body');
 
 	/* Preloader Effect */
-	$window.on('load', function(){
+	$window.on('load', function () {
 		$(".preloader").fadeOut(600);
 	});
 
-	/* Sticky Header */	
-	if($('.active-sticky-header').length){
-		$window.on('resize', function(){
+	/* Sticky Header */
+	if ($('.active-sticky-header').length) {
+		$window.on('resize', function () {
 			setHeaderHeight();
 		});
 
-		function setHeaderHeight(){
-	 		$("header.active-sticky-header").css("height", $('header.active-sticky-header .header-sticky').outerHeight());
-		}	
-	
-		$window.on("scroll", function() {
+		function setHeaderHeight() {
+			$("header.active-sticky-header").css("height", $('header.active-sticky-header .header-sticky').outerHeight());
+		}
+
+		$window.on("scroll", function () {
 			var fromTop = $(window).scrollTop();
 			setHeaderHeight();
 			var headerHeight = $('header.active-sticky-header .header-sticky').outerHeight()
 			$("header.active-sticky-header .header-sticky").toggleClass("hide", (fromTop > headerHeight + 100));
 			$("header.active-sticky-header .header-sticky").toggleClass("active", (fromTop > 600));
 		});
-	}	
-	
+	}
+
 	/* Slick Menu JS */
 	$('#menu').slicknav({
-		label : '',
-		prependTo : '.responsive-menu'
+		label: '',
+		prependTo: '.responsive-menu'
 	});
 
-	if($("a[href='#top']").length){
-		$(document).on("click", "a[href='#top']", function() {
+	if ($("a[href='#top']").length) {
+		$(document).on("click", "a[href='#top']", function () {
 			$("html, body").animate({ scrollTop: 0 }, "slow");
 			return false;
 		});
@@ -44,7 +44,7 @@
 	/* Testimonial Slider JS */
 	if ($('.testimonial-slider').length) {
 		const testimonial_slider = new Swiper('.testimonial-slider .swiper', {
-			slidesPerView : 1,
+			slidesPerView: 1,
 			speed: 1500,
 			spaceBetween: 30,
 			loop: true,
@@ -60,7 +60,7 @@
 				prevEl: '.testimonial-button-prev',
 			},
 			breakpoints: {
-				768:{
+				768: {
 					slidesPerView: 2,
 				},
 			}
@@ -90,21 +90,27 @@
 	});
 
 
-	/* Our Product (filtering) Start */
+	/* Our Product (filtering) — DISABLED
+	   homepage-dynamic-sections.js now owns filtering + layout for
+	   .product-item-list (plain flex reflow with a fade/scale transition).
+	   Running Isotope on top of it fought over positioning — Isotope
+	   absolute-positions items by their original static-template slot,
+	   and its own class-based filter never matched (the category class
+	   lives on .product-item, not the .product-item-box it filters on),
+	   which is what caused the filtered card to land at a stale offset
+	   instead of reflowing to the start of the grid. */
+	/*
 	$window.on( "load", function(){
 		if( $(".product-item-list").length ) {
 				
-			/* Init Isotope */
 			var $menuitem = $(".product-item-list").isotope({
 				itemSelector: ".product-item-box",
 				layoutMode: "fitRows",
 				masonry: {
-					// use outer width of grid-sizer for columnWidth
 					columnWidth: 1,
 				}
 			});
 				
-			/* Filter items on click */
 			var $menudisesnav = $(".our-product-filter-nav li a");
 				$menudisesnav.on('click', function (e) { 
 			
@@ -120,17 +126,17 @@
 			$menuitem.isotope({ filter: "*" });
 		}			
 	});
-	/* Our Product (filtering) End */
+	*/
 
 	/* Skill Bar */
 	if ($('.skills-progress-bar').length) {
-		$('.skills-progress-bar').waypoint(function() {
-			$('.skillbar').each(function() {
+		$('.skills-progress-bar').waypoint(function () {
+			$('.skillbar').each(function () {
 				$(this).find('.count-bar').animate({
-				width:$(this).attr('data-percent')
-				},2000);
+					width: $(this).attr('data-percent')
+				}, 2000);
 			});
-		},{
+		}, {
 			offset: '70%'
 		});
 	}
@@ -147,46 +153,46 @@
 
 	/* Image Reveal Animation */
 	if ($('.reveal').length) {
-        gsap.registerPlugin(ScrollTrigger);
-        let revealContainers = document.querySelectorAll(".reveal");
-        revealContainers.forEach((container) => {
-            let image = container.querySelector("img");
-            let tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: container,
-                    toggleActions: "play none none none"
-                }
-            });
-            tl.set(container, {
-                autoAlpha: 1
-            });
-            tl.from(container, 1, {
-                xPercent: -100,
-                ease: Power2.out
-            });
-            tl.from(image, 1, {
-                xPercent: 100,
-                scale: 1,
-                delay: -1,
-                ease: Power2.out
-            });
-        });
-    }
+		gsap.registerPlugin(ScrollTrigger);
+		let revealContainers = document.querySelectorAll(".reveal");
+		revealContainers.forEach((container) => {
+			let image = container.querySelector("img");
+			let tl = gsap.timeline({
+				scrollTrigger: {
+					trigger: container,
+					toggleActions: "play none none none"
+				}
+			});
+			tl.set(container, {
+				autoAlpha: 1
+			});
+			tl.from(container, 1, {
+				xPercent: -100,
+				ease: Power2.out
+			});
+			tl.from(image, 1, {
+				xPercent: 100,
+				scale: 1,
+				delay: -1,
+				ease: Power2.out
+			});
+		});
+	}
 
 	/* Text Effect Animation */
 	function initHeadingAnimation() {
-		
-		if($('.text-effect').length) {
+
+		if ($('.text-effect').length) {
 			var textheading = $(".text-effect");
 
-			if(textheading.length === 0) return; gsap.registerPlugin(SplitText); textheading.each(function(index, el) {
-				
-				el.split = new SplitText(el, { 
+			if (textheading.length === 0) return; gsap.registerPlugin(SplitText); textheading.each(function (index, el) {
+
+				el.split = new SplitText(el, {
 					type: "lines,words,chars",
 					linesClass: "split-line"
 				});
-				
-				if( $(el).hasClass('text-effect') ){
+
+				if ($(el).hasClass('text-effect')) {
 					gsap.set(el.split.chars, {
 						opacity: .3,
 						x: "-7",
@@ -209,51 +215,51 @@
 				});
 			});
 		}
-		
+
 		if ($('.text-anime-style-1').length) {
-			let staggerAmount 	= 0.05,
+			let staggerAmount = 0.05,
 				translateXValue = 0,
-				delayValue 		= 0.5,
-			   animatedTextElements = document.querySelectorAll('.text-anime-style-1');
-			
+				delayValue = 0.5,
+				animatedTextElements = document.querySelectorAll('.text-anime-style-1');
+
 			animatedTextElements.forEach((element) => {
 				let animationSplitText = new SplitText(element, { type: "chars, words" });
-					gsap.from(animationSplitText.words, {
+				gsap.from(animationSplitText.words, {
 					duration: 1,
 					delay: delayValue,
 					x: 20,
 					autoAlpha: 0,
 					stagger: staggerAmount,
 					scrollTrigger: { trigger: element, start: "top 85%" },
-					});
-			});		
+				});
+			});
 		}
-		
-		if ($('.text-anime-style-2').length) {				
-			let	 staggerAmount 		= 0.03,
-				 translateXValue	= 20,
-				 delayValue 		= 0.1,
-				 easeType 			= "power2.out",
-				 animatedTextElements = document.querySelectorAll('.text-anime-style-2');
-			
+
+		if ($('.text-anime-style-2').length) {
+			let staggerAmount = 0.03,
+				translateXValue = 20,
+				delayValue = 0.1,
+				easeType = "power2.out",
+				animatedTextElements = document.querySelectorAll('.text-anime-style-2');
+
 			animatedTextElements.forEach((element) => {
 				let animationSplitText = new SplitText(element, { type: "chars, words" });
-					gsap.from(animationSplitText.chars, {
-						duration: 1,
-						delay: delayValue,
-						x: translateXValue,
-						autoAlpha: 0,
-						stagger: staggerAmount,
-						ease: easeType,
-						scrollTrigger: { trigger: element, start: "top 85%"},
-					});
-			});		
+				gsap.from(animationSplitText.chars, {
+					duration: 1,
+					delay: delayValue,
+					x: translateXValue,
+					autoAlpha: 0,
+					stagger: staggerAmount,
+					ease: easeType,
+					scrollTrigger: { trigger: element, start: "top 85%" },
+				});
+			});
 		}
-		
-		if ($('.text-anime-style-3').length) {		
-			let	animatedTextElements = document.querySelectorAll('.text-anime-style-3');
-			
-			 animatedTextElements.forEach((element) => {
+
+		if ($('.text-anime-style-3').length) {
+			let animatedTextElements = document.querySelectorAll('.text-anime-style-3');
+
+			animatedTextElements.forEach((element) => {
 				//Reset if needed
 				if (element.animation) {
 					element.animation.progress(1).kill();
@@ -272,7 +278,7 @@
 				});
 
 				element.animation = gsap.to(element.split.chars, {
-					scrollTrigger: { trigger: element,	start: "top 90%" },
+					scrollTrigger: { trigger: element, start: "top 90%" },
 					x: "0",
 					y: "0",
 					rotateX: "0",
@@ -281,22 +287,21 @@
 					ease: Back.easeOut,
 					stagger: 0.02,
 				});
-			});		
+			});
 		}
 	}
-	
+
 	if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(() => {
-            initHeadingAnimation();
-        });
-    } else {
-        window.addEventListener("load", initHeadingAnimation);
-    }
+		document.fonts.ready.then(() => {
+			initHeadingAnimation();
+		});
+	} else {
+		window.addEventListener("load", initHeadingAnimation);
+	}
 
 	/* Parallaxie js */
 	var $parallaxie = $('.parallaxie');
-	if($parallaxie.length && ($window.width() > 1024))
-	{
+	if ($parallaxie.length && ($window.width() > 1024)) {
 		if ($window.width() > 768) {
 			$parallaxie.parallaxie({
 				speed: 0.55,
@@ -307,36 +312,36 @@
 
 	/* Contact form validation */
 	var $contactform = $("#contactForm");
-	$contactform.validator({focus: false}).on("submit", function (event) {
+	$contactform.validator({ focus: false }).on("submit", function (event) {
 		if (!event.isDefaultPrevented()) {
 			event.preventDefault();
 			submitForm();
 		}
 	});
 
-	function submitForm(){
+	function submitForm() {
 		/* Ajax call to submit form */
 		$.ajax({
 			type: "POST",
 			url: "form-process.php",
 			data: $contactform.serialize(),
-			success : function(text){
-				if (text === "success"){
+			success: function (text) {
+				if (text === "success") {
 					formSuccess();
 				} else {
-					submitMSG(false,text);
+					submitMSG(false, text);
 				}
 			}
 		});
 	}
 
-	function formSuccess(){
+	function formSuccess() {
 		$contactform[0].reset();
 		submitMSG(true, "Message Sent Successfully!")
 	}
 
-	function submitMSG(valid, msg){
-		if(valid){
+	function submitMSG(valid, msg) {
+		if (valid) {
 			var msgClasses = "h4 text-success";
 		} else {
 			var msgClasses = "h4 text-danger";
@@ -345,7 +350,7 @@
 	}
 	/* Contact form validation end */
 
-	/* Animated Wow Js */	
+	/* Animated Wow Js */
 	new WOW().init();
 
 	/* Popup Video */
@@ -358,17 +363,17 @@
 			fixedContentPos: true
 		});
 	}
-	
+
 	/* product quantity Input Js */
 	document.querySelectorAll(".qty-box").forEach(box => {
 		const input = box.querySelector(".qty-input");
 
 		box.querySelector(".plus").onclick = () =>
-		input.value = String(+input.value + 1).padStart(2, "0");
+			input.value = String(+input.value + 1).padStart(2, "0");
 
 		box.querySelector(".minus").onclick = () =>
-		input.value = String(Math.max(1, +input.value - 1)).padStart(2, "0");
+			input.value = String(Math.max(1, +input.value - 1)).padStart(2, "0");
 	});
-	
+
 
 })(jQuery);

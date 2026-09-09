@@ -1,0 +1,46 @@
+# Netlify rewrite rules — starter config for whenever this storefront is deployed to Netlify.
+# Mirrors scripts/storefront-rewrite-middleware.js (the local-dev equivalent used by
+# bs-config.js/bs-config.dist.js via browser-sync). A 200 status means "rewrite" (serve this
+# file's content, keep the URL the visitor typed) rather than a redirect.
+#
+# This file is copied into dist/ verbatim by scripts/build-html.js, so it ships wherever
+# dist/ is published — nothing else needs to change for it to take effect on Netlify.
+
+/product/:slug                /product-single.html          200
+/category/:slug               /products.html                 200
+/tag/:tag                     /products.html                 200
+/blog/:slug                   /blog-single.html              200
+/account/orders/:id           /account-order-details.html    200
+/order-confirmation/:number   /order-received.html           200
+/products                      /products.html                 200
+
+# Every other flat page — scripts/storefront-rewrite-middleware.js's generic fallback rule
+# covers these automatically in dev; Netlify redirects need each one spelled out here.
+/404                    /404.html                    200
+/about                  /about.html                  200
+/account-address        /account-address.html        200
+/account-addresses      /account-addresses.html      200
+/account-dashboard      /account-dashboard.html      200
+/account-details        /account-details.html        200
+/account-download       /account-download.html       200
+/account-order          /account-order.html          200
+/account-order-details  /account-order-details.html  200
+/account-wishlist       /account-wishlist.html       200
+/blog-single            /blog-single.html            200
+/cancellation-policy    /cancellation-policy.html    200
+/cart                   /cart.html                   200
+/checkout               /checkout.html               200
+/compare                /compare.html                200
+/contact                /contact.html                200
+/corporate-compliance   /corporate-compliance.html   200
+/delivery-policy        /delivery-policy.html        200
+/faqs                   /faqs.html                   200
+/forgot-password        /forgot-password.html        200
+/login                  /login.html                  200
+/order-received         /order-received.html         200
+/privacy-policy         /privacy-policy.html         200
+/product-single         /product-single.html         200
+/refund-return          /refund-return.html          200
+/reset-password         /reset-password.html        200
+/term-condition         /term-condition.html         200
+/testimonials           /testimonials.html           200

@@ -1,1 +1,0 @@
-!function(){var e=new URLSearchParams(window.location.search).get("order");e&&(document.getElementById("order-number").textContent="ORDER "+e)}();
