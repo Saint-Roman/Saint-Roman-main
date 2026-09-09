@@ -38,12 +38,21 @@ const CORS_ORIGIN = (process.env.CORS_ORIGIN || 'http://localhost:5173').split('
 // In development, browser-sync may pick any available port (3000, 3001, 3002, …).
 // Instead of maintaining a fixed list, allow any localhost origin so CORS never
 // silently breaks the storefront when a port shifts.
+//
+// In production, the Render static-site/service names actually assigned on deploy
+// don't necessarily match the names in render.yaml (services created manually via
+// the dashboard keep whatever name was typed in, e.g. "saint-roman-main-1" instead
+// of "saint-roman-admin") — so an exact-match CORS_ORIGIN list silently breaks the
+// moment a service is renamed. Any *.onrender.com subdomain starting with
+// "saint-roman" is trusted the same way, on top of the explicit CORS_ORIGIN list.
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (server-to-server, curl, Postman, etc.)
     if (!origin) return callback(null, true);
     // Allow any localhost port in development
     if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) return callback(null, true);
+    // Allow any Render deployment of this project, regardless of the exact service name
+    if (/^https:\/\/saint-roman[a-z0-9-]*\.onrender\.com$/.test(origin)) return callback(null, true);
     // Also allow any explicitly listed non-localhost origins (for production)
     if (CORS_ORIGIN.includes(origin)) return callback(null, true);
     callback(new Error('Not allowed by CORS'));
