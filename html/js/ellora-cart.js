@@ -93,5 +93,14 @@ window.EllroaCart = (function () {
     return get().reduce(function (sum, i) { return sum + i.price * i.quantity; }, 0);
   }
 
-  return { get: get, add: add, updateQuantity: updateQuantity, remove: remove, clear: clear, subtotal: subtotal };
+  // For callers that navigate away right after a cart mutation (product-single-dynamic.js's
+  // add-to-cart redirects straight to cart.html) — the debounced sync above never gets a chance
+  // to fire before the page unloads, since the browser cancels pending timers on navigation. Cancels
+  // the pending debounced sync and runs it immediately instead; await this before navigating.
+  function syncNow() {
+    if (syncTimer) clearTimeout(syncTimer);
+    return doSync();
+  }
+
+  return { get: get, add: add, updateQuantity: updateQuantity, remove: remove, clear: clear, subtotal: subtotal, syncNow: syncNow };
 })();

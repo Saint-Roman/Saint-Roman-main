@@ -70,6 +70,12 @@
             quantity: qty,
         });
 
+        // add() only schedules a debounced background sync — navigating away immediately after
+        // would cancel it before it ever fires (the browser drops pending timers on unload), so
+        // the cart would never reach the server. Await an immediate sync instead; syncNow()
+        // already swallows its own errors, so this never blocks the redirect on a failure.
+        await EllroaCart.syncNow();
+
         window.location.href = 'cart.html';
     });
 
