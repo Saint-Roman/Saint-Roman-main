@@ -3,10 +3,13 @@
 -- First pass: no Customer Management (Module 7) yet, so customer details live directly on the order
 -- rather than a customers table. Orders are admin-created for now (no public storefront checkout).
 
-create type order_status as enum (
-  'pending', 'processing', 'packed', 'ready_to_ship', 'shipped',
-  'delivered', 'cancelled', 'returned', 'refund_initiated', 'refund_completed'
-);
+do $$ begin
+  create type order_status as enum (
+    'pending', 'processing', 'packed', 'ready_to_ship', 'shipped',
+    'delivered', 'cancelled', 'returned', 'refund_initiated', 'refund_completed'
+  );
+exception when duplicate_object then null;
+end $$;
 
 create table if not exists orders (
   id uuid primary key default gen_random_uuid(),
@@ -46,11 +49,13 @@ create index if not exists order_items_order_id_idx on order_items (order_id);
 alter table orders enable row level security;
 alter table order_items enable row level security;
 
+drop policy if exists "Authenticated users can manage orders" on orders;
 create policy "Authenticated users can manage orders"
   on orders for all
   using (auth.role() = 'authenticated')
   with check (auth.role() = 'authenticated');
 
+drop policy if exists "Authenticated users can manage order_items" on order_items;
 create policy "Authenticated users can manage order_items"
   on order_items for all
   using (auth.role() = 'authenticated')

@@ -20,6 +20,7 @@ create index if not exists audit_logs_created_at_idx on audit_logs (created_at d
 
 alter table audit_logs enable row level security;
 
+drop policy if exists "Authenticated users can read audit_logs" on audit_logs;
 create policy "Authenticated users can read audit_logs"
   on audit_logs for select
   using (auth.role() = 'authenticated');

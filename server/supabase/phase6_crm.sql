@@ -16,6 +16,7 @@ create table if not exists customer_segments (
 
 alter table customer_segments enable row level security;
 
+drop policy if exists "Authenticated users can manage customer segments" on customer_segments;
 create policy "Authenticated users can manage customer segments"
   on customer_segments for all
   using (auth.role() = 'authenticated')

@@ -21,6 +21,7 @@ create table if not exists marketing_campaigns (
 
 alter table marketing_campaigns enable row level security;
 
+drop policy if exists "Authenticated users can manage marketing campaigns" on marketing_campaigns;
 create policy "Authenticated users can manage marketing campaigns"
   on marketing_campaigns for all
   using (auth.role() = 'authenticated')

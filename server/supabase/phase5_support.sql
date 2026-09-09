@@ -2,8 +2,14 @@
 -- No live chat, WhatsApp, or calls integration (no provider). Just ticket tracking, fed by the
 -- storefront's real contact form (html/contact.html) and manageable in the admin panel.
 
-create type ticket_status as enum ('open', 'in_progress', 'resolved', 'closed');
-create type ticket_priority as enum ('low', 'medium', 'high');
+do $$ begin
+  create type ticket_status as enum ('open', 'in_progress', 'resolved', 'closed');
+exception when duplicate_object then null;
+end $$;
+do $$ begin
+  create type ticket_priority as enum ('low', 'medium', 'high');
+exception when duplicate_object then null;
+end $$;
 
 create table if not exists support_tickets (
   id uuid primary key default gen_random_uuid(),
@@ -23,6 +29,7 @@ create index if not exists support_tickets_status_idx on support_tickets (status
 
 alter table support_tickets enable row level security;
 
+drop policy if exists "Authenticated users can manage support_tickets" on support_tickets;
 create policy "Authenticated users can manage support_tickets"
   on support_tickets for all
   using (auth.role() = 'authenticated')

@@ -75,21 +75,25 @@ alter table products enable row level security;
 alter table product_variants enable row level security;
 alter table product_images enable row level security;
 
+drop policy if exists "Authenticated users can manage categories" on categories;
 create policy "Authenticated users can manage categories"
   on categories for all
   using (auth.role() = 'authenticated')
   with check (auth.role() = 'authenticated');
 
+drop policy if exists "Authenticated users can manage products" on products;
 create policy "Authenticated users can manage products"
   on products for all
   using (auth.role() = 'authenticated')
   with check (auth.role() = 'authenticated');
 
+drop policy if exists "Authenticated users can manage product_variants" on product_variants;
 create policy "Authenticated users can manage product_variants"
   on product_variants for all
   using (auth.role() = 'authenticated')
   with check (auth.role() = 'authenticated');
 
+drop policy if exists "Authenticated users can manage product_images" on product_images;
 create policy "Authenticated users can manage product_images"
   on product_images for all
   using (auth.role() = 'authenticated')

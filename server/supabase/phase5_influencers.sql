@@ -16,6 +16,7 @@ create table if not exists influencers (
 
 alter table influencers enable row level security;
 
+drop policy if exists "Authenticated users can manage influencers" on influencers;
 create policy "Authenticated users can manage influencers"
   on influencers for all
   using (auth.role() = 'authenticated')

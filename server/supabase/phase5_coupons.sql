@@ -4,7 +4,10 @@
 -- free-shipping discounts only — BOGO, Buy X Get Y, and referral/employee/influencer-specific
 -- coupon types from the spec are not built (no real inventory-bundle or referral tracking yet).
 
-create type coupon_type as enum ('percentage', 'flat', 'free_shipping');
+do $$ begin
+  create type coupon_type as enum ('percentage', 'flat', 'free_shipping');
+exception when duplicate_object then null;
+end $$;
 
 create table if not exists coupons (
   id uuid primary key default gen_random_uuid(),
@@ -27,6 +30,7 @@ alter table orders
 
 alter table coupons enable row level security;
 
+drop policy if exists "Authenticated users can manage coupons" on coupons;
 create policy "Authenticated users can manage coupons"
   on coupons for all
   using (auth.role() = 'authenticated')

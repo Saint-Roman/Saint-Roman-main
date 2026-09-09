@@ -22,6 +22,7 @@ create index if not exists media_assets_created_at_idx on media_assets (created_
 
 alter table media_assets enable row level security;
 
+drop policy if exists "Authenticated users can manage media assets" on media_assets;
 create policy "Authenticated users can manage media assets"
   on media_assets for all
   using (auth.role() = 'authenticated')

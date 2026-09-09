@@ -20,6 +20,7 @@ create table if not exists testimonials (
 
 alter table testimonials enable row level security;
 
+drop policy if exists "Authenticated users can manage testimonials" on testimonials;
 create policy "Authenticated users can manage testimonials"
   on testimonials for all
   using (auth.role() = 'authenticated')

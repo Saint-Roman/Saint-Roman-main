@@ -18,6 +18,7 @@ create index if not exists inventory_adjustments_variant_id_idx on inventory_adj
 
 alter table inventory_adjustments enable row level security;
 
+drop policy if exists "Authenticated users can manage inventory_adjustments" on inventory_adjustments;
 create policy "Authenticated users can manage inventory_adjustments"
   on inventory_adjustments for all
   using (auth.role() = 'authenticated')

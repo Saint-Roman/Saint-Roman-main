@@ -23,6 +23,7 @@ create index if not exists orders_customer_id_idx on orders (customer_id);
 
 alter table customers enable row level security;
 
+drop policy if exists "Authenticated users can manage customers" on customers;
 create policy "Authenticated users can manage customers"
   on customers for all
   using (auth.role() = 'authenticated')

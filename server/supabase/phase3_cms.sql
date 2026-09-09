@@ -33,11 +33,13 @@ create table if not exists faqs (
 alter table blog_posts enable row level security;
 alter table faqs enable row level security;
 
+drop policy if exists "Authenticated users can manage blog_posts" on blog_posts;
 create policy "Authenticated users can manage blog_posts"
   on blog_posts for all
   using (auth.role() = 'authenticated')
   with check (auth.role() = 'authenticated');
 
+drop policy if exists "Authenticated users can manage faqs" on faqs;
 create policy "Authenticated users can manage faqs"
   on faqs for all
   using (auth.role() = 'authenticated')

@@ -1,9 +1,12 @@
 -- Ellora Admin — Phase 1 schema (Auth & Settings)
 -- Run this in the Supabase SQL Editor after creating the project.
 
-create type admin_role as enum (
-  'admin', 'manager', 'warehouse', 'marketing', 'finance', 'support', 'vendor'
-);
+do $$ begin
+  create type admin_role as enum (
+    'admin', 'manager', 'warehouse', 'marketing', 'finance', 'support', 'vendor'
+  );
+exception when duplicate_object then null;
+end $$;
 
 create table if not exists profiles (
   id uuid primary key references auth.users (id) on delete cascade,
@@ -31,14 +34,17 @@ on conflict (id) do nothing;
 alter table profiles enable row level security;
 alter table settings enable row level security;
 
+drop policy if exists "Admins can read own profile" on profiles;
 create policy "Admins can read own profile"
   on profiles for select
   using (auth.uid() = id);
 
+drop policy if exists "Authenticated users can read settings" on settings;
 create policy "Authenticated users can read settings"
   on settings for select
   using (auth.role() = 'authenticated');
 
+drop policy if exists "Authenticated users can update settings" on settings;
 create policy "Authenticated users can update settings"
   on settings for update
   using (auth.role() = 'authenticated');
@@ -53,6 +59,7 @@ begin
 end;
 $$ language plpgsql security definer;
 
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();

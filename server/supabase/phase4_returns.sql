@@ -1,9 +1,12 @@
 -- Ellora Admin — Phase 4 schema (Returns & Refunds, Module 14 — first pass)
 -- Run this in the Supabase SQL Editor after phase4_customers.sql.
 
-create type return_status as enum (
-  'requested', 'approved', 'rejected', 'picked_up', 'inspecting', 'refunded', 'exchanged'
-);
+do $$ begin
+  create type return_status as enum (
+    'requested', 'approved', 'rejected', 'picked_up', 'inspecting', 'refunded', 'exchanged'
+  );
+exception when duplicate_object then null;
+end $$;
 
 create table if not exists returns (
   id uuid primary key default gen_random_uuid(),
@@ -23,6 +26,7 @@ create index if not exists returns_status_idx on returns (status);
 
 alter table returns enable row level security;
 
+drop policy if exists "Authenticated users can manage returns" on returns;
 create policy "Authenticated users can manage returns"
   on returns for all
   using (auth.role() = 'authenticated')

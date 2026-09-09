@@ -17,6 +17,7 @@ create table if not exists shipping_rates (
 
 alter table shipping_rates enable row level security;
 
+drop policy if exists "Authenticated users can manage shipping rates" on shipping_rates;
 create policy "Authenticated users can manage shipping rates"
   on shipping_rates for all
   using (auth.role() = 'authenticated')

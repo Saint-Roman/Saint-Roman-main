@@ -39,11 +39,13 @@ alter table wa_messages enable row level security;
 
 -- Same shape as every other admin-facing table's policy — the webhook route itself uses the
 -- service-role client (supabaseAdmin), which bypasses RLS entirely, same as every other server route.
+drop policy if exists "Authenticated users can manage wa_conversations" on wa_conversations;
 create policy "Authenticated users can manage wa_conversations"
   on wa_conversations for all
   using (auth.role() = 'authenticated')
   with check (auth.role() = 'authenticated');
 
+drop policy if exists "Authenticated users can manage wa_messages" on wa_messages;
 create policy "Authenticated users can manage wa_messages"
   on wa_messages for all
   using (auth.role() = 'authenticated')

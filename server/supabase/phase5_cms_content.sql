@@ -21,6 +21,7 @@ create table if not exists banners (
 
 alter table banners enable row level security;
 
+drop policy if exists "Authenticated users can manage banners" on banners;
 create policy "Authenticated users can manage banners"
   on banners for all
   using (auth.role() = 'authenticated')

@@ -36,8 +36,9 @@ const allFiles = [
   '../supabase/phase15_inventory_automation.sql',
 ];
 
-// Pass specific file names as CLI args to re-run just those (earlier files use `create policy`/`create trigger`
-// without `if not exists`, so re-running the full list after first setup will error on duplicates).
+// Every statement in server/supabase/*.sql is idempotent (create type/policy/trigger are all
+// guarded), so re-running the full list is always safe. Pass specific file names as CLI args
+// to run just those instead, e.g. to apply only a newly added phase file.
 const files = process.argv.length > 2 ? process.argv.slice(2) : allFiles;
 
 const client = new pg.Client({
