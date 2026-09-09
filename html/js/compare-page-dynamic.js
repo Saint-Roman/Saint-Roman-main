@@ -7,7 +7,7 @@
 // slug from GET /api/public/products/:slug — the same endpoint and shape product-single-
 // dynamic.js already uses — to get product_variants (for colour/size) and category.
 (function () {
-    var API_BASE = 'http://localhost:4000/api/public';
+    var API_BASE = 'https://saint-roman-main.onrender.com/api/public';
     var container = document.getElementById('compare-table-container');
     if (!container) return;
 

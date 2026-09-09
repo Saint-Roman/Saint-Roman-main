@@ -7,7 +7,7 @@
 // if more than 6 exist extra blocks are appended — same "clone a real template, don't invent
 // markup" approach product-single-dynamic.js uses for related products.
 (function () {
-    var API_BASE = 'http://localhost:4000/api/public';
+    var API_BASE = 'https://saint-roman-main.onrender.com/api/public';
 
     // Matches the wow-delay stagger already on the 6 static blocks (0s, 0.2s, ... 1s); cycles
     // for however many testimonials actually render.

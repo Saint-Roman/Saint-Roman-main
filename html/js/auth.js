@@ -7,7 +7,7 @@
 var ElloraAuth = (function () {
     var SUPABASE_URL = 'https://gxbebydzhrmjvnkyryub.supabase.co';
     var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4YmVieWR6aHJtanZua3lyeXViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MzIyNzgsImV4cCI6MjEwMDEwODI3OH0.vKT-2syR9-2ZKU9z5HnA74vbvfWa657-Re4434Gb1jE';
-    var API_BASE = 'http://localhost:4000/api/customer';
+    var API_BASE = 'https://saint-roman-main.onrender.com/api/customer';
 
     var client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 

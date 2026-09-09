@@ -2,7 +2,7 @@
 // (server/routes/public.js: GET /api/public/blog-posts/:slug), following the same
 // dynamic-page pattern as mega-menu-dynamic.js / homepage-dynamic-sections.js.
 (function () {
-    var API_BASE = 'http://localhost:4000/api/public';
+    var API_BASE = 'https://saint-roman-main.onrender.com/api/public';
     var slug = ElloraRoute.param(/^\/blog\/([^/?#]+)/, 'slug');
 
     var titleEl = document.getElementById('blog-post-title');

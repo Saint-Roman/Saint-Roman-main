@@ -6,7 +6,7 @@
  */
 
 (function () {
-    var API_BASE = 'http://localhost:4000/api/public';
+    var API_BASE = 'https://saint-roman-main.onrender.com/api/public';
     var params = new URLSearchParams(window.location.search);
     var categorySlug = ElloraRoute.param(/^\/category\/([^/?#]+)/, 'category');
     var tag = ElloraRoute.param(/^\/tag\/([^/?#]+)/, 'tag');

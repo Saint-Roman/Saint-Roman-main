@@ -18,7 +18,7 @@
 (function () {
     'use strict';
 
-    var API = 'http://localhost:4000/api/public';
+    var API = 'https://saint-roman-main.onrender.com/api/public';
 
     function get(path) {
         return fetch(API + path).then(function (r) {

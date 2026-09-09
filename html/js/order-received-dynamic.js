@@ -6,7 +6,7 @@
 // "Tax: ₹350" line with no backing column on `orders`), shown identically after every checkout
 // regardless of what was actually ordered.
 (function () {
-    var API_BASE = 'http://localhost:4000/api/public';
+    var API_BASE = 'https://saint-roman-main.onrender.com/api/public';
     var orderNumber = ElloraRoute.param(/^\/order-confirmation\/([^/?#]+)/, 'order');
 
     var headingEl = document.getElementById('order-number');

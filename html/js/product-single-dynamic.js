@@ -31,7 +31,7 @@
 //      and isn't getting one; it's a small localStorage module (js/ellora-compare.js), same tier
 //      as js/ellora-cart.js. See initWishlistButton()/initCompareButton() below.
 (function () {
-    var API_BASE = 'http://localhost:4000/api/public';
+    var API_BASE = 'https://saint-roman-main.onrender.com/api/public';
     var slug = ElloraRoute.param(/^\/product\/([^/?#]+)/, 'slug');
     var currentProduct = null;
 
