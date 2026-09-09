@@ -675,7 +675,7 @@
             var session = await ElloraAuth.requireLogin();
             if (!session) return;
 
-            var API_BASE = 'http://localhost:4000/api/public';
+            var API_BASE = 'https://saint-roman-main.onrender.com/api/public';
             var itemsContainer = document.getElementById('live-order-items');
             var subtotalEl = document.getElementById('checkout-subtotal');
             var discountRow = document.getElementById('checkout-discount-row');

@@ -422,7 +422,7 @@
                         // If this fails for any reason the hrefs just fall back to the unfiltered
                         // /products that was already there before.
                         (function () {
-                            fetch('http://localhost:4000/api/public/categories')
+                            fetch('https://saint-roman-main.onrender.com/api/public/categories')
                                 .then(function (res) { return res.json(); })
                                 .then(function (data) {
                                     var categories = data.categories || [];
