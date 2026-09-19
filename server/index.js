@@ -29,6 +29,7 @@ import aiRoutes from './routes/ai.js';
 import uploadRoutes from './routes/upload.js';
 import mediaRoutes from './routes/media.js';
 import tagsRoutes from './routes/tags.js';
+import reviewsRoutes from './routes/reviews.js';
 import customerAccountRoutes from './routes/customer.js';
 import whatsappRoutes from './routes/whatsapp.js';
 import abandonedCartsRoutes from './routes/abandonedCarts.js';
@@ -97,6 +98,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/tags', tagsRoutes);
+app.use('/api/reviews', reviewsRoutes);
 
 // after the other app.use lines:
 app.use('/api/customer', customerAccountRoutes);

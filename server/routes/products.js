@@ -21,7 +21,7 @@ router.get('/barcode/:code', requireAuth, async (req, res) => {
 router.get('/', requireAuth, async (req, res) => {
   const { data, error } = await supabaseAdmin
     .from('products')
-    .select('*, category:categories(id, name), product_variants(*)')
+    .select('*, category:categories(id, name), product_variants(*), product_images(*)')
     .order('created_at', { ascending: false });
 
   if (error) return res.status(500).json({ error: error.message });
@@ -40,7 +40,7 @@ router.get('/:id', requireAuth, async (req, res) => {
 });
 
 router.post('/', requireAuth, async (req, res) => {
-  const { variants, barcode: _ignoredBarcode, ...product } = req.body;
+  const { variants, images, barcode: _ignoredBarcode, ...product } = req.body;
 
   // Barcode is always server-generated, never client-supplied
   product.barcode = await generateUniqueBarcode();
@@ -59,11 +59,17 @@ router.post('/', requireAuth, async (req, res) => {
     if (variantError) return res.status(400).json({ error: variantError.message });
   }
 
+  if (Array.isArray(images) && images.length > 0) {
+    const rows = images.map((img) => ({ ...img, product_id: created.id }));
+    const { error: imageError } = await supabaseAdmin.from('product_images').insert(rows);
+    if (imageError) return res.status(400).json({ error: imageError.message });
+  }
+
   res.status(201).json({ product: created });
 });
 
 router.put('/:id', requireAuth, async (req, res) => {
-  const { variants, barcode: _ignoredBarcode, ...product } = req.body;
+  const { variants, images, barcode: _ignoredBarcode, ...product } = req.body;
 
   const { data: before } = await supabaseAdmin
     .from('products')
@@ -135,6 +141,20 @@ router.put('/:id', requireAuth, async (req, res) => {
     if (toInsert.length > 0) {
       const { error: insertError } = await supabaseAdmin.from('product_variants').insert(toInsert);
       if (insertError) return res.status(400).json({ error: insertError.message });
+    }
+  }
+
+  // Images are always submitted as the full set for the product (admin builds them per colour
+  // group client-side), so a full replace is simpler and safer than diffing by id — nothing else
+  // references product_images.id.
+  if (Array.isArray(images)) {
+    const { error: deleteError } = await supabaseAdmin.from('product_images').delete().eq('product_id', req.params.id);
+    if (deleteError) return res.status(400).json({ error: deleteError.message });
+
+    if (images.length > 0) {
+      const rows = images.map((img) => ({ ...img, product_id: req.params.id }));
+      const { error: insertImageError } = await supabaseAdmin.from('product_images').insert(rows);
+      if (insertImageError) return res.status(400).json({ error: insertImageError.message });
     }
   }
 

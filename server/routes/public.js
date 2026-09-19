@@ -16,6 +16,16 @@ const SORT_OPTIONS = {
   newest: { column: 'created_at', ascending: false },
 };
 
+// Collapses an embedded product_reviews array into the aggregate a product card/detail page
+// actually needs — published reviews only, rounded to 1 decimal (e.g. "4.3 (12)" Zivame-style,
+// instead of the old static 5-star icon block).
+function ratingSummary(reviews) {
+  const published = (reviews || []).filter((r) => r.is_published);
+  if (published.length === 0) return { rating_avg: null, rating_count: 0 };
+  const sum = published.reduce((total, r) => total + r.rating, 0);
+  return { rating_avg: Math.round((sum / published.length) * 10) / 10, rating_count: published.length };
+}
+
 // GET /api/public/products — supports combinable filters (Myntra/Flipkart-style facets):
 //   ?category=<slug>            single category
 //   ?tag=summer,new-arrival     comma-separated, OR-matched against products.tags
@@ -37,7 +47,7 @@ router.get('/products', async (req, res) => {
   let query = supabaseAdmin
     .from('products')
     .select(
-      `id, name, slug, description, image_url, base_price, compare_at_price, tags, category:categories(id, name, slug), ${variantEmbed}`,
+      `id, name, slug, description, image_url, base_price, compare_at_price, tags, category:categories(id, name, slug), product_reviews(rating, is_published), ${variantEmbed}`,
       { count: 'exact' }
     )
     .eq('status', 'active');
@@ -87,7 +97,9 @@ router.get('/products', async (req, res) => {
   const { data, error, count } = await query;
   if (error) return res.status(500).json({ error: error.message });
 
-  res.json({ products: data, total: count ?? data.length, limit: pageLimit, offset: pageOffset });
+  const products = data.map((p) => ({ ...p, ...ratingSummary(p.product_reviews), product_reviews: undefined }));
+
+  res.json({ products, total: count ?? data.length, limit: pageLimit, offset: pageOffset });
 });
 
 // GET /api/public/facets — real filter-sidebar data (categories/tags/colors/sizes with live
@@ -146,20 +158,25 @@ router.get('/facets', async (req, res) => {
 });
 
 router.get('/products/:slug', async (req, res) => {
-  // image_url was missing here — the storefront's own list endpoint (GET /products above)
-  // selects it, but this single-product lookup only ever selected the `product_images` gallery
-  // table, which nothing in the codebase writes to (admin's ProductsPage.tsx image upload writes
-  // to products.image_url directly). Left product_images in the select since existing callers may
-  // still read it, but it's effectively always empty.
   const { data, error } = await supabaseAdmin
     .from('products')
-    .select('id, name, slug, description, image_url, base_price, compare_at_price, brand, sku, barcode, hsn_code, gst_percent, specifications, category:categories(id, name, slug), product_variants(id, size, color, price, stock_quantity), product_images(url, alt_text, position)')
+    .select('id, name, slug, description, image_url, base_price, compare_at_price, brand, sku, barcode, hsn_code, gst_percent, specifications, category:categories(id, name, slug), product_variants(id, size, color, price, stock_quantity), product_images(url, alt_text, position, color, sort_order), product_reviews(id, author_name, rating, title, body, is_published, created_at)')
     .eq('slug', req.params.slug)
     .eq('status', 'active')
     .single();
 
   if (error) return res.status(404).json({ error: 'Product not found' });
-  res.json({ product: data });
+
+  const product = {
+    ...data,
+    ...ratingSummary(data.product_reviews),
+    product_reviews: (data.product_reviews || [])
+      .filter((r) => r.is_published)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .map(({ is_published, ...r }) => r),
+  };
+
+  res.json({ product });
 });
 
 router.get('/categories', async (req, res) => {

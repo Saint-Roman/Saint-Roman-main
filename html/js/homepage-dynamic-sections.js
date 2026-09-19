@@ -236,10 +236,16 @@
         var container = document.querySelector('.product-item-list');
         if (!container) return;
 
-        get('/products?tag=featured&limit=12').then(function (data) {
+        // Only the first 8 products actually fill a card (index.html ships 8 static
+        // .product-item-box slots — see applyFeatured below), but the filter tabs are built from
+        // every product in this response (catMap, in applyFeatured). Fetching 12 was silently
+        // capping the tabs to whatever categories happened to be among the first 12 featured
+        // products (2, in practice) instead of the real category list — 48 is the public API's
+        // own cap (server/routes/public.js), so this fetches as many as it will ever return.
+        get('/products?tag=featured&limit=48').then(function (data) {
             var products = data.products || [];
             if (products.length === 0) {
-                return get('/products?limit=12').then(function (d) {
+                return get('/products?limit=48').then(function (d) {
                     applyFeatured(container, d.products || []);
                 });
             }
@@ -250,13 +256,22 @@
     function applyFeatured(container, products) {
         var items = container.querySelectorAll('.product-item-box');
 
-        // Collect categories for filter tabs
-        var catMap = {};
+        // Collect categories for filter tabs — capped at the 5 most common among these products,
+        // same "top 5 is fine" rule of thumb as everywhere else a shop-wide category list gets
+        // shown in a single row of tabs.
+        var catCounts = {};
+        var catNames = {};
         products.forEach(function (p) {
             if (p.category && p.category.slug) {
-                catMap[p.category.slug] = p.category.name;
+                catCounts[p.category.slug] = (catCounts[p.category.slug] || 0) + 1;
+                catNames[p.category.slug] = p.category.name;
             }
         });
+        var topCatSlugs = Object.keys(catCounts).sort(function (a, b) {
+            return catCounts[b] - catCounts[a];
+        }).slice(0, 5);
+        var catMap = {};
+        topCatSlugs.forEach(function (slug) { catMap[slug] = catNames[slug]; });
 
         // Update product cards
         items.forEach(function (el, i) {
@@ -283,6 +298,17 @@
                     html += ' <del>' + formatPrice(p.compare_at_price) + '</del>';
                 }
                 priceEl.innerHTML = html;
+            }
+
+            // Rating badge — real aggregate from product_reviews (rating_avg/rating_count,
+            // server/routes/public.js), replacing the static 5x fa-star icons the template
+            // shipped with (same on every card regardless of the product). Left empty (and
+            // collapsed via the .product-item-rating:empty CSS rule) when there are no reviews.
+            var ratingEl = el.querySelector('.product-item-rating');
+            if (ratingEl) {
+                ratingEl.innerHTML = p.rating_count
+                    ? p.rating_avg + ' <i class="fa-solid fa-star"></i> <span>(' + p.rating_count + ')</span>'
+                    : '';
             }
 
             // Discount badge

@@ -1837,13 +1837,46 @@ header.main-header .container {
 	z-index: 1;
 }
 
-.product-item-rating {
-	display: block;
+/* Zivame-style aggregate rating badge ("4.3 ★ (12)") — replaces the old row of 5 static
+   fa-star icons, which never reflected a product's actual rating. Filled in by
+   homepage-dynamic-sections.js / product-single-dynamic.js / products.html's inline script;
+   left empty (and collapsed via :empty) for a product with no reviews yet. */
+.product-item-rating,
+.rating-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
 	margin-bottom: 10px;
+	padding: 3px 8px;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--white-color);
+	background: var(--secondary-color, #222);
+	border-radius: 4px;
 }
 
-.product-item-rating i {
+.product-item-rating:empty,
+.rating-badge:empty {
+	display: none;
+	padding: 0;
+	margin: 0;
+}
+
+.product-item-rating i,
+.rating-badge i {
 	color: var(--primary-color);
+	font-size: 11px;
+}
+
+.product-item-rating span,
+.rating-badge span {
+	opacity: 0.8;
+	font-weight: 400;
+}
+
+.rating-badge {
+	margin-left: 12px;
+	vertical-align: middle;
 }
 
 .product-item-content .product-item-title {

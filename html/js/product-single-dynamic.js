@@ -114,6 +114,7 @@
 
         function updateSelection() {
             selectedVariant = findVariant(variants, selectedColor, selectedSize);
+            renderGalleryForColor(product, selectedColor);
             if (!message) return;
             if (!selectedVariant) {
                 message.textContent = 'This combination is not available.';
@@ -168,16 +169,52 @@
         updateSelection();
     }
 
-    // Single real image per product (products.image_url) — repeated across every slide in both
-    // sliders, matching the "single image_url, not a gallery" data shape. Only overwritten when
-    // the product actually has one set; otherwise the template's static placeholder image stays,
-    // same fallback convention used in homepage-dynamic-sections.js.
-    function renderImages(product) {
-        if (!product.image_url) return;
-        document.querySelectorAll('.product-single-image-slider img, .product-single-image-item img').forEach(function (img) {
-            img.src = product.image_url;
-            img.alt = product.name || '';
+    // Per-colour photo galleries (product_images: {url, alt_text, position, color, sort_order} —
+    // server/supabase/phase18_product_media_reviews.sql, uploaded per colour group in the admin's
+    // product form). Groups by colour, main photo first then side photos in sort_order. A product
+    // with no colour variation (or images not yet migrated to the new upload UI) keys everything
+    // under '__default__' and falls back to the single products.image_url column.
+    var imageGroups = null;
+
+    function groupImagesByColor(product) {
+        var groups = {};
+        (product.product_images || []).forEach(function (img) {
+            var key = img.color || '__default__';
+            (groups[key] = groups[key] || []).push(img);
         });
+        Object.keys(groups).forEach(function (key) {
+            groups[key].sort(function (a, b) {
+                if (a.position === b.position) return (a.sort_order || 0) - (b.sort_order || 0);
+                return a.position === 'main' ? -1 : 1;
+            });
+        });
+        return groups;
+    }
+
+    // Both sliders ship with exactly 4 fixed slides (main + up to 3 side shots — see
+    // product-single.html). A colour swap only ever reassigns img src/alt on those existing
+    // slides, never grows/shrinks the slide count, so Swiper (already initialised in
+    // js/function.js) never needs a loop re-init. Fewer than 4 real photos in a group repeats the
+    // last one to fill the remaining slides, same fallback the single-image version used.
+    function renderGalleryForColor(product, color) {
+        var group = (imageGroups && imageGroups[color || '__default__']) || (imageGroups && imageGroups.__default__) || [];
+        var urls = group.map(function (img) { return img.url; });
+        if (urls.length === 0 && product.image_url) urls = [product.image_url];
+        if (urls.length === 0) return;
+
+        ['product-thumb-slides', 'product-main-slides'].forEach(function (wrapperId) {
+            var imgs = document.querySelectorAll('#' + wrapperId + ' img');
+            imgs.forEach(function (img, i) {
+                img.src = urls[i] || urls[urls.length - 1];
+                img.alt = product.name || '';
+            });
+        });
+    }
+
+    function renderImages(product) {
+        imageGroups = groupImagesByColor(product);
+        var firstColor = (product.product_variants || []).map(function (v) { return v.color; }).filter(Boolean)[0] || null;
+        renderGalleryForColor(product, firstColor);
     }
 
     // The admin's Description field (admin/src/pages/ProductsPage.tsx) is a plain <Textarea> —
@@ -216,11 +253,55 @@
         }).join('') + '</table>';
     }
 
-    // No reviews table exists anywhere in server/supabase/*.sql — nothing to fetch. Honest
-    // empty state instead of the 50 fake "Author" reviews the static template shipped with.
-    function renderReviews() {
+    // product_reviews (server/supabase/phase18_product_media_reviews.sql) — published reviews
+    // only, already sorted newest-first and aggregated (rating_avg/rating_count) by the public API.
+    // Renders the Reviews(N) tab count, the review list itself, and the single Zivame-style rating
+    // badge near the title (hidden entirely with no reviews yet, same honest-empty-state approach
+    // the rest of this file already uses).
+    function renderReviews(product) {
         var tab = document.getElementById('third-tab');
-        if (tab) tab.textContent = 'Reviews (0)';
+        var count = product.rating_count || 0;
+        if (tab) tab.textContent = 'Reviews (' + count + ')';
+
+        var badge = document.getElementById('product-rating-badge');
+        if (badge) {
+            if (count > 0) {
+                badge.innerHTML = product.rating_avg + ' <i class="fa-solid fa-star"></i> <span>(' + count + ')</span>';
+                badge.style.display = '';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        var list = document.getElementById('product-reviews-list');
+        if (!list) return;
+        var reviews = product.product_reviews || [];
+        if (reviews.length === 0) {
+            list.innerHTML = '<p>No reviews yet.</p>';
+            return;
+        }
+
+        list.innerHTML = reviews.map(function (r) {
+            var stars = '';
+            for (var i = 0; i < 5; i++) {
+                stars += '<i class="fa-solid fa-star' + (i < r.rating ? '' : ' fa-regular') + '"></i>';
+            }
+            var titleLine = r.title ? '<p>' + EllroaText.escapeHtml(r.title) + '</p>' : '';
+            var bodyLine = r.body ? '<p>' + EllroaText.escapeHtml(r.body) + '</p>' : '';
+            return (
+                '<div class="customer-review-item">' +
+                '<div class="icon-box"><img src="images/icon-user.svg" alt=""></div>' +
+                '<div class="customer-review-item-body">' +
+                '<div class="customer-review-item-content">' +
+                '<p><span>' + EllroaText.escapeHtml(r.author_name) + '</span></p>' +
+                titleLine +
+                bodyLine +
+                '</div>' +
+                '<div class="customer-review-item-rating">' + stars + '</div>' +
+                '</div>' +
+                '</div>'
+            );
+        }).join('');
     }
 
     // Related products: same category as the current product, real data only, reusing the
@@ -276,6 +357,13 @@
                             html += ' <span>' + EllroaCurrency.format(p.compare_at_price) + '</span>';
                         }
                         priceEl.innerHTML = html;
+                    }
+
+                    var ratingEl = card.querySelector('.product-item-rating');
+                    if (ratingEl) {
+                        ratingEl.innerHTML = p.rating_count
+                            ? p.rating_avg + ' <i class="fa-solid fa-star"></i> <span>(' + p.rating_count + ')</span>'
+                            : '';
                     }
                 });
             })
@@ -446,7 +534,7 @@
             renderVariantPicker(product);
             renderDescriptionTab(product);
             renderAdditionalInfo(product);
-            renderReviews();
+            renderReviews(product);
             loadRelatedProducts(product);
             initWishlistButton(product);
             initCompareButton(product);

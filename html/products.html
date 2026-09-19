@@ -593,6 +593,12 @@
                                             : '';
                                         var detailUrl = '/product/' + encodeURIComponent(product.slug);
                                         var imgSrc = product.image_url || 'images/product-image-1.png';
+                                        // Zivame-style aggregate badge ("4.3 ★ (12)") instead of a row of 5 static
+                                        // stars — collapses to nothing (.product-item-rating:empty, css/custom.css)
+                                        // when the product has no reviews yet.
+                                        var rating = product.rating_count
+                                            ? product.rating_avg + ' <i class="fa-solid fa-star"></i> <span>(' + product.rating_count + ')</span>'
+                                            : '';
                                         return (
                                             '<div class="product-item wow fadeInUp">' +
                                             '  <div class="product-item-header">' +
@@ -604,6 +610,7 @@
                                             '  </div>' +
                                             '  <div class="product-item-body">' +
                                             '    <div class="product-item-content">' +
+                                            '      <span class="product-item-rating">' + rating + '</span>' +
                                             '      <h2 class="product-item-title"><a href="' + detailUrl + '">' + product.name + '</a></h2>' +
                                             '    </div>' +
                                             '    <div class="product-item-price"><h3>' + price + ' ' + compareAt + '</h3></div>' +

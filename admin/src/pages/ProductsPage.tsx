@@ -51,6 +51,19 @@ interface Spec {
   value: string
 }
 
+// One uploaded photo. `color` groups it under a variant's colour (matches Variant.color as free
+// text — same convention the colour swatches already use); null means it applies regardless of
+// colour. `position` + `sort_order` place it: one 'main' (sort_order 0) plus up to three 'side'
+// shots (sort_order 1-3) per colour group.
+interface ProductImage {
+  id?: string
+  color: string | null
+  url: string
+  alt_text?: string | null
+  position: 'main' | 'side'
+  sort_order: number
+}
+
 interface Product {
   id: string
   name: string
@@ -67,6 +80,7 @@ interface Product {
   status: 'draft' | 'active' | 'archived'
   category: Category | null
   product_variants: Variant[]
+  product_images: ProductImage[]
   tags: string[]
   specifications: Record<string, string> | null
 }
@@ -77,6 +91,16 @@ function slugify(value: string) {
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '')
+}
+
+interface Review {
+  id: string
+  author_name: string
+  rating: number
+  title: string | null
+  body: string | null
+  is_published: boolean
+  created_at: string
 }
 
 const emptyVariant: Variant = { size: '', color: '', price: 0, stock_quantity: 0 }
@@ -90,7 +114,7 @@ export function ProductsPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [imageUrl, setImageUrl] = useState('')
+  const [images, setImages] = useState<ProductImage[]>([])
   const [sku, setSku] = useState('')
   const [barcode, setBarcode] = useState('')
   const [brand, setBrand] = useState('')
@@ -106,6 +130,16 @@ export function ProductsPage() {
   const [newTagName, setNewTagName] = useState('')
   const [addingTag, setAddingTag] = useState(false)
   const [saving, setSaving] = useState(false)
+
+  // Reviews are stored independently of the product form (their own table/endpoint) — listed and
+  // added directly against the product being edited, not deferred to the product's own Save.
+  const [reviews, setReviews] = useState<Review[]>([])
+  const [reviewsLoading, setReviewsLoading] = useState(false)
+  const [newReviewAuthor, setNewReviewAuthor] = useState('')
+  const [newReviewRating, setNewReviewRating] = useState('5')
+  const [newReviewTitle, setNewReviewTitle] = useState('')
+  const [newReviewBody, setNewReviewBody] = useState('')
+  const [addingReview, setAddingReview] = useState(false)
 
   // Table controls
   const [searchQuery, setSearchQuery] = useState('')
@@ -132,7 +166,7 @@ export function ProductsPage() {
     setEditingId(null)
     setName('')
     setDescription('')
-    setImageUrl('')
+    setImages([])
     setSku('')
     setBarcode('')
     setBrand('')
@@ -146,10 +180,35 @@ export function ProductsPage() {
     setSpecs([])
     setSelectedTags([])
     setNewTagName('')
+    setReviews([])
+    setNewReviewAuthor('')
+    setNewReviewRating('5')
+    setNewReviewTitle('')
+    setNewReviewBody('')
   }
 
   function updateVariant(index: number, patch: Partial<Variant>) {
     setVariants((prev) => prev.map((v, i) => (i === index ? { ...v, ...patch } : v)))
+  }
+
+  // ── Image helpers ────────────────────────────────────────────────────
+  // Colour groups come from the Variants section (same free-text colour), not a separate list —
+  // one main + up to 3 side photos per colour that actually exists on this product. A product
+  // with no colour variation gets a single ungrouped set (color: null).
+  const colorGroups = useMemo(() => {
+    const colors = Array.from(new Set(variants.map((v) => v.color.trim()).filter(Boolean)))
+    return colors.length > 0 ? colors : [null]
+  }, [variants])
+
+  function getImageSlot(color: string | null, position: 'main' | 'side', sortOrder: number) {
+    return images.find((img) => (img.color ?? null) === color && img.position === position && img.sort_order === sortOrder)?.url || ''
+  }
+
+  function setImageSlot(color: string | null, position: 'main' | 'side', sortOrder: number, url: string) {
+    setImages((prev) => {
+      const rest = prev.filter((img) => !((img.color ?? null) === color && img.position === position && img.sort_order === sortOrder))
+      return url ? [...rest, { color, position, sort_order: sortOrder, url }] : rest
+    })
   }
 
   function updateSpec(index: number, patch: Partial<Spec>) {
@@ -245,7 +304,14 @@ export function ProductsPage() {
     setEditingId(product.id)
     setName(product.name)
     setDescription(product.description ?? '')
-    setImageUrl(product.image_url ?? '')
+    setImages(
+      (product.product_images || []).map((img) => ({
+        color: img.color ?? null,
+        position: img.position === 'main' ? 'main' : 'side',
+        sort_order: img.sort_order,
+        url: img.url,
+      })),
+    )
     setSku(product.sku ?? '')
     setBarcode(product.barcode ?? '')
     setBrand(product.brand ?? '')
@@ -268,17 +334,86 @@ export function ProductsPage() {
     setSelectedTags(product.tags || [])
     setSpecs(Object.entries(product.specifications || {}).map(([label, value]) => ({ label, value: String(value) })))
     setOpen(true)
+    loadReviews(product.id)
+  }
+
+  // ── Review helpers ───────────────────────────────────────────────────
+  async function loadReviews(productId: string) {
+    setReviewsLoading(true)
+    try {
+      const res = await apiFetch(`/reviews?product_id=${productId}`)
+      setReviews(res.reviews || [])
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to load reviews')
+    } finally {
+      setReviewsLoading(false)
+    }
+  }
+
+  async function handleAddReview() {
+    if (!editingId || !newReviewAuthor.trim()) return
+    setAddingReview(true)
+    try {
+      await apiFetch('/reviews', {
+        method: 'POST',
+        body: JSON.stringify({
+          product_id: editingId,
+          author_name: newReviewAuthor.trim(),
+          rating: Number(newReviewRating),
+          title: newReviewTitle.trim() || null,
+          body: newReviewBody.trim() || null,
+        }),
+      })
+      toast.success('Review added')
+      setNewReviewAuthor('')
+      setNewReviewRating('5')
+      setNewReviewTitle('')
+      setNewReviewBody('')
+      loadReviews(editingId)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to add review')
+    } finally {
+      setAddingReview(false)
+    }
+  }
+
+  async function handleDeleteReview(id: string) {
+    if (!editingId) return
+    try {
+      await apiFetch(`/reviews/${id}`, { method: 'DELETE' })
+      setReviews((prev) => prev.filter((r) => r.id !== id))
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete review')
+    }
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setSaving(true)
     try {
+      // Drop any image left over from a colour that was since renamed/removed in Variants, and
+      // strip local-only `id` fields — the backend fully replaces a product's images on every
+      // save, so stale ids would just be dead weight, never a collision.
+      const validColors = new Set(colorGroups)
+      const submittedImages = images
+        .filter((img) => validColors.has(img.color ?? null))
+        .map(({ color, url, position, sort_order, alt_text }) => ({ color, url, position, sort_order, alt_text: alt_text ?? null }))
+
+      // products.image_url stays as a plain thumbnail column for places that don't need the full
+      // gallery (admin table, homepage/related-product cards, cart) — always the first colour
+      // group's main photo, falling back to any main photo, then any photo at all.
+      const primaryImageUrl =
+        submittedImages.find((img) => (img.color ?? null) === colorGroups[0] && img.position === 'main')?.url ||
+        submittedImages.find((img) => img.position === 'main')?.url ||
+        submittedImages[0]?.url ||
+        null
+
       const body = {
         name,
         slug: slugify(name),
         description,
-        image_url: imageUrl || null,
+        image_url: primaryImageUrl,
+        images: submittedImages,
         sku: sku || null,
         brand: brand || null,
         hsn_code: hsnCode || null,
@@ -377,10 +512,6 @@ export function ProductsPage() {
               <div className="flex flex-col gap-2">
                 <Label htmlFor="p-name">Name</Label>
                 <Input id="p-name" value={name} onChange={(e) => setName(e.target.value)} required />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label>Product photo</Label>
-                <ImageUpload value={imageUrl} onChange={setImageUrl} folder="ellora/products" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
@@ -647,6 +778,110 @@ export function ProductsPage() {
                     />
                   </div>
                 ))}
+              </div>
+
+              {/* ── Images, one main + up to 3 side photos per colour above ── */}
+              <div className="flex flex-col gap-3">
+                <Label>Images</Label>
+                {colorGroups.map((color) => (
+                  <div key={color ?? '_default'} className="flex flex-col gap-2 rounded-md border p-3">
+                    <span className="text-sm font-medium">{color ? `${color} photos` : 'Product photos'}</span>
+                    <div className="grid grid-cols-4 gap-2">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs text-muted-foreground">Main</span>
+                        <ImageUpload
+                          value={getImageSlot(color, 'main', 0)}
+                          onChange={(url) => setImageSlot(color, 'main', 0, url)}
+                          folder="ellora/products"
+                        />
+                      </div>
+                      {[1, 2, 3].map((slot) => (
+                        <div key={slot} className="flex flex-col gap-1">
+                          <span className="text-xs text-muted-foreground">Side {slot}</span>
+                          <ImageUpload
+                            value={getImageSlot(color, 'side', slot)}
+                            onChange={(url) => setImageSlot(color, 'side', slot, url)}
+                            folder="ellora/products"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* ── Reviews — own table/endpoint, managed live against this product, not part
+                   of the product Save below. Only available once the product exists. ── */}
+              <div className="flex flex-col gap-2">
+                <Label>Reviews</Label>
+                {!editingId && (
+                  <p className="text-sm text-muted-foreground">Save the product first to add reviews.</p>
+                )}
+                {editingId && (
+                  <>
+                    {reviewsLoading && <p className="text-sm text-muted-foreground">Loading reviews…</p>}
+                    {!reviewsLoading && reviews.length === 0 && (
+                      <p className="text-sm text-muted-foreground">No reviews yet.</p>
+                    )}
+                    {reviews.map((review) => (
+                      <div key={review.id} className="flex items-start justify-between gap-2 rounded-md border p-2">
+                        <div className="flex flex-col gap-0.5">
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="font-medium">{review.author_name}</span>
+                            <span className="text-muted-foreground">{review.rating}★</span>
+                          </div>
+                          {review.title && <div className="text-sm font-medium">{review.title}</div>}
+                          {review.body && <div className="text-sm text-muted-foreground">{review.body}</div>}
+                        </div>
+                        <Button type="button" variant="ghost" size="sm" onClick={() => handleDeleteReview(review.id)}>
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+
+                    <div className="flex flex-col gap-2 rounded-md border p-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          placeholder="Reviewer name"
+                          value={newReviewAuthor}
+                          onChange={(e) => setNewReviewAuthor(e.target.value)}
+                        />
+                        <Select value={newReviewRating} onValueChange={(value) => setNewReviewRating(value ?? '5')}>
+                          <SelectTrigger>
+                            <SelectValue>{(value: string) => `${value} star${value === '1' ? '' : 's'}`}</SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {['5', '4', '3', '2', '1'].map((r) => (
+                              <SelectItem key={r} value={r}>
+                                {r} star{r === '1' ? '' : 's'}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Input
+                        placeholder="Title (optional)"
+                        value={newReviewTitle}
+                        onChange={(e) => setNewReviewTitle(e.target.value)}
+                      />
+                      <Textarea
+                        placeholder="Review text (optional)"
+                        value={newReviewBody}
+                        onChange={(e) => setNewReviewBody(e.target.value)}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={addingReview || !newReviewAuthor.trim()}
+                        onClick={handleAddReview}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add review
+                      </Button>
+                    </div>
+                  </>
+                )}
               </div>
 
               <DialogFooter>
