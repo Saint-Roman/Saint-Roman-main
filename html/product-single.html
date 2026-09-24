@@ -346,9 +346,6 @@
                                 <div class="product-single-title wow fadeInUp">
                                     <h1 id="product-title">Chic Aura Crop Top</h1>
                                     <span id="product-category">Summer Collection</span>
-                                    <!-- Filled by js/product-single-dynamic.js from product_reviews — hidden
-                                         entirely when the product has no published reviews yet. -->
-                                    <span class="rating-badge" id="product-rating-badge" style="display:none;"></span>
                                 </div>
                                 <!-- Product Single title End -->
 
@@ -490,6 +487,7 @@
                                 
                                 <!-- Product Tab Item Box Start -->
                                 <div class="product-tab-item-box tab-pane fade" id="third" role="tabpanel">
+                                    <div class="ratings-summary-box" id="ratings-summary-box"></div>
                                     <div class="product-review-from-content">
                                         <!-- Customer Review List Start -->
                                         <!-- No reviews table/feature exists yet in the DB (server/supabase/*.sql) —
@@ -507,8 +505,20 @@
                                                 <h3>Add a review</h3>
                                                 <p>Your email address will not be published. Required fields are marked Your rating</p>
                                             </div>
-                                            <form id="reviewForm" action="#" method="POST" data-toggle="validator">
-                                                <div class="row">                                
+                                            <form id="reviewForm" action="#" method="POST">
+                                                <div class="row">
+                                                    <div class="form-group col-md-12 mb-4">
+                                                        <select name="rating" class="form-control" id="reviewRating" required>
+                                                            <option value="" disabled selected>Your rating</option>
+                                                            <option value="5">5 stars - Excellent</option>
+                                                            <option value="4">4 stars - Good</option>
+                                                            <option value="3">3 stars - Average</option>
+                                                            <option value="2">2 stars - Poor</option>
+                                                            <option value="1">1 star - Terrible</option>
+                                                        </select>
+                                                        <div class="help-block with-errors"></div>
+                                                    </div>
+
                                                     <div class="form-group col-md-12 mb-4">
                                                         <input type="text" name="review" class="form-control" id="review" placeholder="Your review" required>
                                                         <div class="help-block with-errors"></div>
@@ -530,7 +540,7 @@
                                                     </div>
 
                                                     <div class="col-md-12">
-                                                        <button type="submit" class="btn-default">Submit Message</button>
+                                                        <button type="submit" class="btn-default">Submit Review</button>
                                                         <div id="msgSubmit" class="h3 hidden"></div>
                                                     </div>
                                                 </div>
@@ -583,7 +593,7 @@
                                         </figure>
                                     </a>
                                 </div>
-                                <!-- Product Item Image End -->
+                                <!-- Product Item Image End --><span class="product-item-rating"></span>
 
                                 <!-- Product Item Action Start -->
                                 <div class="product-item-action">
@@ -603,7 +613,7 @@
                             <div class="product-item-body">
                                 <!-- Product Item Content Start -->
                                 <div class="product-item-content">
-                                    <span class="product-item-rating"></span>
+                                    
                                     <h2 class="product-item-title"><a href="/product-single">Chic Aura Crop Top</a></h2>
                                 </div>
                                 <!-- Product Item Content End -->
@@ -630,7 +640,7 @@
                                         </figure>
                                     </a>
                                 </div>
-                                <!-- Product Item Image End -->
+                                <!-- Product Item Image End --><span class="product-item-rating"></span>
 
                                 <!-- Product Item Action Start -->
                                 <div class="product-item-action">
@@ -650,7 +660,7 @@
                             <div class="product-item-body">
                                 <!-- Product Item Content Start -->
                                 <div class="product-item-content">
-                                    <span class="product-item-rating"></span>
+                                    
                                     <h2 class="product-item-title"><a href="/product-single">Velvet Charm Gown</a></h2>
                                 </div>
                                 <!-- Product Item Content End -->
@@ -677,7 +687,7 @@
                                         </figure>
                                     </a>
                                 </div>
-                                <!-- Product Item Image End -->
+                                <!-- Product Item Image End --><span class="product-item-rating"></span>
 
                                 <!-- Product Item Action Start -->
                                 <div class="product-item-action">
@@ -697,7 +707,7 @@
                             <div class="product-item-body">
                                 <!-- Product Item Content Start -->
                                 <div class="product-item-content">
-                                    <span class="product-item-rating"></span>
+                                    
                                     <h2 class="product-item-title"><a href="/product-single">Elegant Flow Kurti</a></h2>
                                 </div>
                                 <!-- Product Item Content End -->
@@ -724,7 +734,7 @@
                                         </figure>
                                     </a>
                                 </div>
-                                <!-- Product Item Image End -->
+                                <!-- Product Item Image End --><span class="product-item-rating"></span>
 
                                 <!-- Product Item Action Start -->
                                 <div class="product-item-action">
@@ -744,7 +754,7 @@
                             <div class="product-item-body">
                                 <!-- Product Item Content Start -->
                                 <div class="product-item-content">
-                                    <span class="product-item-rating"></span>
+                                    
                                     <h2 class="product-item-title"><a href="/product-single">Trendy Wrap Skirt</a></h2>
                                 </div>
                                 <!-- Product Item Content End -->

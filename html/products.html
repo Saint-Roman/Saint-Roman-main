@@ -422,7 +422,9 @@
                             <script src="js/route-params.js"></script>
                             <script>
                                 (function () {
-                                    var API_BASE = 'https://saint-roman-main.onrender.com/api/public';
+                                    var API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+                                        ? 'http://localhost:4000/api/public'
+                                        : 'https://saint-roman-main.onrender.com/api/public';
                                     var listEl = document.getElementById('live-product-list');
                                     var sidebarEl = document.getElementById('live-filter-sidebar');
                                     var headingEl = document.getElementById('products-heading');
@@ -607,10 +609,10 @@
                                             '        <figure><img src="' + imgSrc + '" alt="' + product.name + '"></figure>' +
                                             '      </a>' +
                                             '    </div>' +
+                                            '    <span class="product-item-rating">' + rating + '</span>' +
                                             '  </div>' +
                                             '  <div class="product-item-body">' +
                                             '    <div class="product-item-content">' +
-                                            '      <span class="product-item-rating">' + rating + '</span>' +
                                             '      <h2 class="product-item-title"><a href="' + detailUrl + '">' + product.name + '</a></h2>' +
                                             '    </div>' +
                                             '    <div class="product-item-price"><h3>' + price + ' ' + compareAt + '</h3></div>' +

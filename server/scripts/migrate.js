@@ -1,10 +1,16 @@
-import 'dotenv/config';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import pg from 'pg';
+import dotenv from 'dotenv';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Load server/.env by absolute path — bare `dotenv/config` resolves relative to process.cwd(),
+// so this script silently loaded nothing (and pg fell back to localhost:5432) whenever it was
+// run from outside server/ (e.g. `node server/scripts/migrate.js` from the repo root).
+dotenv.config({ path: path.join(__dirname, '../.env') });
+
 const allFiles = [
   '../supabase/schema.sql',
   '../supabase/phase2_catalog.sql',
@@ -36,6 +42,7 @@ const allFiles = [
   '../supabase/phase15_inventory_automation.sql',
   '../supabase/phase16_abandoned_carts.sql',
   '../supabase/phase17_customer_account_linking.sql',
+  '../supabase/phase18_product_media_reviews.sql',
 ];
 
 // Every statement in server/supabase/*.sql is idempotent (create type/policy/trigger are all

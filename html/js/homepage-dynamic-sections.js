@@ -18,7 +18,11 @@
 (function () {
     'use strict';
 
-    var API = 'https://saint-roman-main.onrender.com/api/public';
+    // Local dev/testing hits the local API server (server/.env PORT=4000) instead of the deployed
+    // one, so changes here and in the seeded DB show up immediately without a deploy.
+    var API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+        ? 'http://localhost:4000/api/public'
+        : 'https://saint-roman-main.onrender.com/api/public';
 
     function get(path) {
         return fetch(API + path).then(function (r) {

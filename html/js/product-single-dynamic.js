@@ -1,4 +1,4 @@
-// Wires html/product-single.html (?slug=...) to a real product from the Ellora admin panel
+﻿// Wires html/product-single.html (?slug=...) to a real product from the Ellora admin panel
 // (server/routes/public.js: GET /api/public/products/:slug), following the project's convention
 // for dynamic pages (mega-menu-dynamic.js, blog-single-dynamic.js, homepage-dynamic-sections.js).
 //
@@ -31,7 +31,11 @@
 //      and isn't getting one; it's a small localStorage module (js/ellora-compare.js), same tier
 //      as js/ellora-cart.js. See initWishlistButton()/initCompareButton() below.
 (function () {
-    var API_BASE = 'https://saint-roman-main.onrender.com/api/public';
+    // Local dev/testing hits the local API server (server/.env PORT=4000) instead of the deployed
+    // one, so changes here and in the seeded DB show up immediately without a deploy.
+    var API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+        ? 'http://localhost:4000/api/public'
+        : 'https://saint-roman-main.onrender.com/api/public';
     var slug = ElloraRoute.param(/^\/product\/([^/?#]+)/, 'slug');
     var currentProduct = null;
 
@@ -76,7 +80,7 @@
         // already swallows its own errors, so this never blocks the redirect on a failure.
         await EllroaCart.syncNow();
 
-        window.location.href = 'cart.html';
+        window.location.href = '/cart';
     });
 
     // ─── Variant picker (colour / size) ────────────────────────────────
@@ -258,50 +262,94 @@
     // Renders the Reviews(N) tab count, the review list itself, and the single Zivame-style rating
     // badge near the title (hidden entirely with no reviews yet, same honest-empty-state approach
     // the rest of this file already uses).
+    // Zivame-style "Ratings & Reviews" summary — a big average score plus a 5→1 star
+    // breakdown bar, computed client-side from the same published reviews the list below
+    // already has (no extra endpoint/query needed). Left empty (and hidden via CSS :empty)
+    // when the product has no reviews yet, same convention as the other rating elements.
+    function renderRatingsSummary(reviews, avg) {
+        var box = document.getElementById('ratings-summary-box');
+        if (!box) return;
+        if (reviews.length === 0) {
+            box.innerHTML = '';
+            return;
+        }
+
+        var counts = [0, 0, 0, 0, 0]; // index 0 = 5-star ... index 4 = 1-star
+        reviews.forEach(function (r) {
+            var idx = 5 - r.rating;
+            if (idx >= 0 && idx < 5) counts[idx]++;
+        });
+
+        var bars = counts.map(function (n, idx) {
+            var starLabel = 5 - idx;
+            var pct = Math.round((n / reviews.length) * 100);
+            return (
+                '<div class="ratings-summary-bar-row">' +
+                '<span class="ratings-summary-bar-label">' + starLabel + ' <i class="fa-solid fa-star"></i></span>' +
+                '<div class="ratings-summary-bar-track"><div class="ratings-summary-bar-fill" style="width:' + pct + '%"></div></div>' +
+                '<span class="ratings-summary-bar-pct">' + pct + '%</span>' +
+                '</div>'
+            );
+        }).join('');
+
+        box.innerHTML =
+            '<div class="ratings-summary-score">' +
+            '<h2>' + avg + ' <i class="fa-solid fa-star"></i></h2>' +
+            '<p>' + reviews.length + ' Review' + (reviews.length === 1 ? '' : 's') + '</p>' +
+            '</div>' +
+            '<div class="ratings-summary-bars">' + bars + '</div>';
+    }
+
+    var REVIEWS_VISIBLE_COUNT = 3;
+
+    function reviewCardHtml(r) {
+        var titleLine = r.title ? '<p class="customer-review-item-title">' + EllroaText.escapeHtml(r.title) + '</p>' : '';
+        var bodyLine = r.body ? '<p>' + EllroaText.escapeHtml(r.body) + '</p>' : '';
+        var dateLabel = r.created_at
+            ? new Date(r.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+            : '';
+        return (
+            '<div class="customer-review-item">' +
+            '<div class="customer-review-item-header">' +
+            '<span class="customer-review-item-star-pill">' + r.rating + ' <i class="fa-solid fa-star"></i></span>' +
+            (dateLabel ? '<span class="customer-review-item-date">' + dateLabel + '</span>' : '') +
+            '</div>' +
+            '<div class="customer-review-item-content">' +
+            titleLine +
+            bodyLine +
+            '<p class="customer-review-item-author">' + EllroaText.escapeHtml(r.author_name) + '</p>' +
+            '</div>' +
+            '</div>'
+        );
+    }
+
     function renderReviews(product) {
         var tab = document.getElementById('third-tab');
         var count = product.rating_count || 0;
         if (tab) tab.textContent = 'Reviews (' + count + ')';
 
-        var badge = document.getElementById('product-rating-badge');
-        if (badge) {
-            if (count > 0) {
-                badge.innerHTML = product.rating_avg + ' <i class="fa-solid fa-star"></i> <span>(' + count + ')</span>';
-                badge.style.display = '';
-            } else {
-                badge.style.display = 'none';
-            }
-        }
+        var reviews = product.product_reviews || [];
+        renderRatingsSummary(reviews, product.rating_avg);
 
         var list = document.getElementById('product-reviews-list');
         if (!list) return;
-        var reviews = product.product_reviews || [];
         if (reviews.length === 0) {
             list.innerHTML = '<p>No reviews yet.</p>';
             return;
         }
 
-        list.innerHTML = reviews.map(function (r) {
-            var stars = '';
-            for (var i = 0; i < 5; i++) {
-                stars += '<i class="fa-solid fa-star' + (i < r.rating ? '' : ' fa-regular') + '"></i>';
-            }
-            var titleLine = r.title ? '<p>' + EllroaText.escapeHtml(r.title) + '</p>' : '';
-            var bodyLine = r.body ? '<p>' + EllroaText.escapeHtml(r.body) + '</p>' : '';
-            return (
-                '<div class="customer-review-item">' +
-                '<div class="icon-box"><img src="images/icon-user.svg" alt=""></div>' +
-                '<div class="customer-review-item-body">' +
-                '<div class="customer-review-item-content">' +
-                '<p><span>' + EllroaText.escapeHtml(r.author_name) + '</span></p>' +
-                titleLine +
-                bodyLine +
-                '</div>' +
-                '<div class="customer-review-item-rating">' + stars + '</div>' +
-                '</div>' +
-                '</div>'
-            );
-        }).join('');
+        list.innerHTML = reviews.slice(0, REVIEWS_VISIBLE_COUNT).map(reviewCardHtml).join('');
+
+        if (reviews.length > REVIEWS_VISIBLE_COUNT) {
+            var viewAllBtn = document.createElement('button');
+            viewAllBtn.type = 'button';
+            viewAllBtn.className = 'btn-default view-all-reviews-btn';
+            viewAllBtn.textContent = 'View All Reviews (' + reviews.length + ')';
+            viewAllBtn.addEventListener('click', function () {
+                list.innerHTML = reviews.map(reviewCardHtml).join('');
+            });
+            list.appendChild(viewAllBtn);
+        }
     }
 
     // Related products: same category as the current product, real data only, reusing the
@@ -437,7 +485,7 @@
 
             ElloraAuth.getSession().then(function (session) {
                 if (!session) {
-                    window.location.href = 'login.html';
+                    window.location.href = '/login';
                     return;
                 }
 
@@ -504,6 +552,68 @@
             }
         });
     }
+
+    // Submits to POST /api/public/products/:slug/reviews (server/routes/public.js), which
+    // publishes immediately (is_published: true) — it counts toward the rating/count right away
+    // and shows up in the admin's Reviews panel too, where an admin can still edit/disable/delete
+    // it afterward. On success, re-fetches the product so the badge and review list update in
+    // place without a page reload. Previously this form had no submit handler at all, so clicking
+    // "Submit Message" fell through to the browser's native POST to action="#" and crashed with
+    // "Cannot POST /".
+    function initReviewForm() {
+        var form = document.getElementById('reviewForm');
+        if (!form) return;
+        var msg = document.getElementById('msgSubmit');
+        var submitBtn = form.querySelector('button[type="submit"]');
+
+        function showMsg(success, text) {
+            if (!msg) return;
+            msg.classList.remove('hidden');
+            msg.classList.remove(success ? 'text-danger' : 'text-success');
+            msg.classList.add('h4', success ? 'text-success' : 'text-danger');
+            msg.textContent = text;
+        }
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            if (!form.reportValidity()) return;
+            if (!slug) return;
+
+            var payload = {
+                author_name: form.querySelector('#name').value.trim(),
+                rating: Number(form.querySelector('#reviewRating').value),
+                body: form.querySelector('#review').value.trim(),
+                email: form.querySelector('#email').value.trim() || undefined,
+            };
+
+            submitBtn.disabled = true;
+            fetch(API_BASE + '/products/' + encodeURIComponent(slug) + '/reviews', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            })
+                .then(function (res) {
+                    if (!res.ok) throw new Error('Failed to submit review');
+                    showMsg(true, 'Thanks for your review!');
+                    form.reset();
+                    return fetch(API_BASE + '/products/' + encodeURIComponent(slug));
+                })
+                .then(function (res) { return res && res.ok ? res.json() : null; })
+                .then(function (data) {
+                    if (data && data.product) {
+                        currentProduct = data.product;
+                        renderReviews(data.product);
+                    }
+                })
+                .catch(function () {
+                    showMsg(false, 'Something went wrong submitting your review. Please try again.');
+                })
+                .finally(function () {
+                    submitBtn.disabled = false;
+                });
+        });
+    }
+    initReviewForm();
 
     if (!slug) return;
 

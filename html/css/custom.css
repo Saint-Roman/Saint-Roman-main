@@ -1840,8 +1840,29 @@ header.main-header .container {
 /* Zivame-style aggregate rating badge ("4.3 ★ (12)") — replaces the old row of 5 static
    fa-star icons, which never reflected a product's actual rating. Filled in by
    homepage-dynamic-sections.js / product-single-dynamic.js / products.html's inline script;
-   left empty (and collapsed via :empty) for a product with no reviews yet. */
-.product-item-rating,
+   left empty (and collapsed via :empty) for a product with no reviews yet.
+   .product-item-rating sits inside .product-item-header (a sibling of .product-item-image,
+   see the "Product Item Image End" markup comment across index.html/product-single.html and
+   productCard() in products.html) — that header is position:relative + overflow:hidden, the
+   same container .product-item-action's hover icons already use, so this overlays the product
+   photo itself (bottom-left) instead of floating in the text content below it. */
+.product-item-rating {
+	position: absolute;
+	bottom: 15px;
+	left: 15px;
+	z-index: 2;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 10px;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--dark-color, #111);
+	background: var(--white-color);
+	border-radius: 4px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
 .rating-badge {
 	display: inline-flex;
 	align-items: center;
@@ -4518,6 +4539,141 @@ header.main-header .container {
 	margin: 0;
 }
 
+/* Zivame-style "Ratings & Reviews" summary (big score + a 5→1 star breakdown bar) — sits
+   above the existing review list / add-a-review form, filled by renderRatingsSummary() in
+   js/product-single-dynamic.js. Hidden entirely (via :empty) when the product has no reviews. */
+.ratings-summary-box {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 40px;
+	margin-bottom: 40px;
+	padding-bottom: 40px;
+	border-bottom: 1px solid var(--border-color, #e5e5e5);
+}
+
+.ratings-summary-box:empty {
+	display: none;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.ratings-summary-score {
+	text-align: center;
+	flex-shrink: 0;
+}
+
+.ratings-summary-score h2 {
+	margin: 0;
+	font-size: 42px;
+	line-height: 1;
+}
+
+.ratings-summary-score h2 i {
+	color: var(--accent-color);
+	font-size: 30px;
+}
+
+.ratings-summary-score p {
+	margin: 8px 0 0;
+	color: var(--body-color, #666);
+	font-size: 14px;
+}
+
+.ratings-summary-bars {
+	flex: 1 1 280px;
+	min-width: 260px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.ratings-summary-bar-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.ratings-summary-bar-label {
+	flex-shrink: 0;
+	width: 40px;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.ratings-summary-bar-label i {
+	color: var(--accent-color);
+	font-size: 11px;
+}
+
+.ratings-summary-bar-track {
+	flex: 1;
+	height: 6px;
+	background: var(--border-color, #eee);
+	border-radius: 3px;
+	overflow: hidden;
+}
+
+.ratings-summary-bar-fill {
+	height: 100%;
+	background: var(--primary-color);
+	border-radius: 3px;
+}
+
+.ratings-summary-bar-pct {
+	flex-shrink: 0;
+	width: 40px;
+	text-align: right;
+	font-size: 13px;
+	color: var(--body-color, #666);
+}
+
+.customer-review-item-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	margin-bottom: 10px;
+}
+
+.customer-review-item-star-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 3px 9px;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--dark-color, #111);
+	border: 1px solid var(--accent-color);
+	border-radius: 20px;
+}
+
+.customer-review-item-star-pill i {
+	color: var(--accent-color);
+	font-size: 10px;
+}
+
+.customer-review-item-date {
+	font-size: 13px;
+	color: var(--body-color, #666);
+}
+
+.customer-review-item-title {
+	font-weight: 600;
+}
+
+.customer-review-item-author {
+	margin-top: 10px !important;
+	font-size: 13px;
+	color: var(--body-color, #666);
+}
+
+.view-all-reviews-btn {
+	display: block;
+	margin: 10px auto 0;
+}
+
 .product-review-from-content {
 	display: flex;
 	flex-wrap: wrap;
@@ -4530,8 +4686,6 @@ header.main-header .container {
 }
 
 .customer-review-item {
-	display: flex;
-	flex-wrap: wrap;
 	margin-bottom: 40px;
 }
 
@@ -8572,10 +8726,6 @@ ul.view-order-product-info-list li span {
 
 	.product-item-action ul li a img {
 		max-width: 14px;
-	}
-
-	.product-item-rating {
-		margin-bottom: 7px;
 	}
 
 	.product-item-rating i {

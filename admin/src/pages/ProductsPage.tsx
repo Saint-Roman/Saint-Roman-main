@@ -1,5 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react'
-import { ArrowDown, ArrowUp, ArrowUpDown, Search, X, Plus, Barcode as BarcodeIcon } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, Search, X, Plus, Pencil, Barcode as BarcodeIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -135,6 +135,7 @@ export function ProductsPage() {
   // added directly against the product being edited, not deferred to the product's own Save.
   const [reviews, setReviews] = useState<Review[]>([])
   const [reviewsLoading, setReviewsLoading] = useState(false)
+  const [editingReviewId, setEditingReviewId] = useState<string | null>(null)
   const [newReviewAuthor, setNewReviewAuthor] = useState('')
   const [newReviewRating, setNewReviewRating] = useState('5')
   const [newReviewTitle, setNewReviewTitle] = useState('')
@@ -181,6 +182,7 @@ export function ProductsPage() {
     setSelectedTags([])
     setNewTagName('')
     setReviews([])
+    setEditingReviewId(null)
     setNewReviewAuthor('')
     setNewReviewRating('5')
     setNewReviewTitle('')
@@ -350,38 +352,73 @@ export function ProductsPage() {
     }
   }
 
-  async function handleAddReview() {
+  function resetReviewForm() {
+    setEditingReviewId(null)
+    setNewReviewAuthor('')
+    setNewReviewRating('5')
+    setNewReviewTitle('')
+    setNewReviewBody('')
+  }
+
+  function handleEditReview(review: Review) {
+    setEditingReviewId(review.id)
+    setNewReviewAuthor(review.author_name)
+    setNewReviewRating(String(review.rating))
+    setNewReviewTitle(review.title ?? '')
+    setNewReviewBody(review.body ?? '')
+  }
+
+  async function handleSaveReview() {
     if (!editingId || !newReviewAuthor.trim()) return
     setAddingReview(true)
     try {
-      await apiFetch('/reviews', {
-        method: 'POST',
-        body: JSON.stringify({
-          product_id: editingId,
-          author_name: newReviewAuthor.trim(),
-          rating: Number(newReviewRating),
-          title: newReviewTitle.trim() || null,
-          body: newReviewBody.trim() || null,
-        }),
-      })
-      toast.success('Review added')
-      setNewReviewAuthor('')
-      setNewReviewRating('5')
-      setNewReviewTitle('')
-      setNewReviewBody('')
+      const payload = {
+        author_name: newReviewAuthor.trim(),
+        rating: Number(newReviewRating),
+        title: newReviewTitle.trim() || null,
+        body: newReviewBody.trim() || null,
+      }
+      if (editingReviewId) {
+        await apiFetch(`/reviews/${editingReviewId}`, { method: 'PUT', body: JSON.stringify(payload) })
+        toast.success('Review updated')
+      } else {
+        await apiFetch('/reviews', {
+          method: 'POST',
+          body: JSON.stringify({ product_id: editingId, ...payload }),
+        })
+        toast.success('Review added')
+      }
+      resetReviewForm()
       loadReviews(editingId)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to add review')
+      toast.error(err instanceof Error ? err.message : 'Failed to save review')
     } finally {
       setAddingReview(false)
     }
   }
 
+  async function handleToggleReviewPublished(review: Review) {
+    if (!editingId) return
+    try {
+      await apiFetch(`/reviews/${review.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ is_published: !review.is_published }),
+      })
+      setReviews((prev) =>
+        prev.map((r) => (r.id === review.id ? { ...r, is_published: !r.is_published } : r)),
+      )
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update review')
+    }
+  }
+
   async function handleDeleteReview(id: string) {
     if (!editingId) return
+    if (!window.confirm('Delete this review? This cannot be undone.')) return
     try {
       await apiFetch(`/reviews/${id}`, { method: 'DELETE' })
       setReviews((prev) => prev.filter((r) => r.id !== id))
+      if (editingReviewId === id) resetReviewForm()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to delete review')
     }
@@ -824,22 +861,39 @@ export function ProductsPage() {
                       <p className="text-sm text-muted-foreground">No reviews yet.</p>
                     )}
                     {reviews.map((review) => (
-                      <div key={review.id} className="flex items-start justify-between gap-2 rounded-md border p-2">
+                      <div
+                        key={review.id}
+                        className={`flex items-start justify-between gap-2 rounded-md border p-2 ${review.is_published ? '' : 'opacity-60'}`}
+                      >
                         <div className="flex flex-col gap-0.5">
                           <div className="flex items-center gap-2 text-sm">
                             <span className="font-medium">{review.author_name}</span>
                             <span className="text-muted-foreground">{review.rating}★</span>
+                            <Badge variant={review.is_published ? 'default' : 'secondary'}>
+                              {review.is_published ? 'Enabled' : 'Disabled'}
+                            </Badge>
                           </div>
                           {review.title && <div className="text-sm font-medium">{review.title}</div>}
                           {review.body && <div className="text-sm text-muted-foreground">{review.body}</div>}
                         </div>
-                        <Button type="button" variant="ghost" size="sm" onClick={() => handleDeleteReview(review.id)}>
-                          <X className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Button type="button" variant="ghost" size="sm" onClick={() => handleEditReview(review)}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button type="button" variant="ghost" size="sm" onClick={() => handleToggleReviewPublished(review)}>
+                            {review.is_published ? 'Disable' : 'Enable'}
+                          </Button>
+                          <Button type="button" variant="ghost" size="sm" onClick={() => handleDeleteReview(review.id)}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
 
                     <div className="flex flex-col gap-2 rounded-md border p-2">
+                      {editingReviewId && (
+                        <p className="text-xs text-muted-foreground">Editing review — Save changes or Cancel.</p>
+                      )}
                       <div className="grid grid-cols-2 gap-2">
                         <Input
                           placeholder="Reviewer name"
@@ -869,16 +923,29 @@ export function ProductsPage() {
                         value={newReviewBody}
                         onChange={(e) => setNewReviewBody(e.target.value)}
                       />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={addingReview || !newReviewAuthor.trim()}
-                        onClick={handleAddReview}
-                      >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Add review
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={addingReview || !newReviewAuthor.trim()}
+                          onClick={handleSaveReview}
+                        >
+                          {editingReviewId ? (
+                            'Save changes'
+                          ) : (
+                            <>
+                              <Plus className="h-4 w-4 mr-1" />
+                              Add review
+                            </>
+                          )}
+                        </Button>
+                        {editingReviewId && (
+                          <Button type="button" variant="ghost" size="sm" onClick={resetReviewForm}>
+                            Cancel
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </>
                 )}

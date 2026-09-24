@@ -309,6 +309,49 @@ router.get('/banners', async (req, res) => {
   res.json({ banners: data || [] });
 });
 
+// Customer-submitted reviews publish immediately (is_published: true, ignoring anything the
+// client sends for that field) — they count toward the rating/review count right away and show
+// up on the storefront in real time. The admin retains full control after the fact: every review
+// (customer- or admin-submitted) still shows in the product's Reviews panel, where an admin can
+// edit, disable, or delete it at any time.
+router.post('/products/:slug/reviews', async (req, res) => {
+  const { author_name, rating, title, body, email } = req.body;
+
+  const ratingNum = Number(rating);
+  if (!author_name || !Number.isInteger(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+    return res.status(400).json({ error: 'author_name and a rating between 1 and 5 are required' });
+  }
+
+  const { data: product, error: productError } = await supabaseAdmin
+    .from('products')
+    .select('id')
+    .eq('slug', req.params.slug)
+    .eq('status', 'active')
+    .maybeSingle();
+
+  if (productError) return res.status(500).json({ error: productError.message });
+  if (!product) return res.status(404).json({ error: 'Product not found' });
+
+  let customerId = null;
+  if (email) {
+    const { data: existingCustomer } = await supabaseAdmin.from('customers').select('id').eq('email', email).maybeSingle();
+    customerId = existingCustomer ? existingCustomer.id : null;
+  }
+
+  const { error: insertError } = await supabaseAdmin.from('product_reviews').insert({
+    product_id: product.id,
+    customer_id: customerId,
+    author_name,
+    rating: ratingNum,
+    title: title || null,
+    body: body || null,
+    is_published: true,
+  });
+
+  if (insertError) return res.status(400).json({ error: insertError.message });
+  res.status(201).json({ message: 'Review published' });
+});
+
 router.post('/support-tickets', async (req, res) => {
   const { name, email, phone, subject, message } = req.body;
 
