@@ -822,24 +822,21 @@ export function ProductsPage() {
                 <Label>Images</Label>
                 {colorGroups.map((color) => (
                   <div key={color ?? '_default'} className="flex flex-col gap-2 rounded-md border p-3">
-                    <span className="text-sm font-medium">{color ? `${color} photos` : 'Product photos'}</span>
+                    <span className="text-sm font-medium capitalize">{color ? `${color} photos` : 'Product photos'}</span>
                     <div className="grid grid-cols-4 gap-2">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-xs text-muted-foreground">Main</span>
-                        <ImageUpload
-                          value={getImageSlot(color, 'main', 0)}
-                          onChange={(url) => setImageSlot(color, 'main', 0, url)}
-                          folder="ellora/products"
-                        />
-                      </div>
-                      {[1, 2, 3].map((slot) => (
+                      {[0, 1, 2, 3].map((slot) => (
                         <div key={slot} className="flex flex-col gap-1">
-                          <span className="text-xs text-muted-foreground">Side {slot}</span>
                           <ImageUpload
-                            value={getImageSlot(color, 'side', slot)}
-                            onChange={(url) => setImageSlot(color, 'side', slot, url)}
+                            variant="tile"
+                            value={slot === 0 ? getImageSlot(color, 'main', 0) : getImageSlot(color, 'side', slot)}
+                            onChange={(url) =>
+                              slot === 0 ? setImageSlot(color, 'main', 0, url) : setImageSlot(color, 'side', slot, url)
+                            }
                             folder="ellora/products"
                           />
+                          <span className="text-center text-xs text-muted-foreground">
+                            {slot === 0 ? 'Main' : `Side ${slot}`}
+                          </span>
                         </div>
                       ))}
                     </div>
