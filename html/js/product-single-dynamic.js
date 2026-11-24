@@ -631,7 +631,7 @@
                 ? '<sub>' + EllroaCurrency.format(product.compare_at_price) + '</sub>'
                 : '';
 
-            document.title = product.name + ' - Saint Roman';
+            document.title = product.name + ' | Saint Roman';
             document.getElementById('product-breadcrumb').textContent = product.name;
             document.getElementById('product-title').textContent = product.name;
             document.getElementById('product-category').textContent = product.category ? product.category.name : '';

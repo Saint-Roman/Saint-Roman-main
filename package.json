@@ -1,7 +1,7 @@
 {
   "name": "saint-roman-fashion-lifestyle-store",
   "version": "1.0.0",
-  "description": "Saint Roman - Fashion & Lifestyle Store HTML Template",
+  "description": "Saint Roman — fashion & lifestyle storefront, admin panel and API",
   "main": "html/index.html",
   "scripts": {
     "dev": "browser-sync start --config bs-config.js",
