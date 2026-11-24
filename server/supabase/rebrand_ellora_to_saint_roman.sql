@@ -98,7 +98,7 @@ select id, site_title, currency from settings where id = 1;
 -- Look before you change it: 'Ellora' could be a real person's name.
 -- ─────────────────────────────────────────────────────────────────────────
 
-select id, full_name, email from profiles where full_name ilike '%ellora%';
+select id, full_name, role from profiles where full_name ilike '%ellora%';
 
 -- If, and only if, the row above is the admin display name:
 -- update profiles set full_name = 'Saint Roman Admin' where full_name ilike '%ellora%';
