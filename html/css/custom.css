@@ -474,7 +474,7 @@ a:focus {
 	line-height: 1.1em;
 	text-transform: uppercase;
 	margin-bottom: 0;
-	cursor: none;
+	/* cursor: none; */ /* magic cursor disabled */
 }
 
 .section-title h2 {
@@ -482,7 +482,7 @@ a:focus {
 	letter-spacing: -0.02em;
 	line-height: 1.1em;
 	margin-bottom: 0;
-	cursor: none;
+	/* cursor: none; */ /* magic cursor disabled */
 }
 
 .section-title p {
@@ -946,7 +946,7 @@ header.main-header .container {
 
 .main-menu .mega-menu-item-image a {
 	display: block;
-	cursor: none;
+	/* cursor: none; */ /* magic cursor disabled */
 }
 
 .mega-menu-item-image figure {
@@ -1248,7 +1248,7 @@ header.main-header .container {
 	display: block;
 	border-radius: 50%;
 	overflow: hidden;
-	cursor: none;
+	/* cursor: none; */ /* magic cursor disabled */
 }
 
 .category-item-image img {
@@ -1302,7 +1302,7 @@ header.main-header .container {
 	display: block;
 	border-radius: 10px;
 	overflow: hidden;
-	cursor: none;
+	/* cursor: none; */ /* magic cursor disabled */
 }
 
 .new-arrival-item-image figure::before {
@@ -1576,7 +1576,7 @@ header.main-header .container {
 	height: 100%;
 	border-radius: 10px;
 	overflow: hidden;
-	cursor: none;
+	/* cursor: none; */ /* magic cursor disabled */
 }
 
 .best-offer-item-image img {
@@ -1962,7 +1962,7 @@ header.main-header .container {
 	position: relative;
 	display: inline-flex;
 	align-items: center;
-	cursor: none;
+	/* cursor: none; */ /* magic cursor disabled */
 	gap: 10px;
 }
 
@@ -2297,7 +2297,7 @@ header.main-header .container {
 }
 
 .testimonial-slider .swiper-wrapper {
-	cursor: none;
+	/* cursor: none; */ /* magic cursor disabled */
 }
 
 .testimonial-slider,
@@ -2655,7 +2655,7 @@ header.main-header .container {
 
 .post-featured-image a,
 .post-featured-image figure {
-	cursor: none;
+	/* cursor: none; */ /* magic cursor disabled */
 	display: block;
 	border-radius: 10px;
 	overflow: hidden;
@@ -2945,7 +2945,7 @@ header.main-header .container {
 	text-transform: uppercase;
 	color: var(--white-color);
 	margin-bottom: 10px;
-	cursor: none;
+	/* cursor: none; */ /* magic cursor disabled */
 }
 
 .page-header-box ol {
@@ -3334,7 +3334,7 @@ header.main-header .container {
 	display: block;
 	border-radius: 5px;
 	overflow: hidden;
-	cursor: none;
+	/* cursor: none; */ /* magic cursor disabled */
 }
 
 .team-item-image figure::before {
