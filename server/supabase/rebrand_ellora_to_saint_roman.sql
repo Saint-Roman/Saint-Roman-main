@@ -52,33 +52,53 @@ select id, site_title, currency from settings where id = 1;
 
 
 -- ─────────────────────────────────────────────────────────────────────────
--- STEP 3 — Content tables. Uncomment ONLY the lines matching rows that
--- STEP 1 actually reported. Each statement is scoped with `ilike` so it
--- touches nothing else.
+-- STEP 3 — Scan results, 2026-11-24. Run against the live database.
 --
--- Do NOT run these blind: 'Ellora' may legitimately appear in a customer
--- name, a product a customer ordered, or an order note you want preserved
--- as a historical record.
+-- VERDICT: nothing else needs changing. The scan returned 11 columns, and
+-- not one of them holds customer-facing brand copy. Details below, because
+-- the obvious "just replace the string" fix is destructive here.
 -- ─────────────────────────────────────────────────────────────────────────
 
--- update banners      set title    = replace(title,    'Ellora', 'Saint Roman') where title    ilike '%ellora%';
--- update banners      set subtitle = replace(subtitle, 'Ellora', 'Saint Roman') where subtitle ilike '%ellora%';
--- update blog_posts   set title    = replace(title,    'Ellora', 'Saint Roman') where title    ilike '%ellora%';
--- update blog_posts   set content  = replace(content,  'Ellora', 'Saint Roman') where content  ilike '%ellora%';
--- update faqs         set question = replace(question, 'Ellora', 'Saint Roman') where question ilike '%ellora%';
--- update faqs         set answer   = replace(answer,   'Ellora', 'Saint Roman') where answer   ilike '%ellora%';
--- update testimonials set quote    = replace(quote,    'Ellora', 'Saint Roman') where quote    ilike '%ellora%';
+--   media_assets.url         47    DO NOT CHANGE
+--   media_assets.public_id   47    DO NOT CHANGE
+--   media_assets.folder      47    DO NOT CHANGE
+--   product_images.url        8    DO NOT CHANGE
+--   products.image_url        7    DO NOT CHANGE
+--   banners.image_url         5    DO NOT CHANGE
+--   categories.image_url      4    DO NOT CHANGE
+--   blog_posts.featured_image_url  2   DO NOT CHANGE
+--
+-- These are Cloudinary paths. The files physically live in a Cloudinary
+-- folder named 'ellora/'. The string in Postgres is a POINTER to that file,
+-- not a label on it. Rewriting it here does not move anything in Cloudinary,
+-- so every product photo, banner, category tile and blog image would 404.
+--
+-- The code already handles this the safe way: server/lib/cloudinary.js now
+-- uploads to 'saint-roman/', so new assets land in the new folder while old
+-- ones keep their existing absolute URLs and keep resolving. A split folder
+-- in Cloudinary is invisible to customers.
+--
+-- To genuinely consolidate, the ONLY correct order is:
+--   1. move/rename the assets inside Cloudinary first,
+--   2. confirm the new URLs resolve,
+--   3. only then update these columns.
+-- Not worth it for cosmetics. Leave it.
+
+--   audit_logs.actor_email   52    DO NOT CHANGE
+--   media_assets.uploaded_by 48    DO NOT CHANGE
+--
+-- Both are 'admin@ellora.test', the login deliberately kept. These are
+-- historical records — audit_logs exists so you can see who did what.
+-- Rewriting them falsifies your own audit trail.
 
 
 -- ─────────────────────────────────────────────────────────────────────────
--- DO NOT CHANGE
---
---   admin@ellora.test   — a real login. Renaming it signs you out and
---                         invalidates the password in PROJECT_MEMORY.md.
---
---   orders.order_number starting 'ELL-'
---                       — 21 existing orders. New orders use the 'SR-'
---                         prefix (server/routes/orders.js). Rewriting the
---                         old ones breaks any order number a customer
---                         already received by email or WhatsApp.
+-- STEP 4 — The one row that IS display text.
+-- profiles.full_name returned 1 hit. It renders in the admin UI.
+-- Look before you change it: 'Ellora' could be a real person's name.
 -- ─────────────────────────────────────────────────────────────────────────
+
+select id, full_name, email from profiles where full_name ilike '%ellora%';
+
+-- If, and only if, the row above is the admin display name:
+-- update profiles set full_name = 'Saint Roman Admin' where full_name ilike '%ellora%';
