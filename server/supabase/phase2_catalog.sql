@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 2 schema (Category, Product, Variant Management)
+-- Saint Roman Admin — Phase 2 schema (Category, Product, Variant Management)
 -- Run this in the Supabase SQL Editor after schema.sql (Phase 1).
 
 create table if not exists categories (

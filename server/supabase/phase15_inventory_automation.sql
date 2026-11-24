@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 15 (Inventory low-stock automation)
+-- Saint Roman Admin — Phase 15 (Inventory low-stock automation)
 -- Run this in the Supabase SQL Editor after phase14_whatsapp.sql.
 -- Two small additions on top of the Inventory stock console (section 15 in PROJECT_MEMORY.md):
 -- a per-variant low-stock threshold (a single global "10 units" number doesn't fit every SKU —

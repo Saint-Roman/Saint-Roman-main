@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 6 schema (Marketing Dashboard, Module 9 — first pass)
+-- Saint Roman Admin — Phase 6 schema (Marketing Dashboard, Module 9 — first pass)
 -- No live Google/Meta/TikTok ad-account API integration (that needs real ad accounts + OAuth).
 -- What IS real: campaigns are entered with their spend, and each campaign is tied to a coupon
 -- code. Attributed revenue / orders / ROAS are computed server-side from real orders that

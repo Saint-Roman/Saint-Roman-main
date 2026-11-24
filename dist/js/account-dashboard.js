@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', async function () {
-    var session = await ElloraAuth.requireLogin();
+    var session = await SaintRomanAuth.requireLogin();
     if (!session) return;
 
-    var profile = await ElloraAuth.apiFetch('/profile');
+    var profile = await SaintRomanAuth.apiFetch('/profile');
     if (!profile) return;
 
     var name = profile.display_name || profile.first_name || profile.email;
@@ -22,12 +22,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Wire logout
     var logoutBtn = document.getElementById('dash-logout');
-    if (logoutBtn) logoutBtn.addEventListener('click', function (e) { e.preventDefault(); ElloraAuth.logout(); });
+    if (logoutBtn) logoutBtn.addEventListener('click', function (e) { e.preventDefault(); SaintRomanAuth.logout(); });
 
     // Wire sidebar Logout link
     document.querySelectorAll('.my-account-sidebar-item a').forEach(function (a) {
         if (a.textContent.trim().toLowerCase() === 'logout') {
-            a.addEventListener('click', function (e) { e.preventDefault(); ElloraAuth.logout(); });
+            a.addEventListener('click', function (e) { e.preventDefault(); SaintRomanAuth.logout(); });
         }
     });
 });

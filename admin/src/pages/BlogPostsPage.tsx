@@ -129,7 +129,7 @@ export function BlogPostsPage() {
               </div>
               <div className="flex flex-col gap-2">
                 <Label>Featured Image</Label>
-                <ImageUpload value={featuredImage} onChange={setFeaturedImage} folder="ellora/blog" />
+                <ImageUpload value={featuredImage} onChange={setFeaturedImage} folder="saint-roman/blog" />
               </div>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="b-excerpt">Excerpt</Label>

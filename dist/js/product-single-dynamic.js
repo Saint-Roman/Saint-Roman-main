@@ -1,4 +1,4 @@
-// Wires html/product-single.html (?slug=...) to a real product from the Ellora admin panel
+// Wires html/product-single.html (?slug=...) to a real product from the Saint Roman admin panel
 // (server/routes/public.js: GET /api/public/products/:slug), following the project's convention
 // for dynamic pages (mega-menu-dynamic.js, blog-single-dynamic.js, homepage-dynamic-sections.js).
 //
@@ -27,12 +27,12 @@
 //      many are actually available (0-4).
 //   5. Wishlist and Compare were both dead `<a href="#">` icon links next to Add To Cart.
 //      Wishlist reuses the real authenticated wishlist API (server/routes/customer.js, already
-//      consumed by account-wishlist.js) via ElloraAuth — no new endpoint. Compare has no backend
-//      and isn't getting one; it's a small localStorage module (js/ellora-compare.js), same tier
-//      as js/ellora-cart.js. See initWishlistButton()/initCompareButton() below.
+//      consumed by account-wishlist.js) via SaintRomanAuth — no new endpoint. Compare has no backend
+//      and isn't getting one; it's a small localStorage module (js/saint-roman-compare.js), same tier
+//      as js/saint-roman-cart.js. See initWishlistButton()/initCompareButton() below.
 (function () {
     var API_BASE = 'https://saint-roman-main.onrender.com/api/public';
-    var slug = ElloraRoute.param(/^\/product\/([^/?#]+)/, 'slug');
+    var slug = SaintRomanRoute.param(/^\/product\/([^/?#]+)/, 'slug');
     var currentProduct = null;
 
     // Currently selected real variant (set by renderVariantPicker below, updated whenever the
@@ -46,7 +46,7 @@
         if (!currentProduct) return;
 
         // Cart requires a real account, same as Wishlist below — no guest cart.
-        var session = await ElloraAuth.requireLogin();
+        var session = await SaintRomanAuth.requireLogin();
         if (!session) return;
 
         var variant = selectedVariant;
@@ -189,7 +189,7 @@
     // products.specifications (jsonb, server/supabase/phase8_product_specifications.sql) — a
     // flexible label/value store filled in per-product from the admin's product edit form
     // (admin/src/pages/ProductsPage.tsx "Additional Information" section), since fixed columns
-    // like material/fit/neckline only make sense for apparel and don't fit every category Ellora
+    // like material/fit/neckline only make sense for apparel and don't fit every category Saint Roman
     // sells (watches, beauty, accessories, ...). Real data only — no fallback to fabricated rows.
     function renderAdditionalInfo(product) {
         var container = document.getElementById('product-additional-info');
@@ -280,10 +280,10 @@
 
     // ─── Toast ───────────────────────────────────────────────────────────
     //
-    // No shared toast/notification component exists anywhere in html/js — checked ellora-cart.js
+    // No shared toast/notification component exists anywhere in html/js — checked saint-roman-cart.js
     // (pure localStorage, no UI at all) and checkout.html (a page-local inline #order-message
     // element wired to its own script, not reusable from here). This is a minimal, self-contained
-    // one scoped to this page; styling lives in css/custom.css (.ellora-toast) so it matches the
+    // one scoped to this page; styling lives in css/custom.css (.saint-roman-toast) so it matches the
     // site's existing look instead of being inline-styled.
     //
     // messageHtml is always a hardcoded string from this file (never user input), so innerHTML is
@@ -291,11 +291,11 @@
     // compare.html without a second component.
     var toastTimer = null;
     function showToast(messageHtml) {
-        var el = document.getElementById('ellora-toast');
+        var el = document.getElementById('saint-roman-toast');
         if (!el) {
             el = document.createElement('div');
-            el.id = 'ellora-toast';
-            el.className = 'ellora-toast';
+            el.id = 'saint-roman-toast';
+            el.className = 'saint-roman-toast';
             document.body.appendChild(el);
         }
 
@@ -312,13 +312,13 @@
     //
     // Reuses the real authenticated wishlist API (server/routes/customer.js: GET/POST /wishlist,
     // DELETE /wishlist/:productId — the same one account-wishlist.js already calls through
-    // ElloraAuth.apiFetch). No new endpoint.
+    // SaintRomanAuth.apiFetch). No new endpoint.
     //
-    // ElloraAuth.apiFetch() redirects to login.html itself whenever there's no session — correct
+    // SaintRomanAuth.apiFetch() redirects to login.html itself whenever there's no session — correct
     // for the click handler (wishlisting requires login), but wrong for the page-load status
     // check: an anonymous shopper just browsing a product page must not get bounced to login.html
     // merely because this code tried to read their wishlist. So the load-time check calls
-    // ElloraAuth.getSession() first (never redirects on its own) and only calls apiFetch() if a
+    // SaintRomanAuth.getSession() first (never redirects on its own) and only calls apiFetch() if a
     // session actually exists.
     function setWishlistState(btn, active) {
         btn.classList.toggle('active', active);
@@ -327,11 +327,11 @@
 
     function initWishlistButton(product) {
         var btn = document.getElementById('product-wishlist-btn');
-        if (!btn || typeof ElloraAuth === 'undefined') return;
+        if (!btn || typeof SaintRomanAuth === 'undefined') return;
 
-        ElloraAuth.getSession().then(function (session) {
+        SaintRomanAuth.getSession().then(function (session) {
             if (!session) return;
-            return ElloraAuth.apiFetch('/wishlist').then(function (json) {
+            return SaintRomanAuth.apiFetch('/wishlist').then(function (json) {
                 var wishlist = (json && json.wishlist) || [];
                 var wishlisted = wishlist.some(function (item) { return item.id === product.id; });
                 setWishlistState(btn, wishlisted);
@@ -341,20 +341,20 @@
         btn.addEventListener('click', function (e) {
             e.preventDefault();
 
-            ElloraAuth.getSession().then(function (session) {
+            SaintRomanAuth.getSession().then(function (session) {
                 if (!session) {
                     window.location.href = 'login.html';
                     return;
                 }
 
                 if (btn.classList.contains('active')) {
-                    ElloraAuth.apiFetch('/wishlist/' + product.id, { method: 'DELETE' }).then(function (json) {
+                    SaintRomanAuth.apiFetch('/wishlist/' + product.id, { method: 'DELETE' }).then(function (json) {
                         if (!json || !json.success) return;
                         setWishlistState(btn, false);
                         showToast('Removed from wishlist');
                     });
                 } else {
-                    ElloraAuth.apiFetch('/wishlist', {
+                    SaintRomanAuth.apiFetch('/wishlist', {
                         method: 'POST',
                         body: JSON.stringify({ product_id: product.id }),
                     }).then(function (json) {
@@ -369,7 +369,7 @@
 
     // ─── Compare button ─────────────────────────────────────────────────
     //
-    // Client-side only (js/ellora-compare.js, localStorage) — no backend. compare.html (js/
+    // Client-side only (js/saint-roman-compare.js, localStorage) — no backend. compare.html (js/
     // compare-page-dynamic.js) is where the list is actually viewed — the toasts below link there.
     var VIEW_COMPARE_LINK = ' <a href="compare.html">View compare</a>';
 
@@ -380,21 +380,21 @@
 
     function initCompareButton(product) {
         var btn = document.getElementById('product-compare-btn');
-        if (!btn || typeof ElloraCompare === 'undefined') return;
+        if (!btn || typeof SaintRomanCompare === 'undefined') return;
 
-        setCompareState(btn, ElloraCompare.has(product.id));
+        setCompareState(btn, SaintRomanCompare.has(product.id));
 
         btn.addEventListener('click', function (e) {
             e.preventDefault();
 
-            if (ElloraCompare.has(product.id)) {
-                ElloraCompare.remove(product.id);
+            if (SaintRomanCompare.has(product.id)) {
+                SaintRomanCompare.remove(product.id);
                 setCompareState(btn, false);
                 showToast('Removed from compare' + VIEW_COMPARE_LINK);
                 return;
             }
 
-            var result = ElloraCompare.add({
+            var result = SaintRomanCompare.add({
                 id: product.id,
                 slug: product.slug,
                 name: product.name,
@@ -406,7 +406,7 @@
                 setCompareState(btn, true);
                 showToast('Added to compare' + VIEW_COMPARE_LINK);
             } else if (result.reason === 'full') {
-                showToast('Remove an item to compare more (max ' + ElloraCompare.MAX + ')' + VIEW_COMPARE_LINK);
+                showToast('Remove an item to compare more (max ' + SaintRomanCompare.MAX + ')' + VIEW_COMPARE_LINK);
             }
         });
     }
@@ -427,7 +427,7 @@
                 ? '<sub>' + EllroaCurrency.format(product.compare_at_price) + '</sub>'
                 : '';
 
-            document.title = product.name + ' - Ellora';
+            document.title = product.name + ' - Saint Roman';
             document.getElementById('product-breadcrumb').textContent = product.name;
             document.getElementById('product-title').textContent = product.name;
             document.getElementById('product-category').textContent = product.category ? product.category.name : '';

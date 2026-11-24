@@ -1,5 +1,5 @@
 /**
- * Ellora — Mega menu dynamic links + normalised cards
+ * Saint Roman — Mega menu dynamic links + normalised cards
  */
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -94,5 +94,5 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(function () { });
 
-    console.log('[Ellora] Mega menu ready');
+    console.log('[Saint Roman] Mega menu ready');
 });

@@ -173,8 +173,8 @@ const WIDGETS: WidgetDef[] = [
 ]
 
 const DEFAULT_ORDER = WIDGETS.map((w) => w.id)
-const ORDER_KEY = 'ellora.dashboard.order'
-const HIDDEN_KEY = 'ellora.dashboard.hidden'
+const ORDER_KEY = 'saint-roman.dashboard.order'
+const HIDDEN_KEY = 'saint-roman.dashboard.hidden'
 
 function loadOrder(): string[] {
   try {

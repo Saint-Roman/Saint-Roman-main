@@ -45,7 +45,7 @@ const ORDER_SELECT = `
 function generateOrderNumber() {
   const stamp = Date.now().toString(36).toUpperCase();
   const rand = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-  return `ELL-${stamp}-${rand}`;
+  return `SR-${stamp}-${rand}`;
 }
 
 // Flattens the double-hop order_items -> product_variants -> products join into a plain

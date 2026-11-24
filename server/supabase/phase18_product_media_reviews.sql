@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 18 (Per-color product images + product reviews)
+-- Saint Roman Admin — Phase 18 (Per-color product images + product reviews)
 -- Run this in the Supabase SQL Editor after phase8_product_specifications.sql.
 --
 -- 1. product_images.color — groups a product's uploaded photos by the variant colour they

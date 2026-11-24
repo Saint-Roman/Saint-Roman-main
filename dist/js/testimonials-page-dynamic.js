@@ -1,4 +1,4 @@
-// Wires html/testimonials.html to the real testimonials managed in the Ellora admin panel
+// Wires html/testimonials.html to the real testimonials managed in the Saint Roman admin panel
 // (server/routes/public.js: GET /api/public/testimonials), following the project's convention
 // for dynamic pages (product-single-dynamic.js, blog-single-dynamic.js, homepage-dynamic-sections.js).
 //

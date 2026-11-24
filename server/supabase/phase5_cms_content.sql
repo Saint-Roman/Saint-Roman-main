@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 5 schema (CMS remainder, Module 17 — Announcement Bar, Banners, Footer)
+-- Saint Roman Admin — Phase 5 schema (CMS remainder, Module 17 — Announcement Bar, Banners, Footer)
 -- Homepage Builder, Landing Pages, Popup Management, and Mega Menu from the spec are NOT built —
 -- those need either a real page-builder UI (big undertaking) or a display mechanism this static
 -- template doesn't have. This covers only what's realistically wireable: sitewide text (topbar

@@ -11,7 +11,7 @@
     <meta name="keywords" content="">
     <meta name="author" content="Awaiken">
     <!-- Page Title -->
-    <title>Ellora - Fashion & Lifestyle Store eCommerce HTML Template</title>
+    <title>Saint Roman - Fashion & Lifestyle Store eCommerce HTML Template</title>
     <!-- Favicon Icon -->
     <link rel="shortcut icon" type="image/x-icon" href="images/favicon.png">
     <!-- Custom Fonts Css-->
@@ -318,7 +318,7 @@
                                 </div>
                                 <!-- Cart Item Header End -->
 
-                                <!-- Live cart items — see js/ellora-cart.js and the script at the bottom of this page -->
+                                <!-- Live cart items — see js/saint-roman-cart.js and the script at the bottom of this page -->
                                 <div id="live-cart-items">
                                     <p class="wow fadeInUp">Loading cart&hellip;</p>
                                 </div>
@@ -702,14 +702,14 @@
     <!-- Main Custom js file -->
     <script src="js/function.js"></script>
     <script src="js/currency.js"></script>
-    <!-- Needed for ellora-cart.js's background cart sync (ElloraAuth.getSession()/apiBase) —
+    <!-- Needed for saint-roman-cart.js's background cart sync (SaintRomanAuth.getSession()/apiBase) —
          same CDN + auth.js pairing product-single.html/checkout.html/compare.html already use. -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/ellora-cart.js"></script>
+    <script src="js/saint-roman-cart.js"></script>
     <script src="js/mega-menu-dynamic.js"></script>
 
-    <!-- Live cart rendering — see js/ellora-cart.js for storage, server/routes/public.js for checkout -->
+    <!-- Live cart rendering — see js/saint-roman-cart.js for storage, server/routes/public.js for checkout -->
     <script>
         (function () {
             var API_BASE = 'https://saint-roman-main.onrender.com/api/public';
@@ -784,7 +784,7 @@
             // "You May be interested:" was 3 hardcoded products (same on every visit, same
             // broken placeholder images) regardless of cart contents. Cart line items only store
             // variantId/productSlug/productName/variantLabel/price/quantity (see
-            // js/ellora-cart.js) — no category — so this reuses the same featured-products-with-
+            // js/saint-roman-cart.js) — no category — so this reuses the same featured-products-with-
             // newest-fallback query homepage-dynamic-sections.js's loadFeaturedProducts already
             // uses, rather than adding new server logic, and just excludes whatever's already in
             // the cart. Mutates the 3 existing cards in place (same pattern as

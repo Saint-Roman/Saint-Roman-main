@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async function () {
     // If already logged in, redirect to dashboard
-    var s = await ElloraAuth.getSession();
+    var s = await SaintRomanAuth.getSession();
     if (s) { window.location.href = 'account-dashboard.html'; return; }
 
     // Wire up the login form — real markup is <form id="LoginForm"> wrapping
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             var password = document.getElementById('loginpassword');
             if (!email || !password) return;
 
-            var result = await ElloraAuth.login(email.value, password.value);
+            var result = await SaintRomanAuth.login(email.value, password.value);
             if (result.error) {
                 loginErr.textContent = result.error;
                 loginErr.style.display = 'block';
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             var password = document.getElementById('signuppassword');
             if (!email || !password) return;
 
-            var result = await ElloraAuth.register(email.value, password.value, '', '');
+            var result = await SaintRomanAuth.register(email.value, password.value, '', '');
             if (result.error) {
                 regErr.textContent = result.error;
                 regErr.style.display = 'block';

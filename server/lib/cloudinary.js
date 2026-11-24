@@ -22,7 +22,7 @@ export function isConfigured() {
 
 // Accepts a base64 data URI (e.g. "data:image/png;base64,....") or a remote URL.
 // Returns the uploaded image's hosted URL plus metadata (used to catalog it in media_assets).
-export async function uploadImage(dataUri, folder = 'ellora') {
+export async function uploadImage(dataUri, folder = 'saint-roman') {
   if (!isConfigured()) throw new Error('Cloudinary is not configured in server/.env');
   const result = await cloudinary.uploader.upload(dataUri, {
     folder,

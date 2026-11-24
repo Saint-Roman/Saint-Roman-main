@@ -1,5 +1,5 @@
 /**
- * Ellora — Products page: dynamic hero + coupon capture
+ * Saint Roman — Products page: dynamic hero + coupon capture
  *
  * 1. Reads ?category=<slug> or ?tag=<tag> → updates hero title + breadcrumb
  * 2. Reads ?coupon=<code> → saves to sessionStorage for checkout auto-apply
@@ -8,8 +8,8 @@
 (function () {
     var API_BASE = 'https://saint-roman-main.onrender.com/api/public';
     var params = new URLSearchParams(window.location.search);
-    var categorySlug = ElloraRoute.param(/^\/category\/([^/?#]+)/, 'category');
-    var tag = ElloraRoute.param(/^\/tag\/([^/?#]+)/, 'tag');
+    var categorySlug = SaintRomanRoute.param(/^\/category\/([^/?#]+)/, 'category');
+    var tag = SaintRomanRoute.param(/^\/tag\/([^/?#]+)/, 'tag');
     var couponCode = params.get('coupon');
 
     // ── Hero title + breadcrumb ──────────────────────────────────────────
@@ -60,7 +60,7 @@
 
     // ── Coupon capture ───────────────────────────────────────────────────
     if (couponCode) {
-        sessionStorage.setItem('ellora_offer_coupon', couponCode);
+        sessionStorage.setItem('saint_roman_offer_coupon', couponCode);
 
         var pageHeader = document.querySelector('.page-header');
         if (pageHeader) {

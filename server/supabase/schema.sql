@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 1 schema (Auth & Settings)
+-- Saint Roman Admin — Phase 1 schema (Auth & Settings)
 -- Run this in the Supabase SQL Editor after creating the project.
 
 do $$ begin
@@ -26,7 +26,7 @@ create table if not exists settings (
 );
 
 insert into settings (id, site_title, currency)
-values (1, 'Ellora', 'INR')
+values (1, 'Saint Roman', 'INR')
 on conflict (id) do nothing;
 
 -- Row Level Security: only authenticated admin users can read/write.

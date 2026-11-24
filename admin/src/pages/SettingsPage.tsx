@@ -102,7 +102,7 @@ export function SettingsPage() {
               <ImageUpload
                 value={settings.testimonial_bg_image_url ?? ''}
                 onChange={(url) => setForm({ ...settings, testimonial_bg_image_url: url })}
-                folder="ellora/settings"
+                folder="saint-roman/settings"
               />
               <p className="text-xs text-muted-foreground">
                 Background for the homepage "Voices of our happy customers" section. Leave empty to use the default.

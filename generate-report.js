@@ -148,7 +148,7 @@ async function generateReport() {
       new Paragraph({
         alignment: AlignmentType.CENTER,
         spacing: { after: 200 },
-        children: [new TextRun({ text: 'ELLORA', size: 72, font: 'Calibri', bold: true, color: NAVY })]
+        children: [new TextRun({ text: 'SAINT ROMAN', size: 72, font: 'Calibri', bold: true, color: NAVY })]
       }),
       new Paragraph({
         alignment: AlignmentType.CENTER,
@@ -221,7 +221,7 @@ async function generateReport() {
 
   // === 1. Executive Summary ===
   mainChildren.push(heading('1. Executive Summary'));
-  mainChildren.push(para('The Ellora storefront is currently a static HTML template with no backend, no database, and no admin capabilities. This report details the complete backend architecture required to add a full-featured admin panel where the site owner can manage every piece of content — from the topbar announcement to the footer copyright.'));
+  mainChildren.push(para('The Saint Roman storefront is currently a static HTML template with no backend, no database, and no admin capabilities. This report details the complete backend architecture required to add a full-featured admin panel where the site owner can manage every piece of content — from the topbar announcement to the footer copyright.'));
   mainChildren.push(para('The backend will use Node.js + Express as the server, SQLite as the database, and EJS for server-side rendering. This stack was chosen for simplicity, zero-configuration setup, and the fact that the project already runs on Node.js/npm.'));
   mainChildren.push(pageBreak());
 
@@ -283,7 +283,7 @@ async function generateReport() {
 
   // === 4. Database Schema ===
   mainChildren.push(heading('4. Database Schema'));
-  mainChildren.push(para('The SQLite database (server/data/ellora.db) contains 14 tables. Below is the complete schema for each table.'));
+  mainChildren.push(para('The SQLite database (server/data/saint-roman.db) contains 14 tables. Below is the complete schema for each table.'));
 
   // 4.1 users
   mainChildren.push(heading('4.1 users — Admin Accounts', HeadingLevel.HEADING_2));
@@ -801,11 +801,11 @@ async function generateReport() {
     'NODE_ENV=development',
     '',
     '# Session',
-    'SESSION_SECRET=ellora-super-secret-key-change-me-in-production',
+    'SESSION_SECRET=saint-roman-super-secret-key-change-me-in-production',
     '',
     '# Default Admin (used only during first seed)',
     'ADMIN_NAME=Admin',
-    'ADMIN_EMAIL=admin@ellora.com',
+    'ADMIN_EMAIL=admin@saintroman.com',
     'ADMIN_PASSWORD=admin123',
     '',
     '# Upload',
@@ -825,9 +825,9 @@ async function generateReport() {
       ['Public site pages', '15+'],
       ['npm dependencies', '10 (production) + 1 (dev)'],
       ['Estimated development', '~15-20 days (4 phases)'],
-      ['Database size (initial)', '~50 KB (ellora.db)'],
+      ['Database size (initial)', '~50 KB (saint-roman.db)'],
       ['External services required', 'None — everything runs locally'],
-      ['Default admin credentials', 'admin@ellora.com / admin123'],
+      ['Default admin credentials', 'admin@saintroman.com / admin123'],
       ['Server command', 'npm start or node server/app.js']
     ],
     [35, 65]
@@ -842,7 +842,7 @@ async function generateReport() {
       default: new Header({
         children: [new Paragraph({
           alignment: AlignmentType.RIGHT,
-          children: [new TextRun({ text: 'Ellora Admin Panel — Backend Architecture Report', size: 16, font: 'Calibri', color: '999999', italics: true })]
+          children: [new TextRun({ text: 'Saint Roman Admin Panel — Backend Architecture Report', size: 16, font: 'Calibri', color: '999999', italics: true })]
         })]
       })
     },
@@ -862,16 +862,16 @@ async function generateReport() {
 
   // ===================== GENERATE FILE =====================
   const doc = new Document({
-    creator: 'Ellora Admin Panel',
+    creator: 'Saint Roman Admin Panel',
     title: 'Backend Architecture Report',
-    description: 'Complete backend architecture documentation for Ellora Admin Panel',
+    description: 'Complete backend architecture documentation for Saint Roman Admin Panel',
     sections
   });
 
   const buffer = await Packer.toBuffer(doc);
   const outputPath = path.join(
     'c:\\Users\\DELL-G3 15-3500\\Downloads\\themeforest-erJI4BDo-ellora-fashion-lifestyle-store-html-template',
-    'Ellora_Backend_Architecture_Report.docx'
+    'Saint_Roman_Backend_Architecture_Report.docx'
   );
   fs.writeFileSync(outputPath, buffer);
   console.log(`\n✅ Report generated successfully!`);

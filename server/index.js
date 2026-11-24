@@ -113,7 +113,7 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Ellora admin API running on http://localhost:${PORT}`);
+  console.log(`Saint Roman admin API running on http://localhost:${PORT}`);
 });
 
 // Abandoned-cart reminder scheduler — checks every 30 minutes for carts idle 24h+ and sends a

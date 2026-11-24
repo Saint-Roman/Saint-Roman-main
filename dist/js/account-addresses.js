@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', async function () {
-    var session = await ElloraAuth.requireLogin();
+    var session = await SaintRomanAuth.requireLogin();
     if (!session) return;
 
-    var json = await ElloraAuth.apiFetch('/addresses');
+    var json = await SaintRomanAuth.apiFetch('/addresses');
     if (!json) return;
 
     // Target: works with both class names used across pages
@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 payload[f] = document.getElementById('addr-' + f).value;
             });
 
-            var result = await ElloraAuth.apiFetch('/addresses', {
+            var result = await SaintRomanAuth.apiFetch('/addresses', {
                 method: 'PUT',
                 body: JSON.stringify(payload)
             });
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // ── Wire sidebar Logout link ──
     document.querySelectorAll('.my-account-sidebar-item a').forEach(function (a) {
         if (a.textContent.trim().toLowerCase() === 'logout') {
-            a.addEventListener('click', function (e) { e.preventDefault(); ElloraAuth.logout(); });
+            a.addEventListener('click', function (e) { e.preventDefault(); SaintRomanAuth.logout(); });
         }
     });
 });

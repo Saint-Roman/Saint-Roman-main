@@ -832,7 +832,7 @@ export function ProductsPage() {
                             onChange={(url) =>
                               slot === 0 ? setImageSlot(color, 'main', 0, url) : setImageSlot(color, 'side', slot, url)
                             }
-                            folder="ellora/products"
+                            folder="saint-roman/products"
                           />
                           <span className="text-center text-xs text-muted-foreground">
                             {slot === 0 ? 'Main' : `Side ${slot}`}

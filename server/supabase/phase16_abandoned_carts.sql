@@ -1,5 +1,5 @@
--- Ellora Admin — Phase 16 schema (Abandoned Cart Recovery)
--- Server-side mirror of the storefront's localStorage cart (html/js/ellora-cart.js), one row per
+-- Saint Roman Admin — Phase 16 schema (Abandoned Cart Recovery)
+-- Server-side mirror of the storefront's localStorage cart (html/js/saint-roman-cart.js), one row per
 -- logged-in customer, synced on every cart mutation via POST /api/customer/cart. The storefront
 -- itself still trusts localStorage as its own source of truth for what's actually in the cart —
 -- this table exists purely so the admin Abandoned Carts page and the reminder scheduler

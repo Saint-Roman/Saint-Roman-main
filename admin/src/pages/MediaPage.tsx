@@ -43,7 +43,7 @@ export function MediaPage() {
         })
         await apiFetch('/upload/image', {
           method: 'POST',
-          body: JSON.stringify({ image: dataUri, folder: 'ellora/library', filename: file.name }),
+          body: JSON.stringify({ image: dataUri, folder: 'saint-roman/library', filename: file.name }),
         })
       }
       toast.success('Uploaded to library')

@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', async function () {
-    var session = await ElloraAuth.requireLogin();
+    var session = await SaintRomanAuth.requireLogin();
     if (!session) return;
 
-    var json = await ElloraAuth.apiFetch('/orders');
+    var json = await SaintRomanAuth.apiFetch('/orders');
     if (!json) return;
     var orders = json.orders || [];
 

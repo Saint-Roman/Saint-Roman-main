@@ -202,7 +202,7 @@ export function BannersPage() {
               </div>
               <div className="flex flex-col gap-2">
                 <Label>Banner image</Label>
-                <ImageUpload value={imageUrl} onChange={setImageUrl} folder="ellora/banners" />
+                <ImageUpload value={imageUrl} onChange={setImageUrl} folder="saint-roman/banners" />
               </div>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="b-sort">Sort order</Label>

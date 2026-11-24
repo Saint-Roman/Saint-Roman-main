@@ -1,5 +1,5 @@
 /**
- * Ellora — Homepage dynamic sections (all-in-one)
+ * Saint Roman — Homepage dynamic sections (all-in-one)
  *
  * ┌─────────────────────────────────┬────────────────────────────────────────┐
  * │ Admin panel                     │ Storefront section                     │

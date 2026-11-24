@@ -1,9 +1,9 @@
-// Wires html/blog-single.html to a real blog post from the Ellora admin panel
+// Wires html/blog-single.html to a real blog post from the Saint Roman admin panel
 // (server/routes/public.js: GET /api/public/blog-posts/:slug), following the same
 // dynamic-page pattern as mega-menu-dynamic.js / homepage-dynamic-sections.js.
 (function () {
     var API_BASE = 'https://saint-roman-main.onrender.com/api/public';
-    var slug = ElloraRoute.param(/^\/blog\/([^/?#]+)/, 'slug');
+    var slug = SaintRomanRoute.param(/^\/blog\/([^/?#]+)/, 'slug');
 
     var titleEl = document.getElementById('blog-post-title');
     var dateEl = document.getElementById('blog-post-date');
@@ -55,7 +55,7 @@
 
     function showNotFound() {
         setHeadingText(titleEl, 'Post not found');
-        document.title = 'Post not found - Ellora';
+        document.title = 'Post not found - Saint Roman';
         dateEl.innerHTML = '';
         contentEl.innerHTML = '<p>Sorry, we couldn\'t find that blog post.</p>';
     }
@@ -73,7 +73,7 @@
         .then(function (data) {
             var post = data.post;
             setHeadingText(titleEl, post.title);
-            document.title = post.title + ' - Ellora - Fashion & Lifestyle Store eCommerce HTML Template';
+            document.title = post.title + ' - Saint Roman - Fashion & Lifestyle Store eCommerce HTML Template';
             dateEl.innerHTML = '<i class="fa-regular fa-clock"></i> ' + formatDate(post.published_at || post.created_at);
             imageEl.src = post.featured_image_url || 'images/post-1.jpg';
             imageEl.alt = post.title || '';

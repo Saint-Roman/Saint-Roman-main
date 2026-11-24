@@ -210,7 +210,7 @@ router.delete('/wishlist/:productId', async (req, res) => {
 });
 
 // ── Cart sync ── the storefront cart itself still lives entirely in the browser's localStorage
-// (html/js/ellora-cart.js) — this just mirrors it server-side on every mutation (best-effort,
+// (html/js/saint-roman-cart.js) — this just mirrors it server-side on every mutation (best-effort,
 // fire-and-forget from the client) so the admin Abandoned Carts page and reminder scheduler
 // (server/lib/abandonedCarts.js) have something to read. Full-replace, not a diff/patch, since
 // the client always sends its complete current cart.

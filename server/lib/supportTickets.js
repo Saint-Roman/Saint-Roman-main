@@ -5,7 +5,7 @@
 import { supabaseAdmin } from '../config/supabase.js';
 
 // Same stamp+random shape as generateOrderNumber() in server/routes/orders.js, prefixed TCK-
-// instead of ELL- so a ticket number reads at a glance like an order number does.
+// instead of SR- so a ticket number reads at a glance like an order number does.
 function generateTicketNumber() {
   const stamp = Date.now().toString(36).toUpperCase();
   const rand = Math.floor(Math.random() * 1000).toString().padStart(3, '0');

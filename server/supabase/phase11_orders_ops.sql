@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 11 (Orders ops console: fulfilment timestamps)
+-- Saint Roman Admin — Phase 11 (Orders ops console: fulfilment timestamps)
 -- Run this in the Supabase SQL Editor after phase10_checkout_schema_gaps.sql.
 --
 -- The Orders ops console redesign (admin/src/pages/OrdersPage.tsx, server/routes/orders.js) needs

@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 5 schema (Influencer Dashboard, Module 11 — thin pass)
+-- Saint Roman Admin — Phase 5 schema (Influencer Dashboard, Module 11 — thin pass)
 -- No follower counts, engagement metrics, or content-submission tracking (no social platform API
 -- integration). What IS real: each influencer gets a coupon code (reusing the Coupon Engine, not
 -- a separate discount system), and their "sales"/"commission" are computed from real orders that

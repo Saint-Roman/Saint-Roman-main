@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 3 schema (Order Management, Module 6)
+-- Saint Roman Admin — Phase 3 schema (Order Management, Module 6)
 -- Run this in the Supabase SQL Editor after phase3_inventory.sql.
 -- First pass: no Customer Management (Module 7) yet, so customer details live directly on the order
 -- rather than a customers table. Orders are admin-created for now (no public storefront checkout).

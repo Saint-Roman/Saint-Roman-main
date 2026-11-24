@@ -8,11 +8,11 @@
 // means the old `URLSearchParams(location.search).get('slug')` no longer
 // finds anything; the slug is now a path segment, not a query param.
 //
-// ElloraRoute.param() tries the pretty path first, and falls back to the old
+// SaintRomanRoute.param() tries the pretty path first, and falls back to the old
 // query-string form — so a page still works if it's opened somewhere without
 // the rewrite layer in front of it (e.g. directly off disk, or an old
 // bookmarked ?slug= link).
-window.ElloraRoute = {
+window.SaintRomanRoute = {
     param: function (pathPattern, queryKey) {
         var match = window.location.pathname.match(pathPattern);
         if (match && match[1]) {

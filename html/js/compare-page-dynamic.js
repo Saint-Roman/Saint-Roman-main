@@ -1,9 +1,9 @@
-// Wires html/compare.html to the client-side compare list (js/ellora-compare.js, localStorage
-// key `ellora_compare`). Follows the project's convention for dynamic pages (product-single-
+// Wires html/compare.html to the client-side compare list (js/saint-roman-compare.js, localStorage
+// key `saint_roman_compare`). Follows the project's convention for dynamic pages (product-single-
 // dynamic.js, blog-single-dynamic.js) — IIFE, own hardcoded API_BASE, no new dependencies.
 //
 // The compare list only stores lightweight data per product (id/slug/name/image/price — see
-// ellora-compare.js). Colour/Size/Category aren't part of that, so each product is re-fetched by
+// saint-roman-compare.js). Colour/Size/Category aren't part of that, so each product is re-fetched by
 // slug from GET /api/public/products/:slug — the same endpoint and shape product-single-
 // dynamic.js already uses — to get product_variants (for colour/size) and category.
 (function () {
@@ -128,9 +128,9 @@
     ];
 
     function buildTable(items) {
-        // Pad up to ElloraCompare.MAX columns with "Add Product" placeholders so the table always
+        // Pad up to SaintRomanCompare.MAX columns with "Add Product" placeholders so the table always
         // shows a consistent number of columns.
-        var slotCount = Math.max(items.length, ElloraCompare.MAX);
+        var slotCount = Math.max(items.length, SaintRomanCompare.MAX);
         var slots = [];
         for (var i = 0; i < slotCount; i++) {
             slots.push(i < items.length ? items[i] : null);
@@ -160,7 +160,7 @@
     }
 
     function render() {
-        var items = ElloraCompare.get();
+        var items = SaintRomanCompare.get();
 
         if (items.length === 0) {
             renderEmptyState();
@@ -184,23 +184,23 @@
         var id = actionEl.dataset.id;
 
         if (actionEl.dataset.action === 'remove') {
-            ElloraCompare.remove(id);
+            SaintRomanCompare.remove(id);
             render();
             return;
         }
 
         if (actionEl.dataset.action === 'clear') {
-            ElloraCompare.clear();
+            SaintRomanCompare.clear();
             render();
             return;
         }
 
         if (actionEl.dataset.action === 'add-to-cart') {
             // Cart requires a real account, same as product-single.html's Add to Cart button.
-            var session = await ElloraAuth.requireLogin();
+            var session = await SaintRomanAuth.requireLogin();
             if (!session) return;
 
-            var items = ElloraCompare.get();
+            var items = SaintRomanCompare.get();
             var item = items.filter(function (i) { return i.id === id; })[0];
             var product = item && productCache[item.slug];
             var variants = (product && product.product_variants) || [];

@@ -1,5 +1,5 @@
 /**
- * Ellora — Checkout coupon auto-apply
+ * Saint Roman — Checkout coupon auto-apply
  *
  * When the customer clicked "Get Offer" on the homepage, the products page
  * saved the coupon code to sessionStorage. This script runs on checkout.html,
@@ -10,7 +10,7 @@
  */
 
 (function () {
-    var savedCoupon = sessionStorage.getItem('ellora_offer_coupon');
+    var savedCoupon = sessionStorage.getItem('saint_roman_offer_coupon');
     if (!savedCoupon) return;
 
     // Wait a moment for the checkout page's own script to initialize
@@ -28,6 +28,6 @@
 
         // Clear from sessionStorage so it doesn't keep re-applying on refresh
         // (the user can still manually re-enter it or a different code)
-        sessionStorage.removeItem('ellora_offer_coupon');
+        sessionStorage.removeItem('saint_roman_offer_coupon');
     }, 500);
 })();

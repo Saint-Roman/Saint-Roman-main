@@ -20,14 +20,14 @@ router.post('/image', requireAuth, async (req, res) => {
   if (!image) return res.status(400).json({ error: 'No image provided' });
 
   try {
-    const uploaded = await uploadImage(image, folder || 'ellora');
+    const uploaded = await uploadImage(image, folder || 'saint-roman');
 
     // Catalog it. A failure to record shouldn't fail the upload itself — the URL is already valid.
     const { error } = await supabaseAdmin.from('media_assets').insert({
       url: uploaded.url,
       public_id: uploaded.public_id,
       original_filename: filename || null,
-      folder: folder || 'ellora',
+      folder: folder || 'saint-roman',
       format: uploaded.format,
       bytes: uploaded.bytes,
       width: uploaded.width,

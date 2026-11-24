@@ -35,7 +35,7 @@ const navItems = [
 export function Sidebar() {
   return (
     <aside className="hidden w-60 shrink-0 border-r bg-sidebar text-sidebar-foreground md:flex md:flex-col">
-      <div className="px-4 py-5 text-lg font-semibold">Ellora Admin</div>
+      <div className="px-4 py-5 text-lg font-semibold">Saint Roman Admin</div>
       <nav className="flex flex-col gap-1 px-2">
         {navItems.map(({ to, label, icon: Icon }) => (
           <NavLink

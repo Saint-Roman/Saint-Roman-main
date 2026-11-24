@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 12 (Testimonials)
+-- Saint Roman Admin — Phase 12 (Testimonials)
 -- Run this in the Supabase SQL Editor after phase11_orders_ops.sql.
 -- Makes the homepage "Voices of our happy customers" section, its background image, and the
 -- standalone testimonials.html page admin-manageable — same shape as the banners module

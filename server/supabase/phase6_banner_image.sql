@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 6 (product + banner images)
+-- Saint Roman Admin — Phase 6 (product + banner images)
 -- The banners table was text-only (title/subtitle/link) and the products table had no primary
 -- image column at all (only a separate product_images gallery table). Add an image_url to both so
 -- the admin can set a main photo per product and a hero image per banner. Images are uploaded via

@@ -1,7 +1,7 @@
-// Minimal client-side cart for the Ellora storefront. No server-side cart table —
+// Minimal client-side cart for the Saint Roman storefront. No server-side cart table —
 // state lives in localStorage until checkout, when it's sent to POST /api/public/orders.
 window.EllroaCart = (function () {
-  var KEY = 'ellora_cart';
+  var KEY = 'saint_roman_cart';
 
   function get() {
     try {

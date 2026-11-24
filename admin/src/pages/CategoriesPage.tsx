@@ -122,7 +122,7 @@ export function CategoriesPage() {
               </div>
               <div className="flex flex-col gap-2">
                 <Label>Category Image</Label>
-                <ImageUpload value={imageUrl} onChange={setImageUrl} folder="ellora/categories" />
+                <ImageUpload value={imageUrl} onChange={setImageUrl} folder="saint-roman/categories" />
               </div>
               <DialogFooter>
                 <Button type="submit" disabled={saving}>

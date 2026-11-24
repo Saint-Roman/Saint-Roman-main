@@ -1,12 +1,12 @@
-// Minimal client-side compare list for the Ellora storefront. No server-side table or endpoint —
-// same "state lives in localStorage" approach as html/js/ellora-cart.js, since a compare list has
+// Minimal client-side compare list for the Saint Roman storefront. No server-side table or endpoint —
+// same "state lives in localStorage" approach as html/js/saint-roman-cart.js, since a compare list has
 // the same "before checkout, nothing needs to be durable across devices" shape as the cart.
 //
 // Written to by the Compare button on product-single.html (js/product-single-dynamic.js) and read
 // by compare.html (js/compare-page-dynamic.js), which fetches full product details for each stored
 // slug and renders the actual comparison table.
-window.ElloraCompare = (function () {
-  var KEY = 'ellora_compare';
+window.SaintRomanCompare = (function () {
+  var KEY = 'saint_roman_compare';
   var MAX = 4;
 
   function get() {

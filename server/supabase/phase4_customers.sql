@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 4 schema (Customer Management, Module 7 — first pass)
+-- Saint Roman Admin — Phase 4 schema (Customer Management, Module 7 — first pass)
 -- Run this in the Supabase SQL Editor after phase3_cms.sql.
 -- No public storefront signup yet, so customers are admin-entered for now (phone orders, walk-ins, etc.)
 -- rather than linked to Supabase Auth users. Wishlist, wallet, reward points, and LTV are not in this

@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 17 schema (Customer Account Linking)
+-- Saint Roman Admin — Phase 17 schema (Customer Account Linking)
 -- Fixes a schema gap that's existed since storefront customer signup/login was first built:
 -- server/routes/customer.js's requireCustomer looks customers up by `auth_user_id`, and reads/
 -- writes `first_name`/`last_name`/`display_name`, but no committed migration ever added any of

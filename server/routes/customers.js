@@ -3,7 +3,7 @@
 //
 // This file used to be a near-duplicate of routes/customer.js (singular, mounted at /api/customer)
 // — same profile/password/addresses/orders/wishlist routes behind a customer JWT, but dead: nothing
-// on the storefront ever called /api/customers/* (confirmed — html/js/auth.js's ElloraAuth hits
+// on the storefront ever called /api/customers/* (confirmed — html/js/auth.js's SaintRomanAuth hits
 // /api/customer, singular, exclusively). Meanwhile the admin's Customers page has called
 // GET /api/customers since it was first built and always 404'd, because this plural path had no
 // bare GET / handler — only /profile, /orders, etc. Replaced with the real admin endpoint instead

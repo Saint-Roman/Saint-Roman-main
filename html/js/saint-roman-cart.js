@@ -1,10 +1,10 @@
-// Minimal client-side cart for the Ellora storefront. localStorage is still the only source of
+// Minimal client-side cart for the Saint Roman storefront. localStorage is still the only source of
 // truth this file itself reads from — checkout (POST /api/public/orders) uses get() directly, not
 // the server sync below. save() also fires a debounced best-effort sync to POST
 // /api/customer/cart purely so the admin Abandoned Carts page can see who has items sitting in
 // their cart, since the backend otherwise has zero visibility into carts at all.
 window.EllroaCart = (function () {
-  var KEY = 'ellora_cart';
+  var KEY = 'saint_roman_cart';
   var syncTimer = null;
 
   function get() {
@@ -29,11 +29,11 @@ window.EllroaCart = (function () {
   }
 
   async function doSync() {
-    if (!window.ElloraAuth || typeof window.ElloraAuth.getSession !== 'function') return;
+    if (!window.SaintRomanAuth || typeof window.SaintRomanAuth.getSession !== 'function') return;
 
     var session;
     try {
-      session = await window.ElloraAuth.getSession();
+      session = await window.SaintRomanAuth.getSession();
     } catch (e) {
       return;
     }
@@ -44,7 +44,7 @@ window.EllroaCart = (function () {
     });
 
     try {
-      await fetch(window.ElloraAuth.apiBase + '/cart', {
+      await fetch(window.SaintRomanAuth.apiBase + '/cart', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

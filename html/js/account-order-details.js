@@ -4,10 +4,10 @@
 // all, so it always showed the same static "Sophia Brown" / "Chic Aura Crop Top" demo order
 // regardless of which real order was clicked from account-order.html.
 document.addEventListener('DOMContentLoaded', async function () {
-    var session = await ElloraAuth.requireLogin();
+    var session = await SaintRomanAuth.requireLogin();
     if (!session) return;
 
-    var orderId = ElloraRoute.param(/^\/account\/orders\/([^/?#]+)/, 'id');
+    var orderId = SaintRomanRoute.param(/^\/account\/orders\/([^/?#]+)/, 'id');
     var box = document.querySelector('.view-order-content-box');
     if (!box) return;
 
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         return;
     }
 
-    var order = await ElloraAuth.apiFetch('/orders/' + encodeURIComponent(orderId));
+    var order = await SaintRomanAuth.apiFetch('/orders/' + encodeURIComponent(orderId));
     if (!order || order.error) {
         box.innerHTML = '<p>Order not found. <a href="account-order.html">Back to orders</a>.</p>';
         return;

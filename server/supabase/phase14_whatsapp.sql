@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 14 (WhatsApp Auto-Reply Flow)
+-- Saint Roman Admin — Phase 14 (WhatsApp Auto-Reply Flow)
 -- Run this in the Supabase SQL Editor after phase13_support_tickets.sql.
 -- Backs the WhatsApp bot (server/routes/whatsapp.js + server/lib/whatsappFlow.js): a per-phone-number
 -- conversation with a current menu step, plus a full inbound/outbound message log used both for

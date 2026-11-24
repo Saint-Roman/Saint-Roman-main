@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 13 (Support Tickets upgrade)
+-- Saint Roman Admin — Phase 13 (Support Tickets upgrade)
 -- Run this in the Supabase SQL Editor after phase12_testimonials.sql.
 -- Brings support_tickets (phase5_support.sql) up to the level of a real seller-ops support
 -- desk (Myntra/Flipkart-style): a human-readable ticket number instead of a raw uuid, an

@@ -160,7 +160,7 @@ export function TestimonialsPage() {
               </div>
               <div className="flex flex-col gap-2">
                 <Label>Author image</Label>
-                <ImageUpload value={authorImageUrl} onChange={setAuthorImageUrl} folder="ellora/testimonials" />
+                <ImageUpload value={authorImageUrl} onChange={setAuthorImageUrl} folder="saint-roman/testimonials" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">

@@ -7,7 +7,7 @@
 // regardless of what was actually ordered.
 (function () {
     var API_BASE = 'https://saint-roman-main.onrender.com/api/public';
-    var orderNumber = ElloraRoute.param(/^\/order-confirmation\/([^/?#]+)/, 'order');
+    var orderNumber = SaintRomanRoute.param(/^\/order-confirmation\/([^/?#]+)/, 'order');
 
     var headingEl = document.getElementById('order-number');
     var numberEl = document.getElementById('order-number-value');

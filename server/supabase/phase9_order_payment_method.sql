@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 9 (orders.payment_method / orders.payment_status)
+-- Saint Roman Admin — Phase 9 (orders.payment_method / orders.payment_status)
 -- Run this in the Supabase SQL Editor after phase8_product_specifications.sql.
 --
 -- server/routes/public.js's real checkout (POST /api/public/orders) has always inserted

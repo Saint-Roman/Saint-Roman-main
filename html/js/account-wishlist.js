@@ -1,15 +1,15 @@
 document.addEventListener('DOMContentLoaded', async function () {
-    var session = await ElloraAuth.requireLogin();
+    var session = await SaintRomanAuth.requireLogin();
     if (!session) return;
 
     await renderWishlist();
 
     async function renderWishlist() {
-        var json = await ElloraAuth.apiFetch('/wishlist');
+        var json = await SaintRomanAuth.apiFetch('/wishlist');
         if (!json) return;
         var items = json.wishlist || [];
 
-        // Target: .wishlist-content-box (the actual Ellora class)
+        // Target: .wishlist-content-box (the actual Saint Roman class)
         var box = document.querySelector('.wishlist-content-box');
         if (!box) return;
 
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             btn.addEventListener('click', async function (e) {
                 e.preventDefault();
                 var pid = btn.dataset.pid;
-                await ElloraAuth.apiFetch('/wishlist/' + pid, { method: 'DELETE' });
+                await SaintRomanAuth.apiFetch('/wishlist/' + pid, { method: 'DELETE' });
                 await renderWishlist();
             });
         });
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Wire sidebar Logout link
     document.querySelectorAll('.my-account-sidebar-item a').forEach(function (a) {
         if (a.textContent.trim().toLowerCase() === 'logout') {
-            a.addEventListener('click', function (e) { e.preventDefault(); ElloraAuth.logout(); });
+            a.addEventListener('click', function (e) { e.preventDefault(); SaintRomanAuth.logout(); });
         }
     });
 });

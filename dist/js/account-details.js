@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', async function () {
-    var session = await ElloraAuth.requireLogin();
+    var session = await SaintRomanAuth.requireLogin();
     if (!session) return;
 
-    var profile = await ElloraAuth.apiFetch('/profile');
+    var profile = await SaintRomanAuth.apiFetch('/profile');
     if (!profile) return;
 
-    // ── Populate existing form fields (keep Ellora's styled markup intact) ──
+    // ── Populate existing form fields (keep Saint Roman's styled markup intact) ──
     var fnameEl = document.getElementById('fname');
     var lnameEl = document.getElementById('lname');
     var dnameEl = document.getElementById('dname');
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             msgEl.textContent = 'Saving...';
             msgEl.style.color = '#888';
 
-            var result = await ElloraAuth.apiFetch('/profile', {
+            var result = await SaintRomanAuth.apiFetch('/profile', {
                 method: 'PUT',
                 body: JSON.stringify({
                     first_name: fnameEl ? fnameEl.value : '',
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     pwMsg.textContent = 'Updating...';
                     pwMsg.style.color = '#888';
 
-                    var result = await ElloraAuth.apiFetch('/password', {
+                    var result = await SaintRomanAuth.apiFetch('/password', {
                         method: 'PUT',
                         body: JSON.stringify({ new_password: newPw })
                     });
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // ── Wire sidebar Logout link ──
     document.querySelectorAll('.my-account-sidebar-item a').forEach(function (a) {
         if (a.textContent.trim().toLowerCase() === 'logout') {
-            a.addEventListener('click', function (e) { e.preventDefault(); ElloraAuth.logout(); });
+            a.addEventListener('click', function (e) { e.preventDefault(); SaintRomanAuth.logout(); });
         }
     });
 });

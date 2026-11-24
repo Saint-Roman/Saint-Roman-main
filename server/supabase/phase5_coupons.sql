@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 5 schema (Coupon Engine, Module 10 — first pass)
+-- Saint Roman Admin — Phase 5 schema (Coupon Engine, Module 10 — first pass)
 -- Run after phase4_returns.sql. Only unblocked now because a real checkout exists to apply
 -- coupons against (server/routes/public.js POST /orders). First pass covers percentage/flat/
 -- free-shipping discounts only — BOGO, Buy X Get Y, and referral/employee/influencer-specific

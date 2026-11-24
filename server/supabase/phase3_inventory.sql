@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 3 schema (Inventory Management, Module 5)
+-- Saint Roman Admin — Phase 3 schema (Inventory Management, Module 5)
 -- Run this in the Supabase SQL Editor after phase2_catalog.sql.
 
 alter table product_variants

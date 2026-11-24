@@ -1,10 +1,10 @@
-// Ellora storefront auth — defines window.ElloraAuth.
+// Saint Roman storefront auth — defines window.SaintRomanAuth.
 // Loaded on every account page (after the supabase-js CDN script, before the page's own
-// account-*.js), which already calls ElloraAuth.getSession() / requireLogin() / login() /
+// account-*.js), which already calls SaintRomanAuth.getSession() / requireLogin() / login() /
 // register() / logout() / apiFetch(). This file was previously empty, which is why every
-// account page threw "ElloraAuth is not defined" and none of the dynamic logic ever ran.
+// account page threw "SaintRomanAuth is not defined" and none of the dynamic logic ever ran.
 
-var ElloraAuth = (function () {
+var SaintRomanAuth = (function () {
     var SUPABASE_URL = 'https://gxbebydzhrmjvnkyryub.supabase.co';
     var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4YmVieWR6aHJtanZua3lyeXViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MzIyNzgsImV4cCI6MjEwMDEwODI3OH0.vKT-2syR9-2ZKU9z5HnA74vbvfWa657-Re4434Gb1jE';
     var API_BASE = 'https://saint-roman-main.onrender.com/api/customer';

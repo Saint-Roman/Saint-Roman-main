@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 10 (checkout schema gaps)
+-- Saint Roman Admin — Phase 10 (checkout schema gaps)
 -- Run this in the Supabase SQL Editor after phase9_order_payment_method.sql.
 --
 -- Two more places where server/routes/public.js's real checkout (POST /api/public/orders) has

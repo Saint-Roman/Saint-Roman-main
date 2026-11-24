@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 4 schema (Returns & Refunds, Module 14 — first pass)
+-- Saint Roman Admin — Phase 4 schema (Returns & Refunds, Module 14 — first pass)
 -- Run this in the Supabase SQL Editor after phase4_customers.sql.
 
 do $$ begin

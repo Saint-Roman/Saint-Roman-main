@@ -1,5 +1,5 @@
 /**
- * Ellora — Hero banner slider
+ * Saint Roman — Hero banner slider
  *
  * Converts the static hero section into a dynamic Swiper carousel.
  * Banners are fetched from admin → Banners → "Show on: Hero Slider"

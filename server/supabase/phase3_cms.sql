@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 3 schema (CMS, Module 17 — first pass: Blog Posts + FAQs only)
+-- Saint Roman Admin — Phase 3 schema (CMS, Module 17 — first pass: Blog Posts + FAQs only)
 -- Run this in the Supabase SQL Editor after phase3_orders.sql.
 -- Homepage builder, banners, popups, announcement bar, mega menu, and footer are not in this pass —
 -- they depend on the public storefront actually reading from the DB, which doesn't exist yet

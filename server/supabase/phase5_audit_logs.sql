@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 5 schema (Audit Logs, Module 24)
+-- Saint Roman Admin — Phase 5 schema (Audit Logs, Module 24)
 -- Instrumented at the highest-value mutation points only: admin logins, product price changes,
 -- product/category deletions, order status changes, and refunds. Not a blanket "log every API
 -- call" (that's the spec's "API Logs" line — low admin value at single-admin scale, high volume

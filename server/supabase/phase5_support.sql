@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 5 schema (Customer Support, Module 20 — thin pass)
+-- Saint Roman Admin — Phase 5 schema (Customer Support, Module 20 — thin pass)
 -- No live chat, WhatsApp, or calls integration (no provider). Just ticket tracking, fed by the
 -- storefront's real contact form (html/contact.html) and manageable in the admin panel.
 

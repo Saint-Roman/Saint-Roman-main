@@ -11,7 +11,7 @@
     <meta name="keywords" content="">
     <meta name="author" content="Awaiken">
     <!-- Page Title -->
-    <title>Ellora - Fashion & Lifestyle Store eCommerce HTML Template</title>
+    <title>Saint Roman - Fashion & Lifestyle Store eCommerce HTML Template</title>
     <!-- Favicon Icon -->
     <link rel="shortcut icon" type="image/x-icon" href="images/favicon.png">
     <!-- Custom Fonts Css-->
@@ -456,7 +456,7 @@
                                         </div>
                                         <!-- Product Total Item Tag List End -->
 
-                                        <!-- Live order items — see js/ellora-cart.js -->
+                                        <!-- Live order items — see js/saint-roman-cart.js -->
                                         <div id="live-order-items"></div>
 
                                         <!-- All Product Total List Start -->
@@ -662,17 +662,17 @@
     <!-- Main Custom js file -->
     <script src="js/function.js"></script>
     <script src="js/currency.js"></script>
-    <script src="js/ellora-cart.js"></script>
+    <script src="js/saint-roman-cart.js"></script>
     <script src="js/checkout-coupon-autoapply.js"></script>
     <script src="js/mega-menu-dynamic.js"></script>
-    <!-- Supabase + auth — checkout now requires a logged-in customer (ElloraAuth.requireLogin() below) -->
+    <!-- Supabase + auth — checkout now requires a logged-in customer (SaintRomanAuth.requireLogin() below) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="js/auth.js"></script>
 
     <!-- Live checkout — renders the cart, submits the real order to server/routes/public.js POST /orders -->
     <script>
         (async function () {
-            var session = await ElloraAuth.requireLogin();
+            var session = await SaintRomanAuth.requireLogin();
             if (!session) return;
 
             var API_BASE = 'https://saint-roman-main.onrender.com/api/public';

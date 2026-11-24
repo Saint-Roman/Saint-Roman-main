@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 6 schema (CRM, Module 8 — first pass)
+-- Saint Roman Admin — Phase 6 schema (CRM, Module 8 — first pass)
 -- No email/SMS campaign sending (needs an ESP/SMS provider) and no ML-based segmentation.
 -- What IS real: rule-based segments (minimum orders + minimum lifetime spend) evaluated live
 -- against real customers — order_count / lifetime_value are computed from actual orders, the

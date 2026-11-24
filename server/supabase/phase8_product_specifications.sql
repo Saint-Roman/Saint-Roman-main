@@ -1,7 +1,7 @@
--- Ellora Admin — Phase 8 (Product Specifications / storefront "Additional Information")
+-- Saint Roman Admin — Phase 8 (Product Specifications / storefront "Additional Information")
 -- Run this in the Supabase SQL Editor after phase7_barcode_labels.sql.
 --
--- Ellora sells multiple, very different categories (fashion, footwear, accessories, beauty), each
+-- Saint Roman sells multiple, very different categories (fashion, footwear, accessories, beauty), each
 -- with its own relevant spec attributes (a t-shirt has Fit/Neckline, a watch has Case
 -- Material/Water Resistance, a lipstick has Shade/Finish). Fixed columns like `material`/`fit`/
 -- `neckline` on `products` would only ever fit clothing and waste columns for everything else.

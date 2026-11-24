@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 6 (Media Library)
+-- Saint Roman Admin — Phase 6 (Media Library)
 -- Every image uploaded through /api/upload/image is cataloged here so the admin can browse all
 -- uploaded images in one place. The image FILE lives in Cloudinary (cloud storage); this table
 -- stores a record of it — the hosted URL plus metadata. `public_id` is Cloudinary's handle, used

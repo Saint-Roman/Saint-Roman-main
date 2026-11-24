@@ -1,4 +1,4 @@
--- Ellora Admin — Phase 6 schema (Shipping, Module 13 — first pass)
+-- Saint Roman Admin — Phase 6 schema (Shipping, Module 13 — first pass)
 -- No live courier API (Shiprocket/Delhivery-style rate-shopping, label generation, or webhook
 -- tracking). What IS real: admin-defined shipping rate rules, and a Shipments view derived from
 -- real orders — courier + tracking number are edited here and persist on the order itself

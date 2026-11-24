@@ -1,7 +1,7 @@
 {
-  "name": "ellora-fashion-lifestyle-store",
+  "name": "saint-roman-fashion-lifestyle-store",
   "version": "1.0.0",
-  "description": "Ellora - Fashion & Lifestyle Store HTML Template",
+  "description": "Saint Roman - Fashion & Lifestyle Store HTML Template",
   "main": "html/index.html",
   "scripts": {
     "dev": "browser-sync start --config bs-config.js",
