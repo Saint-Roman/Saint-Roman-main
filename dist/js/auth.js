@@ -112,5 +112,10 @@ var SaintRomanAuth = (function () {
         register: register,
         logout: logout,
         apiFetch: apiFetch,
+        // Exposed for html/js/saint-roman-cart.js's background cart sync, which deliberately does a
+        // raw fetch instead of apiFetch() — apiFetch redirects to login.html on a missing/expired
+        // session, which is exactly wrong for a silent best-effort sync that should never
+        // interrupt someone browsing.
+        apiBase: API_BASE,
     };
 })();

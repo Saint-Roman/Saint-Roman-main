@@ -1,7 +1,11 @@
-// Minimal client-side cart for the Saint Roman storefront. No server-side cart table —
-// state lives in localStorage until checkout, when it's sent to POST /api/public/orders.
+// Minimal client-side cart for the Saint Roman storefront. localStorage is still the only source of
+// truth this file itself reads from — checkout (POST /api/public/orders) uses get() directly, not
+// the server sync below. save() also fires a debounced best-effort sync to POST
+// /api/customer/cart purely so the admin Abandoned Carts page can see who has items sitting in
+// their cart, since the backend otherwise has zero visibility into carts at all.
 window.EllroaCart = (function () {
   var KEY = 'saint_roman_cart';
+  var syncTimer = null;
 
   function get() {
     try {
@@ -13,6 +17,44 @@ window.EllroaCart = (function () {
 
   function save(items) {
     localStorage.setItem(KEY, JSON.stringify(items));
+    scheduleSync();
+  }
+
+  // Debounced so rapid +/- quantity clicks don't fire a request per click. Silently does nothing
+  // if auth.js isn't loaded on this page, there's no logged-in session, or the request fails —
+  // this is telemetry for the admin panel, never something the shopper's flow depends on.
+  function scheduleSync() {
+    if (syncTimer) clearTimeout(syncTimer);
+    syncTimer = setTimeout(doSync, 800);
+  }
+
+  async function doSync() {
+    if (!window.SaintRomanAuth || typeof window.SaintRomanAuth.getSession !== 'function') return;
+
+    var session;
+    try {
+      session = await window.SaintRomanAuth.getSession();
+    } catch (e) {
+      return;
+    }
+    if (!session) return;
+
+    var items = get().map(function (i) {
+      return { variant_id: i.variantId, quantity: i.quantity };
+    });
+
+    try {
+      await fetch(window.SaintRomanAuth.apiBase + '/cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + session.access_token,
+        },
+        body: JSON.stringify({ items: items }),
+      });
+    } catch (e) {
+      // Network error, server down, whatever — never surface this to the shopper.
+    }
   }
 
   function add(item) {
@@ -51,5 +93,14 @@ window.EllroaCart = (function () {
     return get().reduce(function (sum, i) { return sum + i.price * i.quantity; }, 0);
   }
 
-  return { get: get, add: add, updateQuantity: updateQuantity, remove: remove, clear: clear, subtotal: subtotal };
+  // For callers that navigate away right after a cart mutation (product-single-dynamic.js's
+  // add-to-cart redirects straight to cart.html) — the debounced sync above never gets a chance
+  // to fire before the page unloads, since the browser cancels pending timers on navigation. Cancels
+  // the pending debounced sync and runs it immediately instead; await this before navigating.
+  function syncNow() {
+    if (syncTimer) clearTimeout(syncTimer);
+    return doSync();
+  }
+
+  return { get: get, add: add, updateQuantity: updateQuantity, remove: remove, clear: clear, subtotal: subtotal, syncNow: syncNow };
 })();
