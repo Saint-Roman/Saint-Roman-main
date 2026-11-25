@@ -457,8 +457,12 @@
     <!-- Page Products Section Start -->
     <div class="page-products">
         <div class="container">
-            <!-- Live banner hero (admin-managed, compact card layout) -->
-            <div id="live-banner-hero"></div>
+            <!-- Live banner hero (admin-managed, compact card layout) - COMMENTED OUT
+                 The script at the bottom of this page fills this element from the
+                 admin Banners list. It is guarded by "if (heroEl && ...)", so with
+                 the element gone the cards simply never render and nothing errors.
+                 To restore: delete this comment and uncomment the div below. -->
+            <!-- <div id="live-banner-hero"></div> -->
             <div class="row">
                 <div class="col-xl-3 col-lg-4">
                     <div class="page-single-sidebar">
