@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     document.querySelectorAll('.mega-menu-link a').forEach(function (link) {
+        if (link.closest('[data-menu="women"]')) return;
         var tag = tagMap[link.textContent.trim().toLowerCase()];
         if (tag) link.href = '/tag/' + tag;
     });
@@ -72,6 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!banners.length) return;
 
             document.querySelectorAll('.mega-menu-items-list').forEach(function (list) {
+                if (list.closest('[data-menu="women"]')) return;
                 var cards = list.querySelectorAll('.mega-menu-item');
                 banners.forEach(function (b, i) {
                     if (i >= cards.length) return;
