@@ -108,6 +108,13 @@
         var variants = product.product_variants || [];
         var colors = uniqueValues(variants, 'color');
         var sizes = uniqueValues(variants, 'size');
+        // Band sizes are near-always plain numbers (32, 34, 36...) and read oddly in whatever
+        // order product_variants rows happen to come back in (34 before 32). Sort ascending
+        // whenever every value actually is one — left alone for non-numeric sizing (S/M/L, a
+        // "90-95" range) rather than risk a wrong order for those.
+        if (sizes.length > 1 && sizes.every(function (s) { return s !== '' && isFinite(Number(s)); })) {
+            sizes.sort(function (a, b) { return Number(a) - Number(b); });
+        }
         // Second size dimension, bras only (Band Size + Cup/Type — Zivame/Marks & Spencer
         // style). Whether this product HAS one at all (hasCupDimension) is global — some
         // variant somewhere has a cup_size — but which cups are offered is always relative to
@@ -115,6 +122,10 @@
         // only offers the cups that band actually comes in, not every cup across every band.
         var cupSizes = uniqueValues(variants, 'cup_size');
         var hasCupDimension = cupSizes.length > 0;
+        // Set by renderCupOptionsForSize() below, read by updateSelection() so it can tell
+        // "cups exist for this band, just pick one" apart from "this band/colour has no cups at
+        // all" — the latter is an unavailable combination, not a prompt to do something.
+        var cupsAvailableForSelection = 0;
 
         var colorSection = document.getElementById('product-color-section');
         var colorOptions = document.getElementById('product-color-options');
@@ -146,7 +157,11 @@
             if (hasCupDimension && (!selectedSize || !selectedCupSize)) {
                 selectedVariant = null;
                 renderGalleryForColor(product, selectedColor);
-                if (message) message.textContent = !selectedSize ? 'Please select a size.' : 'Please select a cup size.';
+                if (message) {
+                    message.textContent = !selectedSize
+                        ? 'Please select a size.'
+                        : (cupsAvailableForSelection > 0 ? 'Please select a cup size.' : 'This combination is not available.');
+                }
                 return;
             }
             selectedVariant = findVariant(variants, selectedColor, selectedSize, selectedCupSize);
@@ -170,6 +185,7 @@
                     return v.size === size && (selectedColor === null || v.color === selectedColor);
                 }), 'cup_size')
                 : [];
+            cupsAvailableForSelection = available.length;
 
             if (available.length === 0) {
                 cupSection.style.display = 'none';
