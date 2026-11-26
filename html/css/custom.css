@@ -4087,43 +4087,24 @@ header.main-header .container {
 
 .product-single-breadcrumb-list ol {
 	margin: 0;
-	gap: 15px 55px;
+	gap: 8px 0;
 }
 
 .product-single-breadcrumb-list ol li {
-	position: relative;
 	color: var(--text-color);
 	padding: 0;
 }
 
-.product-single-breadcrumb-list .breadcrumb li::before {
-	content: '';
-	position: absolute;
-	right: -34px;
-	top: 50%;
-	transform: translateY(-50%);
-	background: url('../images/arrow-right-long.svg') no-repeat;
-	background-position: center center;
-	background-size: cover;
-	width: 14px;
-	height: 14px;
-	padding: 0;
-}
-
-.product-single-breadcrumb-list .breadcrumb li:last-child:before {
-	display: none;
-}
-
-.product-single-breadcrumb-list .breadcrumb-item+.breadcrumb-item {
-	padding: 0;
-}
-
-.product-single-breadcrumb-list .breadcrumb-item+.breadcrumb-item::before {
-	content: '';
-}
-
 .product-single-breadcrumb-list .breadcrumb li a {
 	color: inherit;
+}
+
+/* Plain "/" divider (Bootstrap's own default) instead of the arrow-icon separator this
+   template shipped with — matches the Home / Category / ... breadcrumb style already used
+   on the products listing page (.product-category-filter-title .breadcrumb). */
+.product-single-breadcrumb-list .breadcrumb-item.active {
+	color: var(--gold-color-dark);
+	font-weight: 600;
 }
 
 .product-single-info-box {
@@ -9098,18 +9079,8 @@ ul.view-order-product-info-list li span {
 		width: calc(50% - 5px);
 	}
 
-	.product-single-breadcrumb-list ol {
-		gap: 10px 40px;
-	}
-
 	.product-single-breadcrumb-list ol li {
 		font-size: 14px;
-	}
-
-	.product-single-breadcrumb-list .breadcrumb li::before {
-		right: -24px;
-		width: 10px;
-		height: 10px;
 	}
 
 	.product-single-image-slider {
