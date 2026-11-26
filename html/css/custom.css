@@ -3825,7 +3825,10 @@ header.main-header .container {
 /****************************************/
 
 .page-products {
-	padding: 100px 0;
+	/* Was 100px, almost the whole gap between the dark banner above and
+	   "Filter By" — bigger than the breathing room any fashion listing page
+	   actually needs there. */
+	padding: 60px 0;
 }
 
 .page-single-sidebar {
