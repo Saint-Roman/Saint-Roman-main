@@ -365,7 +365,11 @@
                             <nav class="wow fadeInUp">
                                 <ol class="breadcrumb">
                                     <li class="breadcrumb-item"><a href="./">Home</a></li>
-                                    <li class="breadcrumb-item"><a href="/products">Products</a></li>
+                                    <!-- Falls back to "Products" / /products (its initial state here) when
+                                         the product has no category — see js/product-single-dynamic.js,
+                                         which points this at the real category otherwise, same as the
+                                         category-aware breadcrumb products.html already builds. -->
+                                    <li class="breadcrumb-item"><a href="/products" id="product-breadcrumb-category">Products</a></li>
                                     <li class="breadcrumb-item active" aria-current="page" id="product-breadcrumb">Chic Aura Crop Top</li>
                                 </ol>
                             </nav>

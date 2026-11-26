@@ -635,6 +635,15 @@
             document.getElementById('product-breadcrumb').textContent = product.name;
             document.getElementById('product-title').textContent = product.name;
             document.getElementById('product-category').textContent = product.category ? product.category.name : '';
+
+            // Breadcrumb's middle crumb: the real category ("Home / Women's Fashion / <product>"),
+            // matching the category-aware breadcrumb products.html already shows — instead of a
+            // generic "Products" link that was the same for every product regardless of category.
+            var categoryCrumb = document.getElementById('product-breadcrumb-category');
+            if (categoryCrumb && product.category) {
+                categoryCrumb.textContent = product.category.name;
+                categoryCrumb.href = '/category/' + encodeURIComponent(product.category.slug);
+            }
             // products.short_description (server/supabase/phase19_product_short_description.sql) —
             // a separate, shorter field the admin writes for this one spot, kept apart from
             // products.description (the full text in the "Product Description" tab below) so the
