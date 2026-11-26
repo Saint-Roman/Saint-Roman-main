@@ -572,8 +572,11 @@
                                     var total = 0;
                                     var appending = false;
 
+                                    // Shared with products-hero-dynamic.js (js/route-params.js) so the
+                                    // slug fallback reads the same everywhere — notably "women-s-fashion"
+                                    // as "Women's Fashion", not "Women S Fashion".
                                     function readableLabel(str) {
-                                        return str.replace(/[-_]/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+                                        return SaintRomanRoute.label(str);
                                     }
 
                                     // Small swatch dot next to each Color checkbox (Zivame/M&S/H&M-style) so colors

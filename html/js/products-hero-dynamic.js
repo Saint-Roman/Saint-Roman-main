@@ -34,7 +34,7 @@
 
     if (tag) {
         // Tag-based collection page — show tag as readable title
-        var readable = tag.replace(/-/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+        var readable = SaintRomanRoute.label(tag);
         applyUpdate(readable + ' Collection');
     } else if (categorySlug) {
         // Category page
@@ -46,12 +46,12 @@
                 if (match) {
                     applyUpdate(match.name);
                 } else {
-                    var readable = categorySlug.replace(/-/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+                    var readable = SaintRomanRoute.label(categorySlug);
                     applyUpdate(readable);
                 }
             })
             .catch(function () {
-                var readable = categorySlug.replace(/-/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+                var readable = SaintRomanRoute.label(categorySlug);
                 applyUpdate(readable);
             });
     } else {
