@@ -4770,38 +4770,23 @@ header.main-header .container {
 	height: 24px;
 	border-radius: 50%;
 	cursor: pointer;
-}
-
-.product-item-variant-colors .color-variant.black {
-	background: var(--primary-color);
-}
-
-.product-item-variant-colors .color-variant.gray {
-	background: var(--divider-color);
-}
-
-.product-item-variant-colors .color-variant.light {
-	background: rgb(from var(--accent-color) r g b / 40%);
-}
-
-.product-item-variant-colors .color-variant.accent {
-	background: var(--text-color);
-}
-
-.product-item-variant-colors .color-variant.pink {
-	background: rgb(from var(--error-color) r g b / 50%);
+	box-sizing: border-box;
+	/* Every swatch gets a visible edge, not just a bare background — renderVariantPicker()
+	   (js/product-single-dynamic.js) sets the fill from the admin's own colour text (e.g.
+	   "white", "ivory"), and with no edge of its own a light/white swatch was indistinguishable
+	   from this page's white background even before selecting it. */
+	border: 1px solid var(--divider-color);
 }
 
 .product-item-variant-colors input:checked+.color-variant {
-	border: 4px solid transparent;
-}
-
-.product-item-variant-colors input:checked+.color-variant::after {
-	content: "";
-	position: absolute;
-	inset: -3px;
-	border-radius: 50%;
-	border: 3px solid var(--white-color);
+	/* An outline (not a second border + ::after ring) so the selected ring is the exact same
+	   shape, gap and colour for every swatch regardless of its own fill — the previous approach
+	   sized a transparent border and an inset ::after ring just slightly short of each other,
+	   which left a sliver where the swatch's OWN background showed through as the "ring". That
+	   happened to look like a coloured ring for blue/black, but is invisible by definition for
+	   a white swatch on this white page — this ring's colour never depends on the swatch's. */
+	outline: 2px solid var(--gold-color-dark);
+	outline-offset: 3px;
 }
 
 .product-single-item-size,
