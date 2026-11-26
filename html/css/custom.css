@@ -1334,7 +1334,7 @@ header.main-header .container {
 
 .new-arrival-item-image img {
 	width: 100%;
-	aspect-ratio: 1 / 1.452;
+	aspect-ratio: 1 / 1;
 	object-fit: cover;
 	transition: all 0.6s ease-in-out;
 }
@@ -1595,7 +1595,7 @@ header.main-header .container {
 .best-offer-item-image img {
 	width: 100%;
 	height: 100%;
-	aspect-ratio: 1 / 1.175;
+	aspect-ratio: 1 / 1;
 	object-fit: cover;
 	transition: all 0.6s ease-in-out;
 }
@@ -1778,7 +1778,7 @@ header.main-header .container {
 
 .product-item-image img {
 	width: 100%;
-	aspect-ratio: 1 / 1.273;
+	aspect-ratio: 1 / 1;
 	object-fit: cover;
 	border-radius: 10px 10px 0 0;
 }
@@ -4120,6 +4120,7 @@ header.main-header .container {
 	top: 30px;
 	display: flex;
 	flex-wrap: wrap;
+	align-items: flex-start;
 	gap: 10px;
 }
 
@@ -4148,7 +4149,7 @@ header.main-header .container {
 .product-single-image-slider .swiper-slide figure img {
 	width: 100%;
 	border-radius: 10px;
-	aspect-ratio: 1 / 1.275;
+	aspect-ratio: 1 / 1;
 	object-fit: cover;
 }
 
@@ -4159,12 +4160,12 @@ header.main-header .container {
 
 .product-single-image-item .swiper-slide figure,
 .product-single-image-item .swiper-slide figure img {
-	height: 100%;
+	height: auto;
 }
 
 .product-single-image-item .swiper-slide figure img {
 	width: 100%;
-	aspect-ratio: 1 / 1.265;
+	aspect-ratio: 1 / 1;
 	object-fit: cover;
 }
 
@@ -4928,7 +4929,7 @@ header.main-header .container {
 .cart-item-image {
 	position: relative;
 	width: 95px;
-	height: 80px;
+	height: 95px;
 	display: flex;
 	justify-content: center;
 	align-items: end;
@@ -4961,7 +4962,7 @@ header.main-header .container {
 
 .cart-item-image img {
 	width: 100%;
-	aspect-ratio: 1 / 0.84;
+	aspect-ratio: 1 / 1;
 	object-fit: cover;
 	border-radius: 10px;
 }
@@ -5708,7 +5709,7 @@ li.order-receive-content-list-title {
 
 .product-total-item-image {
 	width: 60px;
-	height: 54px;
+	height: 60px;
 	border-radius: 5px;
 	overflow: hidden;
 }
@@ -5719,7 +5720,7 @@ li.order-receive-content-list-title {
 
 .product-total-item-image figure img {
 	width: 100%;
-	aspect-ratio: 1 / 1.27;
+	aspect-ratio: 1 / 1;
 	object-fit: cover;
 }
 
@@ -6268,7 +6269,7 @@ ul.view-order-product-info-list li span {
 .wishlist-item-image img {
 	width: 100%;
 	height: 100%;
-	aspect-ratio: 1 / 0.875;
+	aspect-ratio: 1 / 1;
 	object-fit: cover;
 }
 
@@ -7262,7 +7263,7 @@ ul.view-order-product-info-list li span {
 	}
 
 	.new-arrival-item-image img {
-		aspect-ratio: 1 / 1.1;
+		aspect-ratio: 1 / 1;
 	}
 
 	.best-offer-item {
@@ -7675,7 +7676,7 @@ ul.view-order-product-info-list li span {
 	}
 
 	.best-offer-item-image img {
-		aspect-ratio: 1 / 1.01;
+		aspect-ratio: 1 / 1;
 	}
 
 	.best-offer-item-content-box {
@@ -9223,7 +9224,7 @@ ul.view-order-product-info-list li span {
 
 	.cart-item-image {
 		width: 85px;
-		height: 70px;
+		height: 85px;
 	}
 
 	.cart-item-info-content {
