@@ -294,12 +294,14 @@
                 el.querySelector('.product-item-title');
             if (title && p.name) title.textContent = p.name;
 
-            // Price — .product-item-price
-            var priceEl = el.querySelector('.product-item-price');
+            // Price — .product-item-price h3 (NOT the outer .product-item-price div: overwriting
+            // the div's innerHTML wipes out the <h3> wrapper, so the price loses the heading's
+            // color/weight/size and falls back to plain body text)
+            var priceEl = el.querySelector('.product-item-price h3');
             if (priceEl && p.base_price) {
                 var html = formatPrice(p.base_price);
                 if (p.compare_at_price && p.compare_at_price > p.base_price) {
-                    html += ' <del>' + formatPrice(p.compare_at_price) + '</del>';
+                    html += ' <span>' + formatPrice(p.compare_at_price) + '</span>';
                 }
                 priceEl.innerHTML = html;
             }
