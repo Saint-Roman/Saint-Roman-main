@@ -377,43 +377,41 @@ a:focus {
 	justify-content: center;
 }
 
-.loading-container,
-.loading,
-.loading-orbit {
+.loading-container {
 	height: 120px;
 	position: relative;
 	width: 120px;
-	border-radius: 100%;
-}
-
-.loading-container {
 	margin: 40px auto;
 }
 
-/* "Orbit ring" style: a static ring track (.loading) plus one dot that sweeps around it
-   (.loading-orbit), instead of the previous two-tone arc spinning in place. */
-.loading {
-	border: 2px solid var(--divider-color);
-}
-
-.loading-orbit {
-	position: absolute;
-	top: 0;
-	left: 0;
+/* "Orbit ring" style: a thin static ring track (.loading-ring-track) plus one thicker arc
+   segment (.loading-ring-arc) that sweeps around it, instead of the previous two-tone border
+   spinning in place. An SVG stroke is what gives the arc its round, evenly-curved ends — a
+   plain CSS border/conic-gradient can't produce that shape, only hard square corners. Rotating
+   the whole <svg> (not the individual <circle>) keeps the rotation centered reliably, since a
+   plain element's transform-origin defaults to its own center while an SVG child's doesn't. */
+.loading-ring {
+	display: block;
 	animation: rotate-loading 1.5s linear 0s infinite normal;
 	transform-origin: 50% 50%;
 }
 
-.loading-orbit::before {
-	content: "";
-	position: absolute;
-	top: -3px;
-	left: 50%;
-	width: 10px;
-	height: 10px;
-	margin-left: -5px;
-	border-radius: 50%;
-	background: var(--primary-color);
+.loading-ring-track,
+.loading-ring-arc {
+	fill: none;
+}
+
+.loading-ring-track {
+	stroke: var(--divider-color);
+	stroke-width: 2;
+}
+
+.loading-ring-arc {
+	stroke: var(--primary-color);
+	stroke-width: 4;
+	stroke-linecap: round;
+	/* Circumference at r=56 is ~351.9; a 98px dash draws roughly a 100° arc, the rest is gap. */
+	stroke-dasharray: 98 254;
 }
 
 #loading-icon {
