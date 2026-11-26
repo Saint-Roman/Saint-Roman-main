@@ -131,6 +131,11 @@ export function ProductsPage() {
   const [status, setStatus] = useState<Product['status']>('draft')
   const [categoryId, setCategoryId] = useState<string>('')
   const [variants, setVariants] = useState<Variant[]>([{ ...emptyVariant }])
+  const [bulkSizes, setBulkSizes] = useState('')
+  const [bulkCups, setBulkCups] = useState('')
+  const [bulkColors, setBulkColors] = useState('')
+  const [bulkPrice, setBulkPrice] = useState('')
+  const [bulkStock, setBulkStock] = useState('')
   const [specs, setSpecs] = useState<Spec[]>([])
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [newTagName, setNewTagName] = useState('')
@@ -185,6 +190,11 @@ export function ProductsPage() {
     setStatus('draft')
     setCategoryId('')
     setVariants([{ ...emptyVariant }])
+    setBulkSizes('')
+    setBulkCups('')
+    setBulkColors('')
+    setBulkPrice('')
+    setBulkStock('')
     setSpecs([])
     setSelectedTags([])
     setNewTagName('')
@@ -198,6 +208,52 @@ export function ProductsPage() {
 
   function updateVariant(index: number, patch: Partial<Variant>) {
     setVariants((prev) => prev.map((v, i) => (i === index ? { ...v, ...patch } : v)))
+  }
+
+  // ── Bulk variant generation ──────────────────────────────────────────
+  // A bra with 3 bands × 4 cups × 2 colours is 24 rows to add by hand, one field at a time.
+  // This fills every Size × Cup × Color combination at once, all starting at the same
+  // price/stock — the admin still edits individual rows afterward for the ones that differ
+  // (a colour that's out of stock, a cup that costs more, etc.).
+  function splitList(value: string) {
+    return value.split(',').map((s) => s.trim()).filter(Boolean)
+  }
+
+  function generateVariants() {
+    const sizes = splitList(bulkSizes)
+    if (sizes.length === 0) {
+      toast.error('Enter at least one size to generate variants.')
+      return
+    }
+    const cups = splitList(bulkCups)
+    const colors = splitList(bulkColors)
+    const price = bulkPrice === '' ? 0 : Number(bulkPrice)
+    const stock = bulkStock === '' ? 0 : Number(bulkStock)
+
+    const cupList = cups.length > 0 ? cups : ['']
+    const colorList = colors.length > 0 ? colors : ['']
+
+    const generated: Variant[] = []
+    for (const size of sizes) {
+      for (const cup of cupList) {
+        for (const color of colorList) {
+          generated.push({ size, cup_size: cup, color, price, stock_quantity: stock })
+        }
+      }
+    }
+
+    setVariants((prev) => {
+      // A still-untouched starter row would otherwise sit above the generated ones as a blank,
+      // separately-invalid variant.
+      const base = prev.length === 1 && !prev[0].size && !prev[0].color && !prev[0].cup_size ? [] : prev
+      const existingKeys = new Set(base.map((v) => `${v.size}|${v.color}|${v.cup_size}`))
+      const toAdd = generated.filter((v) => !existingKeys.has(`${v.size}|${v.color}|${v.cup_size}`))
+      if (toAdd.length === 0) {
+        toast.error('Those combinations are already in the list.')
+        return prev
+      }
+      return [...base, ...toAdd]
+    })
   }
 
   // ── Image helpers ────────────────────────────────────────────────────
@@ -818,6 +874,49 @@ export function ProductsPage() {
                   storefront only shows a Cup/Type picker when at least one variant has one set).
                   A 34 band in both 34B and 34C needs two separate variant rows.
                 </p>
+
+                <div className="flex flex-col gap-2 rounded-md border p-3">
+                  <span className="text-sm font-medium">Quickly add many variants</span>
+                  <p className="text-xs text-muted-foreground">
+                    Comma-separated. Leave Cups blank for a single-size product. Every Size ×
+                    Cup × Color combination becomes its own row below, all starting at the same
+                    price/stock — adjust any row afterward (a colour that's out of stock, a cup
+                    that costs more, etc).
+                  </p>
+                  <div className="grid grid-cols-5 gap-2">
+                    <Input
+                      placeholder="Sizes: 32, 34, 36"
+                      value={bulkSizes}
+                      onChange={(e) => setBulkSizes(e.target.value)}
+                    />
+                    <Input
+                      placeholder="Cups: B, C, D"
+                      value={bulkCups}
+                      onChange={(e) => setBulkCups(e.target.value)}
+                    />
+                    <Input
+                      placeholder="Colors: White, Black"
+                      value={bulkColors}
+                      onChange={(e) => setBulkColors(e.target.value)}
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Price"
+                      value={bulkPrice}
+                      onChange={(e) => setBulkPrice(e.target.value)}
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Stock"
+                      value={bulkStock}
+                      onChange={(e) => setBulkStock(e.target.value)}
+                    />
+                  </div>
+                  <Button type="button" variant="outline" size="sm" className="self-start" onClick={generateVariants}>
+                    Generate rows
+                  </Button>
+                </div>
+
                 {variants.map((variant, index) => (
                   <div key={index} className="grid grid-cols-5 gap-2">
                     <Input
