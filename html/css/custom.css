@@ -77,10 +77,6 @@
 	   shade is for fills/backgrounds where a thin-text contrast ratio doesn't apply. */
 	--gold-color: #C6A664;
 	--gold-color-dark: #867044;
-	/* Serif display face for headings only — the monogram's classic engraved letterforms read
-	   as "quiet luxury", which clashed with the template's bold grotesk sans on every heading.
-	   Body text and UI chrome stay on --default-font. */
-	--heading-font: 'Playfair Display', serif;
 }
 
 /****************************************/
@@ -133,7 +129,6 @@ h3,
 h4,
 h5,
 h6 {
-	font-family: var(--heading-font);
 	font-weight: 600;
 	line-height: 1.2em;
 	color: var(--primary-color);
