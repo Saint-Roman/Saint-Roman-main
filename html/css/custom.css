@@ -378,7 +378,8 @@ a:focus {
 }
 
 .loading-container,
-.loading {
+.loading,
+.loading-orbit {
 	height: 120px;
 	position: relative;
 	width: 120px;
@@ -389,16 +390,30 @@ a:focus {
 	margin: 40px auto;
 }
 
+/* "Orbit ring" style: a static ring track (.loading) plus one dot that sweeps around it
+   (.loading-orbit), instead of the previous two-tone arc spinning in place. */
 .loading {
-	border: 1px solid transparent;
-	border-color: transparent var(--primary-color) transparent var(--primary-color);
+	border: 2px solid var(--divider-color);
+}
+
+.loading-orbit {
+	position: absolute;
+	top: 0;
+	left: 0;
 	animation: rotate-loading 1.5s linear 0s infinite normal;
 	transform-origin: 50% 50%;
 }
 
-.loading-container:hover .loading,
-.loading-container .loading {
-	transition: all 0.5s ease-in-out;
+.loading-orbit::before {
+	content: "";
+	position: absolute;
+	top: -3px;
+	left: 50%;
+	width: 10px;
+	height: 10px;
+	margin-left: -5px;
+	border-radius: 50%;
+	background: var(--primary-color);
 }
 
 #loading-icon {
