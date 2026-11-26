@@ -800,7 +800,15 @@
                                             more = '<button type="button" class="facet-more" data-facet-more="' + esc(title) + '">' +
                                                 (expanded ? 'Show less' : '+ ' + hidden + ' more') + '</button>';
                                         }
-                                        return '<div class="product-category-item wow fadeInUp' + (openSections[title] === false ? ' collapsed' : '') + '">' +
+                                        // No "wow" class here: WOW.js only scans the page once, at
+                                        // DOMContentLoaded, for elements to hide-then-reveal on scroll.
+                                        // These groups render later, after the /facets response comes
+                                        // back, so WOW's MutationObserver picks them up as newly-added
+                                        // "wow" elements and holds them at opacity:0 until the next
+                                        // scroll/resize check decides they're in view — which is why
+                                        // they only appeared once you scrolled. No fashion site animates
+                                        // its own filter panel in on scroll, so it just renders plainly.
+                                        return '<div class="product-category-item' + (openSections[title] === false ? ' collapsed' : '') + '">' +
                                             '<h2 class="product-category-item-title" data-toggle-section="' + esc(title) + '">' + title + '</h2>' +
                                             '<div class="facet-body">' + render(visible) + more + '</div>' +
                                             '</div>';
@@ -970,7 +978,11 @@
                                             ? product.rating_avg + ' <i class="fa-solid fa-star"></i> <span>(' + product.rating_count + ')</span>'
                                             : '';
                                         return (
-                                            '<div class="product-item wow fadeInUp">' +
+                                            // Same reasoning as facetGroup() above: these cards render after
+                                            // the /products response lands, past WOW.js's one-time scan, so a
+                                            // "wow" class here just means "stay invisible until the shopper
+                                            // scrolls" instead of "animate in once, on load".
+                                            '<div class="product-item">' +
                                             '  <div class="product-item-header">' +
                                             '    <div class="product-item-image">' +
                                             '      <a href="' + detailUrl + '">' +
