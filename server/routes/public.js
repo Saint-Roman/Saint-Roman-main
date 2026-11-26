@@ -74,14 +74,21 @@ router.get('/products', async (req, res) => {
     if (tags.length) query = query.overlaps('tags', tags);
   }
 
+  // ilike (not .in, which is case-sensitive) so a facet value like "Black" also matches
+  // variant rows stored as "black" — the /facets endpoint merges those into one checkbox
+  // with a combined count, and filtering has to agree with what that checkbox promises.
   if (color) {
     const colors = String(color).split(',').map((c) => c.trim()).filter(Boolean);
-    if (colors.length) query = query.in('product_variants.color', colors);
+    if (colors.length) {
+      query = query.or(colors.map((c) => `color.ilike.${c.replace(/,/g, '')}`).join(','), { foreignTable: 'product_variants' });
+    }
   }
 
   if (size) {
     const sizes = String(size).split(',').map((s) => s.trim()).filter(Boolean);
-    if (sizes.length) query = query.in('product_variants.size', sizes);
+    if (sizes.length) {
+      query = query.or(sizes.map((s) => `size.ilike.${s.replace(/,/g, '')}`).join(','), { foreignTable: 'product_variants' });
+    }
   }
 
   if (price_min) query = query.gte('base_price', Number(price_min));
@@ -120,6 +127,19 @@ router.get('/facets', async (req, res) => {
   let minPrice = null;
   let maxPrice = null;
 
+  // Variant colors/sizes are free-text, so "Black", "black" and "Black " (case/whitespace
+  // variants of the same value) would otherwise show up as separate checkboxes with split
+  // counts. Group by a normalized key, but keep the first-seen spelling as the display label.
+  function addFacetValue(counts, raw) {
+    if (!raw) return;
+    const label = String(raw).trim().replace(/\s+/g, ' ');
+    if (!label) return;
+    const key = label.toLowerCase();
+    const entry = counts.get(key) || { label, count: 0 };
+    entry.count += 1;
+    counts.set(key, entry);
+  }
+
   for (const p of products) {
     if (p.category) {
       const entry = categoryCounts.get(p.category.slug) || { name: p.category.name, count: 0 };
@@ -130,8 +150,8 @@ router.get('/facets', async (req, res) => {
       tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
     }
     for (const v of p.product_variants || []) {
-      if (v.color) colorCounts.set(v.color, (colorCounts.get(v.color) || 0) + 1);
-      if (v.size) sizeCounts.set(v.size, (sizeCounts.get(v.size) || 0) + 1);
+      addFacetValue(colorCounts, v.color);
+      addFacetValue(sizeCounts, v.size);
     }
     const price = Number(p.base_price);
     if (!Number.isNaN(price)) {
@@ -147,11 +167,11 @@ router.get('/facets', async (req, res) => {
     tags: Array.from(tagCounts.entries())
       .map(([t, count]) => ({ tag: t, count }))
       .sort((a, b) => b.count - a.count),
-    colors: Array.from(colorCounts.entries())
-      .map(([value, count]) => ({ value, count }))
+    colors: Array.from(colorCounts.values())
+      .map(({ label, count }) => ({ value: label, count }))
       .sort((a, b) => b.count - a.count),
-    sizes: Array.from(sizeCounts.entries())
-      .map(([value, count]) => ({ value, count }))
+    sizes: Array.from(sizeCounts.values())
+      .map(({ label, count }) => ({ value: label, count }))
       .sort((a, b) => b.count - a.count),
     price_range: { min: minPrice ?? 0, max: maxPrice ?? 0 },
   });

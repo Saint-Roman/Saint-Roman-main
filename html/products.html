@@ -576,6 +576,21 @@
                                         return str.replace(/[-_]/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
                                     }
 
+                                    // Small swatch dot next to each Color checkbox (Zivame/M&S/H&M-style) so colors
+                                    // are recognizable at a glance instead of reading as plain text in a long list.
+                                    // Falls back to a neutral gray dot for anything not in this list.
+                                    var COLOR_SWATCHES = {
+                                        white: '#ffffff', black: '#111111', grey: '#9e9e9e', gray: '#9e9e9e',
+                                        navy: '#1b2a4a', blue: '#2b5a9e', peach: '#ffcba4', red: '#c0392b',
+                                        pink: '#e391b0', green: '#3a7d44', beige: '#d8c3a5', brown: '#7b4b2a',
+                                        yellow: '#e8c547', orange: '#e07a3a', purple: '#6c4a8e', maroon: '#6e1e2d',
+                                        cream: '#f2e6cf', olive: '#6b6b3a', gold: '#c9a227', silver: '#c0c0c0'
+                                    };
+                                    function colorSwatch(name) {
+                                        var hex = COLOR_SWATCHES[String(name).trim().toLowerCase()] || '#e5e5e5';
+                                        return '<span class="facet-color-swatch" style="background-color:' + hex + '" aria-hidden="true"></span>';
+                                    }
+
                                     function renderSidebar() {
                                         if (!facets) return;
 
@@ -586,10 +601,11 @@
                                                 var id = (stateKey + '-' + value).replace(/[^a-zA-Z0-9_-]/g, '_');
                                                 var checked = state[stateKey].indexOf(value) !== -1 ? 'checked' : '';
                                                 var label = labelKey ? item[labelKey] : readableLabel(String(value));
+                                                var swatch = stateKey === 'colors' ? colorSwatch(value) : '';
                                                 return (
                                                     '<li>' +
                                                     '<input type="checkbox" id="' + id + '" data-filter="' + stateKey + '" data-value="' + value + '" ' + checked + '>' +
-                                                    '<label for="' + id + '">' + label + ' (' + item.count + ')</label>' +
+                                                    '<label for="' + id + '">' + swatch + label + ' <span class="facet-count">(' + item.count + ')</span></label>' +
                                                     '</li>'
                                                 );
                                             }).join('');
@@ -607,7 +623,7 @@
                                             return (
                                                 '<li>' +
                                                 '<input type="checkbox" id="' + id + '" data-filter="category" data-value="' + c.slug + '" ' + checked + '>' +
-                                                '<label for="' + id + '">' + c.name + ' (' + c.count + ')</label>' +
+                                                '<label for="' + id + '">' + c.name + ' <span class="facet-count">(' + c.count + ')</span></label>' +
                                                 '</li>'
                                             );
                                         }).join('');

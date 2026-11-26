@@ -3916,14 +3916,38 @@ header.main-header .container {
 }
 
 .product-category-item ul li input[type=checkbox] {
-	width: 20px;
-	height: 20px;
+	width: 18px;
+	height: 18px;
+	flex-shrink: 0;
 	accent-color: var(--primary-color);
 }
 
 .product-category-item ul li label {
 	flex: 1;
+	display: flex;
+	align-items: center;
 	cursor: pointer;
+}
+
+/* Muted, lighter count ("(3)") so the eye lands on the option name first — the same
+   convention Zivame/M&S/H&M use instead of bolding the count the same as the label. */
+.facet-count {
+	color: var(--text-color);
+	font-weight: 400;
+	font-size: 13px;
+	margin-left: 4px;
+}
+
+/* Small color swatch dot before each Color option (Zivame/M&S/H&M-style), so colors read
+   at a glance instead of as plain text in a long list — see colorSwatch() in products.html. */
+.facet-color-swatch {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	border: 1px solid var(--divider-color);
+	margin-right: 8px;
+	flex-shrink: 0;
 }
 
 .product-category-item-title {
