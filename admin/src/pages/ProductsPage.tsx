@@ -69,6 +69,7 @@ interface Product {
   name: string
   slug: string
   description: string | null
+  short_description: string | null
   image_url: string | null
   sku: string | null
   barcode: string | null
@@ -114,6 +115,7 @@ export function ProductsPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [shortDescription, setShortDescription] = useState('')
   const [images, setImages] = useState<ProductImage[]>([])
   const [sku, setSku] = useState('')
   const [barcode, setBarcode] = useState('')
@@ -167,6 +169,7 @@ export function ProductsPage() {
     setEditingId(null)
     setName('')
     setDescription('')
+    setShortDescription('')
     setImages([])
     setSku('')
     setBarcode('')
@@ -306,6 +309,7 @@ export function ProductsPage() {
     setEditingId(product.id)
     setName(product.name)
     setDescription(product.description ?? '')
+    setShortDescription(product.short_description ?? '')
     setImages(
       (product.product_images || []).map((img) => ({
         color: img.color ?? null,
@@ -449,6 +453,7 @@ export function ProductsPage() {
         name,
         slug: slugify(name),
         description,
+        short_description: shortDescription || null,
         image_url: primaryImageUrl,
         images: submittedImages,
         sku: sku || null,
@@ -658,6 +663,20 @@ export function ProductsPage() {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="p-short-description">Short Description</Label>
+                <Textarea
+                  id="p-short-description"
+                  rows={2}
+                  value={shortDescription}
+                  onChange={(e) => setShortDescription(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Shown beside the product image on the storefront — keep it to 2-3 short lines. Write the
+                  full write-up below; it appears in the "Product Description" tab instead, so the two
+                  shouldn't repeat each other.
+                </p>
               </div>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="p-description">Description</Label>

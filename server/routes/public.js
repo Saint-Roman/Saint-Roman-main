@@ -324,7 +324,7 @@ router.get('/facets', async (req, res) => {
 router.get('/products/:slug', async (req, res) => {
   const { data, error } = await supabaseAdmin
     .from('products')
-    .select('id, name, slug, description, image_url, base_price, compare_at_price, brand, sku, barcode, hsn_code, gst_percent, specifications, category:categories(id, name, slug), product_variants(id, size, color, price, stock_quantity), product_images(url, alt_text, position, color, sort_order), product_reviews(id, author_name, rating, title, body, is_published, created_at)')
+    .select('id, name, slug, description, short_description, image_url, base_price, compare_at_price, brand, sku, barcode, hsn_code, gst_percent, specifications, category:categories(id, name, slug), product_variants(id, size, color, price, stock_quantity), product_images(url, alt_text, position, color, sort_order), product_reviews(id, author_name, rating, title, body, is_published, created_at)')
     .eq('slug', req.params.slug)
     .eq('status', 'active')
     .single();
