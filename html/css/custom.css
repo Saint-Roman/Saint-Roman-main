@@ -160,7 +160,12 @@ a:focus {
 }
 
 .container {
-	max-width: 1300px;
+	/* Centered at 1300px, a 1920px-wide window had 310px of dead margin on
+	   each side before any content started (plus the 15px column gutter,
+	   325px total before "Filter By"). Widened so that margin shrinks on
+	   large screens without the page going edge-to-edge — kept in step with
+	   the header/nav's own max-width below so everything still lines up. */
+	max-width: 1440px;
 }
 
 .container,
@@ -597,7 +602,7 @@ header.main-header .container {
 
 .header-action-box {
 	width: 100%;
-	max-width: 1300px;
+	max-width: 1440px;
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -700,7 +705,7 @@ header.main-header .container {
 
 .main-menu .navbar-collapse {
 	width: 100%;
-	max-width: 1300px;
+	max-width: 1440px;
 	margin: 0 auto;
 	padding: 0 15px;
 	gap: 20px;
@@ -880,7 +885,7 @@ header.main-header .container {
 
 .main-menu .mega-menu-box {
 	width: 100%;
-	max-width: 1300px;
+	max-width: 1440px;
 	margin: 0 auto;
 	display: flex;
 	flex-wrap: wrap;
