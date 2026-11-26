@@ -660,7 +660,7 @@ header.main-header .container {
 }
 
 .header-search-form .form-group .header-search-btn:hover {
-	color: var(--accent-color);
+	color: var(--gold-color-dark);
 }
 
 .header-action-details {
@@ -811,7 +811,7 @@ header.main-header .container {
 
 .main-menu ul ul .nav-item .nav-link:hover,
 .main-menu ul ul .nav-item .nav-link:focus {
-	color: var(--primary-color);
+	color: var(--gold-color-dark);
 	background-color: transparent;
 	padding: 8px 20px 8px 23px !important;
 }
@@ -937,7 +937,7 @@ header.main-header .container {
 }
 
 .main-menu .mega-menu-link ul li a:hover {
-	color: var(--primary-color);
+	color: var(--gold-color-dark);
 }
 
 .mega-menu-items-list {
@@ -1409,7 +1409,7 @@ header.main-header .container {
 }
 
 .section-footer-text p a:hover {
-	color: var(--primary-color);
+	color: var(--gold-color-dark);
 }
 
 .section-footer-text ul {
@@ -1749,7 +1749,7 @@ header.main-header .container {
 
 .our-product-filter-nav ul li a.active-btn,
 .our-product-filter-nav ul li a:hover {
-	color: var(--accent-color);
+	color: var(--gold-color-dark);
 }
 
 .product-item-list .product-item-box {
@@ -2463,7 +2463,7 @@ header.main-header .container {
 
 .social-feed-item:hover .icon-box a {
 	color: var(--white-color);
-	background: var(--primary-color);
+	background: var(--gold-color-dark);
 }
 
 /****************************************/
@@ -2918,7 +2918,7 @@ header.main-header .container {
 }
 
 .footer-social-links ul li a:hover {
-	color: var(--primary-color);
+	color: var(--gold-color-dark);
 	border-color: var(--white-color);
 	background-color: var(--white-color);
 }
@@ -3411,7 +3411,7 @@ header.main-header .container {
 
 .team-item-social-list ul li a:hover {
 	background: var(--white-color);
-	color: var(--primary-color);
+	color: var(--gold-color-dark);
 }
 
 .team-item-social-list ul li a i {
@@ -3564,7 +3564,7 @@ header.main-header .container {
 
 .page-pagination ul li.active a,
 .page-pagination ul li a:hover {
-	background: var(--primary-color);
+	background: var(--gold-color-dark);
 	color: var(--white-color);
 }
 
@@ -3770,7 +3770,7 @@ header.main-header .container {
 }
 
 .post-tags .tag-links a:hover {
-	background: var(--primary-color);
+	background: var(--gold-color-dark);
 	color: var(--white-color);
 }
 
@@ -3807,7 +3807,7 @@ header.main-header .container {
 }
 
 .post-social-sharing ul li:hover a {
-	background: var(--primary-color);
+	background: var(--gold-color-dark);
 	color: var(--white-color);
 }
 
@@ -3889,7 +3889,7 @@ header.main-header .container {
 }
 
 .product-category-filter-title .breadcrumb-item.active {
-	color: var(--primary-color);
+	color: var(--gold-color-dark);
 	font-weight: 600;
 }
 
@@ -3900,7 +3900,7 @@ header.main-header .container {
 }
 
 .product-category-filter-clear-btn a:hover {
-	color: var(--accent-color);
+	color: var(--gold-color-dark);
 }
 
 .product-category-item-title {
@@ -4040,7 +4040,7 @@ header.main-header .container {
 }
 
 .product-category-result-pagination ul li a:hover {
-	color: var(--primary-color);
+	color: var(--gold-color-dark);
 }
 
 .product-category-sorting-list .form-select {
@@ -4409,7 +4409,7 @@ header.main-header .container {
 }
 
 .product-single-action ul li a:hover {
-	background: var(--primary-color);
+	background: var(--gold-color-dark);
 }
 
 .product-single-action ul li a img {
@@ -4426,7 +4426,7 @@ header.main-header .container {
    same treatment as the existing :hover rules above, just kept on via a class instead of only
    while the pointer is over the icon. */
 .product-single-action ul li a.active {
-	background: var(--primary-color);
+	background: var(--gold-color-dark);
 }
 
 .product-single-action ul li a.active img {
@@ -4531,7 +4531,7 @@ header.main-header .container {
 .product-step-nav ul li .nav-link.active,
 .product-step-nav ul li .nav-link:hover {
 	background: transparent;
-	color: var(--accent-color);
+	color: var(--gold-color-dark);
 }
 
 .product-step-nav ul li .nav-link::before {
@@ -5251,7 +5251,7 @@ header.main-header .container {
 }
 
 .order-summary-shipment-info a:hover {
-	color: var(--accent-color);
+	color: var(--gold-color-dark);
 }
 
 .order-checkout-button .btn-default {
@@ -5325,7 +5325,7 @@ h2.order-sidebar-item-title {
 }
 
 .order-receive-sidebar-item ul li a:hover {
-	color: var(--accent-color);
+	color: var(--gold-color-dark);
 }
 
 .order-receive-box ul li {
@@ -5887,7 +5887,7 @@ li.order-receive-content-list-title {
 }
 
 .my-account-sidebar-item ul li a:hover {
-	color: var(--accent-color);
+	color: var(--gold-color-dark);
 }
 
 .my-account-sidebar-item ul li img {
@@ -5915,7 +5915,7 @@ li.order-receive-content-list-title {
 }
 
 .account-dashboard-detail-box p a:hover {
-	color: var(--accent-color);
+	color: var(--gold-color-dark);
 }
 
 p.account-dashboard-detail-title {
@@ -6095,7 +6095,7 @@ ul.view-order-product-info-list li span {
 }
 
 .view-order-address-item ul li a:hover {
-	color: var(--accent-color);
+	color: var(--gold-color-dark);
 }
 
 /****************************************/
@@ -6158,7 +6158,7 @@ ul.view-order-product-info-list li span {
 }
 
 .account-address-item-title p a:hover {
-	color: var(--primary-color);
+	color: var(--gold-color-dark);
 }
 
 .account-address-item-title p a img {
@@ -6358,7 +6358,7 @@ ul.view-order-product-info-list li span {
 }
 
 .wishlist-item-action a:hover {
-	color: var(--primary-color);
+	color: var(--gold-color-dark);
 }
 
 .wishlist-content-button {
@@ -6409,7 +6409,7 @@ ul.view-order-product-info-list li span {
 }
 
 .login-content-form-btn a:hover {
-	color: var(--accent-color);
+	color: var(--gold-color-dark);
 }
 
 .login-form-info p {
@@ -6427,7 +6427,7 @@ ul.view-order-product-info-list li span {
 }
 
 .login-form-info p a:hover {
-	color: var(--accent-color);
+	color: var(--gold-color-dark);
 }
 
 .signup-form-btn {
@@ -6495,7 +6495,7 @@ ul.view-order-product-info-list li span {
 }
 
 .page-category-list ul li a:hover {
-	color: var(--primary-color);
+	color: var(--gold-color-dark);
 }
 
 .page-category-list ul li a::before {
@@ -6567,7 +6567,7 @@ ul.view-order-product-info-list li span {
 }
 
 .sidebar-cta-box ul li a:hover {
-	color: var(--primary-color);
+	color: var(--gold-color-dark);
 }
 
 .sidebar-cta-box ul li a img {
@@ -6600,7 +6600,7 @@ ul.view-order-product-info-list li span {
 }
 
 .privacy-policy-entry-header p a:hover {
-	color: var(--accent-color);
+	color: var(--gold-color-dark);
 }
 
 .privacy-policy-entry-item {
@@ -6640,7 +6640,7 @@ ul.view-order-product-info-list li span {
 }
 
 .privacy-policy-entry-item .section-title ul li a:hover {
-	color: var(--accent-color);
+	color: var(--gold-color-dark);
 }
 
 .privacy-policy-entry-item-content-box {
@@ -6704,7 +6704,7 @@ ul.view-order-product-info-list li span {
 }
 
 .privacy-policy-entry-item-content-box ul li a:hover {
-	color: var(--accent-color);
+	color: var(--gold-color-dark);
 }
 
 .privacy-policy-entry-item-content-box ul.contact-list-box {
@@ -9725,7 +9725,7 @@ ul.view-order-product-info-list li span {
 }
 
 .compare-remove-btn:hover {
-	color: var(--primary-color);
+	color: var(--gold-color-dark);
 }
 
 .compare-add-placeholder {
@@ -9750,8 +9750,8 @@ ul.view-order-product-info-list li span {
 }
 
 .compare-add-placeholder:hover {
-	border-color: var(--primary-color);
-	color: var(--primary-color);
+	border-color: var(--gold-color-dark);
+	color: var(--gold-color-dark);
 }
 
 .compare-empty-state {
