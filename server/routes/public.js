@@ -144,10 +144,21 @@ router.get('/products', async (req, res) => {
 // counts + the active price range), computed from products that are actually active right now.
 // Replaces the old hardcoded "Women's Fashion (520)" template checkboxes.
 //
-// Optional ?category=<slug>&tag=<tag> scope Collection/Color/Size/price to that selection —
-// otherwise, e.g., a Men's Fashion page would list Women's-only sizes/colors in its sidebar
-// just because they exist somewhere else in the catalog. The Categories section itself stays
-// unscoped by category (only by tag) so switching category from the sidebar still works.
+// Optional ?category=<slug>&tag=<tag> scope the sidebar to the current selection, so a
+// Men's Fashion page doesn't list Women's-only colors just because they exist elsewhere
+// in the catalog.
+//
+// Each group is counted with every filter applied EXCEPT its own — the standard
+// faceted-search rule, and what every large retailer's sidebar does. Scoping a group by
+// its own selection collapses it to the one value already chosen, which strands the
+// shopper: picking Luxury left the Collection group holding only Luxury, so there was no
+// way to switch to Winter without clearing everything. It also means a combination that
+// matches nothing still returns a populated Categories and Collection list, instead of an
+// empty sidebar whose only exit is Clear All.
+//
+//   Categories  <- tag applied, category NOT applied
+//   Collection  <- category applied, tag NOT applied
+//   Color/Size/price <- both applied (nothing else narrows them)
 router.get('/facets', async (req, res) => {
   const { category, tag } = req.query;
 
@@ -166,26 +177,37 @@ router.get('/facets', async (req, res) => {
     categoryId = categoryRow.id;
   }
 
-  function baseQuery() {
+  const tags = String(tag || '').split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
+
+  // The three scopes collapse to the same query whenever the filter they differ on isn't
+  // set, so they're fetched once each and shared rather than run three times over.
+  const fetched = new Map();
+  async function productsWith(withCategory, withTag) {
+    const useCategory = withCategory && categoryId !== null;
+    const useTag = withTag && tags.length > 0;
+    const key = `${useCategory}|${useTag}`;
+    if (fetched.has(key)) return fetched.get(key);
+
     let q = supabaseAdmin
       .from('products')
       .select('base_price, tags, category_id, category:categories(name, slug), product_variants(color, size)')
       .eq('status', 'active');
-    if (tag) {
-      const tags = String(tag).split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
-      if (tags.length) q = q.overlaps('tags', tags);
-    }
-    return q;
+    if (useCategory) q = q.eq('category_id', categoryId);
+    if (useTag) q = q.overlaps('tags', tags);
+
+    const { data, error } = await q;
+    if (error) throw error;
+    fetched.set(key, data);
+    return data;
   }
 
-  const { data: productsForCategories, error } = await baseQuery();
-  if (error) return res.status(500).json({ error: error.message });
-
-  let productsForFacets = productsForCategories;
-  if (categoryId) {
-    const { data, error: scopedError } = await baseQuery().eq('category_id', categoryId);
-    if (scopedError) return res.status(500).json({ error: scopedError.message });
-    productsForFacets = data;
+  let productsForCategories, productsForTags, productsForFacets;
+  try {
+    productsForCategories = await productsWith(false, true);
+    productsForTags = await productsWith(true, false);
+    productsForFacets = await productsWith(true, true);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 
   const categoryCounts = new Map();
@@ -221,10 +243,13 @@ router.get('/facets', async (req, res) => {
     }
   }
 
-  for (const p of productsForFacets) {
+  for (const p of productsForTags) {
     for (const t of p.tags || []) {
       tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
     }
+  }
+
+  for (const p of productsForFacets) {
     for (const v of p.product_variants || []) {
       addFacetValue(colorCounts, v.color, false);
       addFacetValue(sizeCounts, v.size, true);

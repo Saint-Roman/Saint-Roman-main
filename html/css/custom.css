@@ -4237,6 +4237,59 @@ header.main-header .container {
 	white-space: nowrap;
 }
 
+/* ── Empty results ────────────────────────────────────────────────────── */
+/* A filter combination that matches nothing is a normal state on a small
+   catalogue, not an error — it gets the same treatment every large retailer
+   gives it: say what matched nothing, and put the way out in reach. */
+.products-empty {
+	max-width: 520px;
+	padding: 40px 0 20px;
+}
+
+.products-empty h3 {
+	font-size: 20px;
+	margin-bottom: 10px;
+}
+
+.products-empty p {
+	color: var(--text-color);
+	margin-bottom: 20px;
+}
+
+.products-empty-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.products-empty-btn {
+	background-color: var(--primary-color);
+	color: var(--white-color);
+	border: 1px solid var(--primary-color);
+	border-radius: 8px;
+	padding: 11px 18px;
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+}
+
+.products-empty-btn:hover {
+	background-color: var(--gold-color-dark);
+	border-color: var(--gold-color-dark);
+}
+
+.products-empty-btn.is-ghost {
+	background-color: transparent;
+	color: var(--primary-color);
+	border-color: var(--divider-color);
+}
+
+.products-empty-btn.is-ghost:hover {
+	border-color: var(--primary-color);
+	color: var(--primary-color);
+}
+
 /* ── Desktop: let the panel scroll itself instead of the page ─────────── */
 /* .page-single-sidebar is already position:sticky, but a panel taller than the
    viewport has nothing to stick to — it just scrolls away. Capping it to the

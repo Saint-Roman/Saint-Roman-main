@@ -769,11 +769,15 @@
                                         }).join('') + '</ul>';
                                     }
 
-                                    function facetGroup(title, items, render) {
+                                    function facetGroup(title, items, render, minItems) {
                                         // A group with nothing to choose between filters nothing — one option
                                         // that every product in view already matches is pure noise, so the
                                         // whole group is dropped rather than rendered as a dead checkbox.
-                                        if (!items || items.length < 2) return '';
+                                        // Categories and Price prepend their own "All"/"Any" row, so one real
+                                        // value is already a choice between two — and when a combination
+                                        // matches nothing, that single sibling category is exactly the control
+                                        // the shopper needs to get out.
+                                        if (!items || items.length < (minItems || 2)) return '';
                                         var cap = FACET_CAPS[title] || 0;
                                         var expanded = expandedSections[title] === true;
                                         var visible = (cap && !expanded) ? items.slice(0, cap) : items;
@@ -794,8 +798,8 @@
 
                                         sidebarEl.innerHTML =
                                             '<div id="facet-applied-host">' + chipsMarkup() + '</div>' +
-                                            facetGroup('Categories', facets.categories, renderCategories) +
-                                            facetGroup('Price', priceBuckets(facets.price_range), renderPrice) +
+                                            facetGroup('Categories', facets.categories, renderCategories, 1) +
+                                            facetGroup('Price', priceBuckets(facets.price_range), renderPrice, 1) +
                                             facetGroup('Collection', facets.tags, renderChecks('tags', 'tag', function (i) { return esc(readableLabel(i.tag)); })) +
                                             facetGroup('Color', facets.colors, renderSwatches);
                                     }
@@ -1001,9 +1005,29 @@
                                                 }
 
                                                 if (products.length === 0 && !append) {
-                                                    listEl.innerHTML = hasFilters
-                                                        ? '<p>No products found for these filters.</p>'
-                                                        : '<p>No products available right now.</p>';
+                                                    // A bare "no products" line is a dead end: it says what failed
+                                                    // and nothing about how to recover. Name the filters that are
+                                                    // responsible and put the ways out — drop the last one, or
+                                                    // clear them all — in the message itself.
+                                                    if (hasFilters) {
+                                                        var applied = appliedFilters();
+                                                        var last = applied[applied.length - 1];
+                                                        listEl.innerHTML =
+                                                            '<div class="products-empty">' +
+                                                            '<h3>No products match these filters</h3>' +
+                                                            '<p>Nothing in the catalogue matches ' +
+                                                            applied.map(function (f) { return '<strong>' + esc(f.label) + '</strong>'; }).join(' + ') +
+                                                            ' together. Try widening one of them.</p>' +
+                                                            '<div class="products-empty-actions">' +
+                                                            (applied.length > 1
+                                                                ? '<button type="button" class="products-empty-btn" data-empty-drop="' + esc(last.key) + '" data-empty-value="' + esc(last.value) + '">Remove &ldquo;' + esc(last.label) + '&rdquo;</button>'
+                                                                : '') +
+                                                            '<button type="button" class="products-empty-btn is-ghost" data-empty-clear="1">Clear all filters</button>' +
+                                                            '</div></div>';
+                                                    } else {
+                                                        listEl.innerHTML = '<div class="products-empty"><h3>No products available right now</h3>' +
+                                                            '<p>Please check back shortly.</p></div>';
+                                                    }
                                                 } else {
                                                     var html = products.map(productCard).join('');
                                                     listEl.innerHTML = append ? listEl.innerHTML + html : html;
@@ -1015,8 +1039,9 @@
                                                 if (paginationEl) {
                                                     paginationEl.innerHTML = total ? '<span>' + shown + ' of ' + total + ' products</span>' : '';
                                                 }
-                                                if (loadMoreLink) {
-                                                    loadMoreLink.style.display = shown < total ? '' : 'none';
+                                                var loadMoreEl = loadMoreLink || document.querySelector('.product-learn-more-btn a');
+                                                if (loadMoreEl) {
+                                                    loadMoreEl.style.display = shown < total ? '' : 'none';
                                                 }
                                             })
                                             .catch(function (err) {
@@ -1072,6 +1097,26 @@
                                             drawerApplyBtn.textContent = total ? 'Show ' + total + ' result' + (total > 1 ? 's' : '') : 'Show results';
                                         }
                                     }
+
+                                    // The empty state is rendered into the product grid, so its buttons are
+                                    // handled here rather than by the sidebar's delegated listener.
+                                    listEl.addEventListener('click', function (e) {
+                                        var drop = e.target.closest ? e.target.closest('[data-empty-drop]') : null;
+                                        if (drop) {
+                                            var dk = drop.getAttribute('data-empty-drop');
+                                            var dv = drop.getAttribute('data-empty-value');
+                                            if (dk === 'category') state.category = null;
+                                            else if (dk === 'price') state.price = null;
+                                            else {
+                                                var i = state[dk].indexOf(dv);
+                                                if (i !== -1) state[dk].splice(i, 1);
+                                            }
+                                            syncInputsFromState();
+                                            afterFilterChange(dk === 'category' || dk === 'tags');
+                                            return;
+                                        }
+                                        if (e.target.closest && e.target.closest('[data-empty-clear]')) resetAllFilters();
+                                    });
 
                                     var clearAllLink = document.querySelector('.product-category-filter-clear-btn a');
                                     if (clearAllLink) {
