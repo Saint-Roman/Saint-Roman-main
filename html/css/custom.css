@@ -1334,7 +1334,7 @@ header.main-header .container {
 
 .new-arrival-item-image img {
 	width: 100%;
-	aspect-ratio: 1 / 1;
+	aspect-ratio: 1 / 1.452;
 	object-fit: cover;
 	transition: all 0.6s ease-in-out;
 }
@@ -1595,7 +1595,7 @@ header.main-header .container {
 .best-offer-item-image img {
 	width: 100%;
 	height: 100%;
-	aspect-ratio: 1 / 1;
+	aspect-ratio: 1 / 1.175;
 	object-fit: cover;
 	transition: all 0.6s ease-in-out;
 }
@@ -1778,7 +1778,7 @@ header.main-header .container {
 
 .product-item-image img {
 	width: 100%;
-	aspect-ratio: 1 / 1;
+	aspect-ratio: 1 / 1.273;
 	object-fit: cover;
 	border-radius: 10px 10px 0 0;
 }
@@ -2665,7 +2665,7 @@ header.main-header .container {
 
 .post-featured-image img {
 	width: 100%;
-	aspect-ratio: 1 / 1;
+	aspect-ratio: 1 / 0.745;
 	object-fit: cover;
 	transition: all 0.6s ease-in-out;
 }
@@ -3073,7 +3073,7 @@ header.main-header .container {
 
 .about-us-image img {
 	width: 100%;
-	aspect-ratio: 1 / 1;
+	aspect-ratio: 1 / 1.29;
 	object-fit: cover;
 	border-radius: 5px;
 }
@@ -3104,7 +3104,7 @@ header.main-header .container {
 
 .philosophy-image img {
 	width: 100%;
-	aspect-ratio: 1 / 1;
+	aspect-ratio: 1 / 1.096;
 	border-radius: 10px;
 	object-fit: cover;
 }
@@ -3359,7 +3359,7 @@ header.main-header .container {
 
 .team-item-image img {
 	width: 100%;
-	aspect-ratio: 1 / 1;
+	aspect-ratio: 1 / 0.966;
 	object-fit: cover;
 	border-radius: 5px;
 	transition: all 0.6s ease-in-out;
@@ -3604,7 +3604,7 @@ header.main-header .container {
 
 .post-image img {
 	width: 100%;
-	aspect-ratio: 1 / 1;
+	aspect-ratio: 1 / 0.50;
 	object-fit: cover;
 	border-radius: 10px;
 }
@@ -4120,7 +4120,6 @@ header.main-header .container {
 	top: 30px;
 	display: flex;
 	flex-wrap: wrap;
-	align-items: flex-start;
 	gap: 10px;
 }
 
@@ -4149,7 +4148,7 @@ header.main-header .container {
 .product-single-image-slider .swiper-slide figure img {
 	width: 100%;
 	border-radius: 10px;
-	aspect-ratio: 1 / 1;
+	aspect-ratio: 1 / 1.275;
 	object-fit: cover;
 }
 
@@ -4160,12 +4159,12 @@ header.main-header .container {
 
 .product-single-image-item .swiper-slide figure,
 .product-single-image-item .swiper-slide figure img {
-	height: auto;
+	height: 100%;
 }
 
 .product-single-image-item .swiper-slide figure img {
 	width: 100%;
-	aspect-ratio: 1 / 1;
+	aspect-ratio: 1 / 1.265;
 	object-fit: cover;
 }
 
@@ -4929,7 +4928,7 @@ header.main-header .container {
 .cart-item-image {
 	position: relative;
 	width: 95px;
-	height: 95px;
+	height: 80px;
 	display: flex;
 	justify-content: center;
 	align-items: end;
@@ -4962,7 +4961,7 @@ header.main-header .container {
 
 .cart-item-image img {
 	width: 100%;
-	aspect-ratio: 1 / 1;
+	aspect-ratio: 1 / 0.84;
 	object-fit: cover;
 	border-radius: 10px;
 }
@@ -5709,7 +5708,7 @@ li.order-receive-content-list-title {
 
 .product-total-item-image {
 	width: 60px;
-	height: 60px;
+	height: 54px;
 	border-radius: 5px;
 	overflow: hidden;
 }
@@ -5720,7 +5719,7 @@ li.order-receive-content-list-title {
 
 .product-total-item-image figure img {
 	width: 100%;
-	aspect-ratio: 1 / 1;
+	aspect-ratio: 1 / 1.27;
 	object-fit: cover;
 }
 
@@ -6269,7 +6268,7 @@ ul.view-order-product-info-list li span {
 .wishlist-item-image img {
 	width: 100%;
 	height: 100%;
-	aspect-ratio: 1 / 1;
+	aspect-ratio: 1 / 0.875;
 	object-fit: cover;
 }
 
@@ -7263,7 +7262,7 @@ ul.view-order-product-info-list li span {
 	}
 
 	.new-arrival-item-image img {
-		aspect-ratio: 1 / 1;
+		aspect-ratio: 1 / 1.1;
 	}
 
 	.best-offer-item {
@@ -7337,7 +7336,7 @@ ul.view-order-product-info-list li span {
 	}
 
 	.about-us-image img {
-		aspect-ratio: 1 / 1;
+		aspect-ratio: 1 / 0.99;
 	}
 
 	.philosophy-image {
@@ -7676,7 +7675,7 @@ ul.view-order-product-info-list li span {
 	}
 
 	.best-offer-item-image img {
-		aspect-ratio: 1 / 1;
+		aspect-ratio: 1 / 1.01;
 	}
 
 	.best-offer-item-content-box {
@@ -7909,7 +7908,7 @@ ul.view-order-product-info-list li span {
 	}
 
 	.philosophy-image img {
-		aspect-ratio: 1 / 1;
+		aspect-ratio: 1 / 0.96;
 	}
 
 	.philosophy-accordion .accordion-item {
@@ -9026,7 +9025,7 @@ ul.view-order-product-info-list li span {
 	}
 
 	.post-image img {
-		aspect-ratio: 1 / 1;
+		aspect-ratio: 1 / 0.7;
 	}
 
 	.post-entry blockquote {
@@ -9224,7 +9223,7 @@ ul.view-order-product-info-list li span {
 
 	.cart-item-image {
 		width: 85px;
-		height: 85px;
+		height: 70px;
 	}
 
 	.cart-item-info-content {
