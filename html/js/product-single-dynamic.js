@@ -137,8 +137,12 @@
                 colorSection.style.display = '';
                 colorOptions.innerHTML = colors.map(function (color, i) {
                     var safeColor = EllroaText.escapeHtml(color);
+                    // The selected ring (CSS: input:checked + .color-variant) picks up this
+                    // swatch's own colour via --swatch-ring-color — except white, which gets a
+                    // thin black ring instead of a literally invisible white-on-white one.
+                    var ringColor = /^white$/i.test(String(color).trim()) ? '#000000' : safeColor;
                     return '<input type="radio" name="color" id="product-color-' + i + '"' + (i === 0 ? ' checked' : '') + '>' +
-                        '<label for="product-color-' + i + '" class="color-variant" style="background:' + safeColor + '" title="' + safeColor + '"></label>';
+                        '<label for="product-color-' + i + '" class="color-variant" style="background:' + safeColor + ';--swatch-ring-color:' + ringColor + '" title="' + safeColor + '"></label>';
                 }).join('');
 
                 colors.forEach(function (color, i) {
