@@ -1782,7 +1782,9 @@ header.main-header .container {
 }
 
 .product-item:hover .product-item-action {
-	transform: translateY(-20px);
+	/* Lifted clear of .product-item-rating (bottom-left badge over the same image) instead
+	   of the smaller -20px, which used to land the icons right on top of it. */
+	transform: translateY(-48px);
 	opacity: 1;
 	visibility: visible;
 }
@@ -1831,12 +1833,12 @@ header.main-header .container {
    see the "Product Item Image End" markup comment across index.html/product-single.html and
    productCard() in products.html) — that header is position:relative + overflow:hidden, the
    same container .product-item-action's hover icons already use, so this overlays the product
-   photo itself instead of floating in the text content below it. Pinned to the top-left
-   (not bottom-left) so it doesn't collide with .product-item-action's hover icons, which
-   slide up over the bottom of the image. */
+   photo itself (bottom-left) instead of floating in the text content below it. The hover
+   icons (.product-item-action) are lifted higher on hover (see its :hover rule below) so
+   they clear this badge instead of landing on top of it. */
 .product-item-rating {
 	position: absolute;
-	top: 15px;
+	bottom: 15px;
 	left: 15px;
 	z-index: 2;
 	display: inline-flex;
