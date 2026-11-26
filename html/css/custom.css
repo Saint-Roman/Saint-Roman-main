@@ -2665,7 +2665,7 @@ header.main-header .container {
 
 .post-featured-image img {
 	width: 100%;
-	aspect-ratio: 1 / 0.745;
+	aspect-ratio: 1 / 1;
 	object-fit: cover;
 	transition: all 0.6s ease-in-out;
 }
@@ -3073,7 +3073,7 @@ header.main-header .container {
 
 .about-us-image img {
 	width: 100%;
-	aspect-ratio: 1 / 1.29;
+	aspect-ratio: 1 / 1;
 	object-fit: cover;
 	border-radius: 5px;
 }
@@ -3104,7 +3104,7 @@ header.main-header .container {
 
 .philosophy-image img {
 	width: 100%;
-	aspect-ratio: 1 / 1.096;
+	aspect-ratio: 1 / 1;
 	border-radius: 10px;
 	object-fit: cover;
 }
@@ -3359,7 +3359,7 @@ header.main-header .container {
 
 .team-item-image img {
 	width: 100%;
-	aspect-ratio: 1 / 0.966;
+	aspect-ratio: 1 / 1;
 	object-fit: cover;
 	border-radius: 5px;
 	transition: all 0.6s ease-in-out;
@@ -3604,7 +3604,7 @@ header.main-header .container {
 
 .post-image img {
 	width: 100%;
-	aspect-ratio: 1 / 0.50;
+	aspect-ratio: 1 / 1;
 	object-fit: cover;
 	border-radius: 10px;
 }
@@ -7337,7 +7337,7 @@ ul.view-order-product-info-list li span {
 	}
 
 	.about-us-image img {
-		aspect-ratio: 1 / 0.99;
+		aspect-ratio: 1 / 1;
 	}
 
 	.philosophy-image {
@@ -7909,7 +7909,7 @@ ul.view-order-product-info-list li span {
 	}
 
 	.philosophy-image img {
-		aspect-ratio: 1 / 0.96;
+		aspect-ratio: 1 / 1;
 	}
 
 	.philosophy-accordion .accordion-item {
@@ -9026,7 +9026,7 @@ ul.view-order-product-info-list li span {
 	}
 
 	.post-image img {
-		aspect-ratio: 1 / 0.7;
+		aspect-ratio: 1 / 1;
 	}
 
 	.post-entry blockquote {
