@@ -71,6 +71,16 @@
 	--error-color: rgb(230, 87, 87);
 	--star-color: #FFB800;
 	--default-font: 'Overused Grotesk';
+	/* Brand gold, sampled from the "SR" monogram logo — used as the site's real accent color
+	   (CTAs, active states) instead of leaving gold confined to the logo itself.
+	   -dark is a deeper shade for text/borders on light backgrounds (AA contrast); the bright
+	   shade is for fills/backgrounds where a thin-text contrast ratio doesn't apply. */
+	--gold-color: #C6A664;
+	--gold-color-dark: #867044;
+	/* Serif display face for headings only — the monogram's classic engraved letterforms read
+	   as "quiet luxury", which clashed with the template's bold grotesk sans on every heading.
+	   Body text and UI chrome stay on --default-font. */
+	--heading-font: 'Playfair Display', serif;
 }
 
 /****************************************/
@@ -123,6 +133,7 @@ h3,
 h4,
 h5,
 h6 {
+	font-family: var(--heading-font);
 	font-weight: 600;
 	line-height: 1.2em;
 	color: var(--primary-color);
@@ -235,8 +246,8 @@ a:focus {
 	line-height: 1em;
 	text-transform: capitalize;
 	background: transparent;
-	border: 1px solid var(--accent-color);
-	color: var(--accent-color);
+	border: 1px solid var(--gold-color-dark);
+	color: var(--gold-color-dark);
 	border-radius: 5px;
 	padding: 15px 56px 15px 16px;
 	overflow: hidden;
@@ -246,8 +257,12 @@ a:focus {
 	z-index: 0;
 }
 
+/* Fills bright gold on hover (not the muted/dark shade above — that one is sized for AA text
+   contrast on a plain background, not for a hover fill), so the text switches to dark instead
+   of the previous white, the same light-background/dark-text pairing .btn-highlighted:hover
+   already uses below. */
 .btn-default:hover {
-	color: var(--white-color);
+	color: var(--primary-color);
 }
 
 .btn-default::before {
@@ -258,7 +273,7 @@ a:focus {
 	width: 40px;
 	height: 40px;
 	transform: translateY(-50%);
-	background-color: var(--accent-color);
+	background-color: var(--gold-color-dark);
 	background-image: url('../images/arrow-white.svg');
 	background-repeat: no-repeat;
 	background-position: center center;
@@ -281,7 +296,7 @@ a:focus {
 	bottom: 0;
 	width: 0;
 	height: 100%;
-	background: var(--accent-color);
+	background: var(--gold-color);
 	transition: all 0.4s ease-in-out;
 	z-index: -1;
 }
@@ -302,7 +317,7 @@ a:focus {
 }
 
 .btn-default.btn-highlighted:hover:before {
-	background-color: var(--accent-color);
+	background-color: var(--gold-color-dark);
 	background-image: url('../images/arrow-white.svg');
 }
 
