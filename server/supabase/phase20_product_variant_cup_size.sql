@@ -1,0 +1,11 @@
+-- Saint Roman Admin — Phase 20 (Product Variant Cup Size)
+-- Run this in the Supabase SQL Editor after phase19_product_short_description.sql.
+--
+-- A bra's "size" variant dimension was band size alone (32, 34, 36 — see phase2_catalog.sql),
+-- with no way to tell its cup apart (32B vs 32C vs 32D). Added as its own column rather than
+-- folded into `size` as a single "32B" string, because it is genuinely a second, independent
+-- selection axis on the storefront (Band Size, then Cup/Type), the same way `color` already is —
+-- not free text to display as-is. Nullable and optional: non-bra products (or any product with
+-- only one dimension of size) simply never set it, same as `color` already works for products
+-- with no colour variation.
+alter table product_variants add column if not exists cup_size text;

@@ -42,6 +42,10 @@ interface Tag {
 interface Variant {
   size: string
   color: string
+  // Optional second size dimension, for bras (Band Size "size" + Cup/Type "cup_size" — Zivame/
+  // Marks & Spencer style): a 32 band comes in several cups (32B/32C/32D), which plain `size`
+  // can't tell apart on its own. Left blank for any product with only one size dimension.
+  cup_size: string
   price: number
   stock_quantity: number
 }
@@ -104,7 +108,7 @@ interface Review {
   created_at: string
 }
 
-const emptyVariant: Variant = { size: '', color: '', price: 0, stock_quantity: 0 }
+const emptyVariant: Variant = { size: '', color: '', cup_size: '', price: 0, stock_quantity: 0 }
 
 export function ProductsPage() {
   const { data, loading, error, refetch } = useApiResource<{ products: Product[] }>('/products')
@@ -329,9 +333,10 @@ export function ProductsPage() {
     setCategoryId(product.category?.id ?? '')
     setVariants(
       product.product_variants.length > 0
-        ? product.product_variants.map(({ size, color, price, stock_quantity }) => ({
+        ? product.product_variants.map(({ size, color, cup_size, price, stock_quantity }) => ({
           size,
           color,
+          cup_size: cup_size ?? '',
           price,
           stock_quantity,
         }))
@@ -808,12 +813,22 @@ export function ProductsPage() {
                     Add variant
                   </Button>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Cup is only for bras — leave it blank for anything with a single size (the
+                  storefront only shows a Cup/Type picker when at least one variant has one set).
+                  A 34 band in both 34B and 34C needs two separate variant rows.
+                </p>
                 {variants.map((variant, index) => (
-                  <div key={index} className="grid grid-cols-4 gap-2">
+                  <div key={index} className="grid grid-cols-5 gap-2">
                     <Input
                       placeholder="Size"
                       value={variant.size}
                       onChange={(e) => updateVariant(index, { size: e.target.value })}
+                    />
+                    <Input
+                      placeholder="Cup (bras only)"
+                      value={variant.cup_size}
+                      onChange={(e) => updateVariant(index, { cup_size: e.target.value })}
                     />
                     <Input
                       placeholder="Color"

@@ -109,17 +109,21 @@ router.put('/:id', requireAuth, async (req, res) => {
   if (Array.isArray(variants)) {
     const { data: existingVariants } = await supabaseAdmin
       .from('product_variants')
-      .select('id, size, color')
+      .select('id, size, color, cup_size')
       .eq('product_id', req.params.id);
 
-    const existingByKey = new Map((existingVariants || []).map((v) => [`${v.size}|${v.color}`, v.id]));
-    const submittedKeys = new Set(variants.map((v) => `${v.size}|${v.color}`));
+    // cup_size has to be part of this key, not just size+color — a bra's "32" band comes in
+    // several cup sizes (32B, 32C, 32D), which previously all collided on the same size|color
+    // key and silently overwrote each other as "the" 32/White variant.
+    const variantKey = (v) => `${v.size}|${v.color}|${v.cup_size || ''}`;
+
+    const existingByKey = new Map((existingVariants || []).map((v) => [variantKey(v), v.id]));
+    const submittedKeys = new Set(variants.map(variantKey));
 
     const toUpdate = [];
     const toInsert = [];
     for (const v of variants) {
-      const key = `${v.size}|${v.color}`;
-      const existingId = existingByKey.get(key);
+      const existingId = existingByKey.get(variantKey(v));
       if (existingId) {
         toUpdate.push({ ...v, id: existingId, product_id: req.params.id });
       } else {
@@ -128,7 +132,7 @@ router.put('/:id', requireAuth, async (req, res) => {
     }
 
     const idsToDelete = (existingVariants || [])
-      .filter((v) => !submittedKeys.has(`${v.size}|${v.color}`))
+      .filter((v) => !submittedKeys.has(variantKey(v)))
       .map((v) => v.id);
 
     if (idsToDelete.length > 0) {

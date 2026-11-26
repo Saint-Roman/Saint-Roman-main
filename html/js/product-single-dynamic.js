@@ -96,9 +96,11 @@
         return values.filter(function (v, i) { return values.indexOf(v) === i; });
     }
 
-    function findVariant(variants, color, size) {
+    function findVariant(variants, color, size, cupSize) {
         return variants.filter(function (v) {
-            return (color === null || v.color === color) && (size === null || v.size === size);
+            return (color === null || v.color === color) &&
+                (size === null || v.size === size) &&
+                (cupSize === null || v.cup_size === cupSize);
         })[0] || null;
     }
 
@@ -106,11 +108,20 @@
         var variants = product.product_variants || [];
         var colors = uniqueValues(variants, 'color');
         var sizes = uniqueValues(variants, 'size');
+        // Second size dimension, bras only (Band Size + Cup/Type — Zivame/Marks & Spencer
+        // style). Whether this product HAS one at all (hasCupDimension) is global — some
+        // variant somewhere has a cup_size — but which cups are offered is always relative to
+        // whichever band (and, where set, colour) is currently picked, same as M&S: picking 40
+        // only offers the cups that band actually comes in, not every cup across every band.
+        var cupSizes = uniqueValues(variants, 'cup_size');
+        var hasCupDimension = cupSizes.length > 0;
 
         var colorSection = document.getElementById('product-color-section');
         var colorOptions = document.getElementById('product-color-options');
         var sizeSection = document.getElementById('product-size-section');
         var sizeOptions = document.getElementById('product-size-options');
+        var cupSection = document.getElementById('product-cup-section');
+        var cupOptions = document.getElementById('product-cup-options');
         var message = document.getElementById('product-variant-message');
 
         // Defaults to whichever colour's photo is products.image_url — the same photo every
@@ -124,10 +135,21 @@
         var selectedColor = (primaryColorMatch && colors.indexOf(primaryColorMatch.color) !== -1)
             ? primaryColorMatch.color
             : (colors[0] || null);
-        var selectedSize = sizes[0] || null;
+        // A bra's Cup/Type only makes sense once a Band Size is picked, so neither starts
+        // pre-selected here — Size shows first, empty, same as M&S; Cup only appears (filtered
+        // to whatever that band/colour actually has) once Size is clicked. A product with no
+        // cup dimension at all keeps the old behaviour: first Size pre-selected immediately.
+        var selectedSize = hasCupDimension ? null : (sizes[0] || null);
+        var selectedCupSize = null;
 
         function updateSelection() {
-            selectedVariant = findVariant(variants, selectedColor, selectedSize);
+            if (hasCupDimension && (!selectedSize || !selectedCupSize)) {
+                selectedVariant = null;
+                renderGalleryForColor(product, selectedColor);
+                if (message) message.textContent = !selectedSize ? 'Please select a size.' : 'Please select a cup size.';
+                return;
+            }
+            selectedVariant = findVariant(variants, selectedColor, selectedSize, selectedCupSize);
             renderGalleryForColor(product, selectedColor);
             if (!message) return;
             if (!selectedVariant) {
@@ -137,6 +159,36 @@
             } else {
                 message.textContent = '';
             }
+        }
+
+        // Renders the Cup/Type row for whichever band size was just picked (or hides it, with
+        // size === null, before any band has been picked yet).
+        function renderCupOptionsForSize(size) {
+            if (!cupSection || !cupOptions) return;
+            var available = size
+                ? uniqueValues(variants.filter(function (v) {
+                    return v.size === size && (selectedColor === null || v.color === selectedColor);
+                }), 'cup_size')
+                : [];
+
+            if (available.length === 0) {
+                cupSection.style.display = 'none';
+                cupOptions.innerHTML = '';
+                return;
+            }
+
+            cupSection.style.display = '';
+            cupOptions.innerHTML = available.map(function (cupSize, i) {
+                var safeCupSize = EllroaText.escapeHtml(cupSize);
+                return '<li><input type="radio" id="product-cup-' + i + '" name="CupSize" value="' + safeCupSize + '"><label for="product-cup-' + i + '">' + safeCupSize + '</label></li>';
+            }).join('');
+
+            available.forEach(function (cupSize, i) {
+                document.getElementById('product-cup-' + i).addEventListener('change', function () {
+                    selectedCupSize = cupSize;
+                    updateSelection();
+                });
+            });
         }
 
         if (colorSection && colorOptions) {
@@ -163,6 +215,13 @@
                 colors.forEach(function (color, i) {
                     document.getElementById('product-color-' + i).addEventListener('change', function () {
                         selectedColor = color;
+                        // A different colour can offer a different band/cup combination, so the
+                        // previously-picked cup may no longer be valid — re-evaluate rather than
+                        // leaving a stale selection on screen.
+                        if (hasCupDimension) {
+                            selectedCupSize = null;
+                            renderCupOptionsForSize(selectedSize);
+                        }
                         updateSelection();
                     });
                 });
@@ -177,16 +236,29 @@
                 sizeSection.style.display = '';
                 sizeOptions.innerHTML = sizes.map(function (size, i) {
                     var safeSize = EllroaText.escapeHtml(size);
-                    return '<li><input type="radio" id="product-size-' + i + '" name="Size" value="' + safeSize + '"' + (i === 0 ? ' checked' : '') + '><label for="product-size-' + i + '">' + safeSize + '</label></li>';
+                    var checked = hasCupDimension ? '' : (i === 0 ? ' checked' : '');
+                    return '<li><input type="radio" id="product-size-' + i + '" name="Size" value="' + safeSize + '"' + checked + '><label for="product-size-' + i + '">' + safeSize + '</label></li>';
                 }).join('');
 
                 sizes.forEach(function (size, i) {
                     document.getElementById('product-size-' + i).addEventListener('change', function () {
                         selectedSize = size;
+                        if (hasCupDimension) {
+                            selectedCupSize = null;
+                            renderCupOptionsForSize(size);
+                        }
                         updateSelection();
                     });
                 });
             }
+        }
+
+        if (hasCupDimension) {
+            // selectedSize starts null, so this just hides the row until a band is picked.
+            renderCupOptionsForSize(selectedSize);
+        } else if (cupSection) {
+            cupSection.style.display = 'none';
+            if (cupOptions) cupOptions.innerHTML = '';
         }
 
         updateSelection();
