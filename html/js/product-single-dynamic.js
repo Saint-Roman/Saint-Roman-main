@@ -233,6 +233,56 @@
         el.innerHTML = EllroaText.render(product.description, 'No description available yet.');
     }
 
+    // The strip beside the product image used to get this same full description dumped into a
+    // single <p> with .textContent — not even EllroaText's paragraph breaks, just every line
+    // collapsed into one run-on block, repeating (worse) what the "Product Description" tab below
+    // already shows in full. Every fashion site keeps this spot to a one-line teaser plus a short
+    // "quick glance" list (Zivame/Victoria's Secret-style), so EllroaText.summarize() pulls just
+    // that much out of the same plain-text field — no second admin field to keep filled in.
+    function renderShortDescription(product) {
+        var shortEl = document.getElementById('product-description');
+        var highlightsEl = document.getElementById('product-highlights');
+        var readMoreEl = document.getElementById('product-read-more');
+        if (!shortEl) return;
+
+        var summary = EllroaText.summarize(product.description, { maxLen: 220, maxHighlights: 5 });
+        shortEl.textContent = summary.teaser || 'No description available yet.';
+
+        if (highlightsEl) {
+            if (summary.highlights.length) {
+                highlightsEl.innerHTML = summary.highlights.map(function (h) {
+                    return '<li>' + EllroaText.escapeHtml(h) + '</li>';
+                }).join('');
+                highlightsEl.style.display = '';
+            } else {
+                highlightsEl.innerHTML = '';
+                highlightsEl.style.display = 'none';
+            }
+        }
+
+        if (readMoreEl) {
+            readMoreEl.style.display = summary.hasMore ? '' : 'none';
+        }
+    }
+
+    // One click should both switch to the tab (in case Additional Information/Reviews is the one
+    // currently open) and bring it into view — a plain #first anchor jump would scroll there but
+    // leave whichever tab was already active showing instead of the description.
+    function initReadMoreLink() {
+        var link = document.getElementById('product-read-more');
+        var tabButton = document.getElementById('first-tab');
+        if (!link || !tabButton) return;
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (window.bootstrap && window.bootstrap.Tab) {
+                window.bootstrap.Tab.getOrCreateInstance(tabButton).show();
+            }
+            var panel = document.getElementById('missionvision');
+            if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
+    initReadMoreLink();
+
     // products.specifications (jsonb, server/supabase/phase8_product_specifications.sql) — a
     // flexible label/value store filled in per-product from the admin's product edit form
     // (admin/src/pages/ProductsPage.tsx "Additional Information" section), since fixed columns
@@ -635,7 +685,7 @@
             document.getElementById('product-breadcrumb').textContent = product.name;
             document.getElementById('product-title').textContent = product.name;
             document.getElementById('product-category').textContent = product.category ? product.category.name : '';
-            document.getElementById('product-description').textContent = product.description || '';
+            renderShortDescription(product);
             document.getElementById('product-price').innerHTML = price + ' ' + compareAt;
             document.getElementById('product-sku').textContent = product.slug;
             document.getElementById('product-categories-detail').textContent = product.category ? product.category.name : 'Uncategorized';
