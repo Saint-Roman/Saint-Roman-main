@@ -641,6 +641,7 @@
                                             box.addEventListener('change', function () {
                                                 var key = box.getAttribute('data-filter');
                                                 var value = box.getAttribute('data-value');
+                                                var rescopeFacets = key === 'category' || key === 'tags';
                                                 if (key === 'category') {
                                                     state.category = box.checked ? value : null;
                                                     sidebarEl.querySelectorAll('input[data-filter="category"]').forEach(function (other) {
@@ -654,6 +655,7 @@
                                                 }
                                                 state.offset = 0;
                                                 syncUrl();
+                                                if (rescopeFacets) loadFacets();
                                                 loadProducts(false);
                                             });
                                         });
@@ -812,7 +814,7 @@
                                             state = { category: null, tags: [], colors: [], sizes: [], sort: null, offset: 0 };
                                             if (sortEl) sortEl.value = '';
                                             syncUrl();
-                                            renderSidebar();
+                                            loadFacets();
                                             loadProducts(false);
                                         });
                                     }
@@ -837,20 +839,32 @@
                                         });
                                     }
 
-                                    fetch(API_BASE + '/facets')
-                                        .then(function (res) { return res.json(); })
-                                        .then(function (data) {
-                                            facets = data;
-                                            renderSidebar();
-                                        })
-                                        .catch(function () {
-                                            sidebarEl.innerHTML = '<p>Could not load filters.</p>';
-                                        });
+                                    // Color/Size/Collection options are scoped to the selected category (?category=)
+                                    // so a Men's Fashion page doesn't surface women's-only sizes or colors — re-run
+                                    // whenever category/tags change, not on every color/size tick (those stay
+                                    // multi-selectable within whatever the category already narrowed them to).
+                                    function loadFacets() {
+                                        var params = new URLSearchParams();
+                                        if (state.category) params.set('category', state.category);
+                                        if (state.tags.length) params.set('tag', state.tags.join(','));
+                                        var qs = params.toString();
+
+                                        fetch(API_BASE + '/facets' + (qs ? '?' + qs : ''))
+                                            .then(function (res) { return res.json(); })
+                                            .then(function (data) {
+                                                facets = data;
+                                                renderSidebar();
+                                            })
+                                            .catch(function () {
+                                                sidebarEl.innerHTML = '<p>Could not load filters.</p>';
+                                            });
+                                    }
 
                                     // Reflect a restored ?sort= back into the dropdown so the UI matches the
                                     // state a shared/bookmarked URL actually asked for.
                                     if (sortEl && state.sort) sortEl.value = REVERSE_SORT_MAP[state.sort];
 
+                                    loadFacets();
                                     loadProducts(false);
 
                                     // Banners + site settings

@@ -85,9 +85,12 @@ router.get('/products', async (req, res) => {
   }
 
   if (size) {
+    // Substring match (ilike *value*, not an exact match like color's): a handful of variant
+    // rows store size as a space-joined pair ("90 95") — /facets splits those into separate
+    // "90"/"95" checkboxes, so selecting either one still has to match that same row here.
     const sizes = String(size).split(',').map((s) => s.trim()).filter(Boolean);
     if (sizes.length) {
-      query = query.or(sizes.map((s) => `size.ilike.${s.replace(/,/g, '')}`).join(','), { foreignTable: 'product_variants' });
+      query = query.or(sizes.map((s) => `size.ilike.*${s.replace(/[,*]/g, '')}*`).join(','), { foreignTable: 'product_variants' });
     }
   }
 
@@ -112,13 +115,50 @@ router.get('/products', async (req, res) => {
 // GET /api/public/facets — real filter-sidebar data (categories/tags/colors/sizes with live
 // counts + the active price range), computed from products that are actually active right now.
 // Replaces the old hardcoded "Women's Fashion (520)" template checkboxes.
+//
+// Optional ?category=<slug>&tag=<tag> scope Collection/Color/Size/price to that selection —
+// otherwise, e.g., a Men's Fashion page would list Women's-only sizes/colors in its sidebar
+// just because they exist somewhere else in the catalog. The Categories section itself stays
+// unscoped by category (only by tag) so switching category from the sidebar still works.
 router.get('/facets', async (req, res) => {
-  const { data: products, error } = await supabaseAdmin
-    .from('products')
-    .select('base_price, tags, category:categories(name, slug), product_variants(color, size)')
-    .eq('status', 'active');
+  const { category, tag } = req.query;
 
+  let categoryId = null;
+  if (category) {
+    const { data: categoryRow, error: categoryError } = await supabaseAdmin
+      .from('categories')
+      .select('id')
+      .eq('slug', category)
+      .maybeSingle();
+
+    if (categoryError) return res.status(500).json({ error: categoryError.message });
+    if (!categoryRow) {
+      return res.json({ categories: [], tags: [], colors: [], sizes: [], price_range: { min: 0, max: 0 } });
+    }
+    categoryId = categoryRow.id;
+  }
+
+  function baseQuery() {
+    let q = supabaseAdmin
+      .from('products')
+      .select('base_price, tags, category_id, category:categories(name, slug), product_variants(color, size)')
+      .eq('status', 'active');
+    if (tag) {
+      const tags = String(tag).split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
+      if (tags.length) q = q.overlaps('tags', tags);
+    }
+    return q;
+  }
+
+  const { data: productsForCategories, error } = await baseQuery();
   if (error) return res.status(500).json({ error: error.message });
+
+  let productsForFacets = productsForCategories;
+  if (categoryId) {
+    const { data, error: scopedError } = await baseQuery().eq('category_id', categoryId);
+    if (scopedError) return res.status(500).json({ error: scopedError.message });
+    productsForFacets = data;
+  }
 
   const categoryCounts = new Map();
   const tagCounts = new Map();
@@ -130,28 +170,36 @@ router.get('/facets', async (req, res) => {
   // Variant colors/sizes are free-text, so "Black", "black" and "Black " (case/whitespace
   // variants of the same value) would otherwise show up as separate checkboxes with split
   // counts. Group by a normalized key, but keep the first-seen spelling as the display label.
-  function addFacetValue(counts, raw) {
+  // splitWhitespace handles the few variant rows whose size is stored as a space-joined pair
+  // ("90 95") — each token becomes its own checkbox instead of one unreadable combined one.
+  function addFacetValue(counts, raw, splitWhitespace) {
     if (!raw) return;
-    const label = String(raw).trim().replace(/\s+/g, ' ');
-    if (!label) return;
-    const key = label.toLowerCase();
-    const entry = counts.get(key) || { label, count: 0 };
-    entry.count += 1;
-    counts.set(key, entry);
+    const cleaned = String(raw).trim().replace(/\s+/g, ' ');
+    if (!cleaned) return;
+    const tokens = splitWhitespace ? cleaned.split(' ') : [cleaned];
+    for (const label of tokens) {
+      const key = label.toLowerCase();
+      const entry = counts.get(key) || { label, count: 0 };
+      entry.count += 1;
+      counts.set(key, entry);
+    }
   }
 
-  for (const p of products) {
+  for (const p of productsForCategories) {
     if (p.category) {
       const entry = categoryCounts.get(p.category.slug) || { name: p.category.name, count: 0 };
       entry.count += 1;
       categoryCounts.set(p.category.slug, entry);
     }
+  }
+
+  for (const p of productsForFacets) {
     for (const t of p.tags || []) {
       tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
     }
     for (const v of p.product_variants || []) {
-      addFacetValue(colorCounts, v.color);
-      addFacetValue(sizeCounts, v.size);
+      addFacetValue(colorCounts, v.color, false);
+      addFacetValue(sizeCounts, v.size, true);
     }
     const price = Number(p.base_price);
     if (!Number.isNaN(price)) {
