@@ -940,20 +940,33 @@
                                         window.history.replaceState(null, '', newUrl);
                                     }
 
+                                    // Only the two things that are actually a *place* (a category page,
+                                    // or the single-tag landing page /tag/<slug>) belong in the trail —
+                                    // same as Myntra/ASOS/H&M, whose breadcrumb is the fixed path you
+                                    // navigated (Home > Women > Dresses) and never grows with whatever
+                                    // you happen to have ticked. Price, colour and extra tags are
+                                    // refinements on top of that page, not places of their own, so they
+                                    // never belonged here — they're already surfaced as removable chips
+                                    // by chipsMarkup()/appliedFilters() above. Cramming all of it into
+                                    // the breadcrumb instead just produced a multi-line wall of text
+                                    // ("Home / Women's Fashion / New Arrival / Best Seller / Blue / Grey
+                                    // / Peach / Black") that duplicated those chips and crowded the
+                                    // "N of M products" / sort controls beside it.
                                     function activeFilterCrumbs() {
-                                        var parts = [];
-                                        if (state.category) parts.push({ label: categoryLabel(state.category), href: '/category/' + encodeURIComponent(state.category) });
-                                        if (state.price) parts.push({ label: priceLabel(state.price) });
-                                        state.tags.forEach(function (t) { parts.push({ label: readableLabel(t) }); });
-                                        state.colors.forEach(function (c) { parts.push({ label: c }); });
-                                        return parts;
+                                        if (state.category) {
+                                            return [{ label: categoryLabel(state.category), href: '/category/' + encodeURIComponent(state.category) }];
+                                        }
+                                        if (state.tags.length === 1) {
+                                            return [{ label: readableLabel(state.tags[0]) }];
+                                        }
+                                        return [];
                                     }
 
-                                    // Renders the results heading as a breadcrumb trail (Home / Men's Fashion / Winter)
+                                    // Renders the results heading as a breadcrumb trail (Home / Men's Fashion)
                                     // instead of a plain "Showing results for X, Y" sentence.
                                     function renderResultsBreadcrumb(hasFilters) {
-                                        var crumbs = [{ label: 'Home', href: '/' }]
-                                            .concat(hasFilters ? activeFilterCrumbs() : [{ label: 'All Products' }]);
+                                        var trail = hasFilters ? activeFilterCrumbs() : [];
+                                        var crumbs = [{ label: 'Home', href: '/' }].concat(trail.length ? trail : [{ label: 'All Products' }]);
                                         return crumbs.map(function (crumb, i) {
                                             var isLast = i === crumbs.length - 1;
                                             if (isLast || !crumb.href) {
