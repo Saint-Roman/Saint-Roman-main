@@ -137,12 +137,17 @@
                 colorSection.style.display = '';
                 colorOptions.innerHTML = colors.map(function (color, i) {
                     var safeColor = EllroaText.escapeHtml(color);
+                    var isWhite = /^white$/i.test(String(color).trim());
                     // The selected ring (CSS: input:checked + .color-variant) picks up this
                     // swatch's own colour via --swatch-ring-color — except white, which gets a
                     // thin black ring instead of a literally invisible white-on-white one.
-                    var ringColor = /^white$/i.test(String(color).trim()) ? '#000000' : safeColor;
+                    var ringColor = isWhite ? '#000000' : safeColor;
+                    // .color-variant's default border (var(--divider-color), a ~10%-opacity
+                    // dark tint) reads fine against a saturated swatch, but is still too faint
+                    // for white even unselected — override just the border colour for it.
+                    var idleBorder = isWhite ? ';border-color:#000000' : '';
                     return '<input type="radio" name="color" id="product-color-' + i + '"' + (i === 0 ? ' checked' : '') + '>' +
-                        '<label for="product-color-' + i + '" class="color-variant" style="background:' + safeColor + ';--swatch-ring-color:' + ringColor + '" title="' + safeColor + '"></label>';
+                        '<label for="product-color-' + i + '" class="color-variant" style="background:' + safeColor + ';--swatch-ring-color:' + ringColor + idleBorder + '" title="' + safeColor + '"></label>';
                 }).join('');
 
                 colors.forEach(function (color, i) {
