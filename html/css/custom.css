@@ -3971,7 +3971,7 @@ header.main-header .container {
 
 .product-category-item-title::after {
 	content: "\f107";
-	font-family: "Font Awesome 6 Free";
+	font-family: 'Font Awesome 7 Free';
 	font-weight: 900;
 	font-size: 16px;
 	transition: transform 0.3s ease-in-out;
@@ -4013,6 +4013,35 @@ header.main-header .container {
 	overflow: hidden;
 	max-height: 2000px;
 	transition: max-height 0.3s ease-in-out;
+}
+
+/* The panel scrolls its own overflow, so it draws the OS scrollbar — a full-width
+   grey gutter hard against the facet labels, which is the most prominent thing in
+   the sidebar and belongs to none of the design. Slim it to a thin neutral track
+   that only darkens on hover, the convention for an in-panel scroll region.
+   scrollbar-width/-color cover Firefox; the ::-webkit- rules cover Chrome, Edge
+   and Safari. Both are progressive — where neither applies the default bar is
+   still drawn and the panel still scrolls. */
+#filter-panel .product-category-item-list {
+	scrollbar-width: thin;
+	scrollbar-color: var(--divider-color) transparent;
+}
+
+#filter-panel .product-category-item-list::-webkit-scrollbar {
+	width: 6px;
+}
+
+#filter-panel .product-category-item-list::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+#filter-panel .product-category-item-list::-webkit-scrollbar-thumb {
+	background-color: var(--divider-color);
+	border-radius: 999px;
+}
+
+#filter-panel .product-category-item-list::-webkit-scrollbar-thumb:hover {
+	background-color: #c4c4c4;
 }
 
 /* Denser than the page's generic sidebar rhythm: 20px between every option and a
@@ -4272,7 +4301,7 @@ header.main-header .container {
 	#filter-panel .product-category-item-list {
 		overflow-y: auto;
 		overscroll-behavior: contain;
-		padding-right: 6px;
+		padding-right: 12px;
 	}
 
 	.filter-drawer-close,

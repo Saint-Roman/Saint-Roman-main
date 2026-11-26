@@ -16,6 +16,25 @@ const SORT_OPTIONS = {
   newest: { column: 'created_at', ascending: false },
 };
 
+// Sorts that rank by an aggregate of the embedded product_reviews rows rather than
+// by a column on products. PostgREST can't ORDER BY an embedded aggregate in the
+// same request, so these are applied after ratingSummary() has collapsed the
+// reviews — which means the page slice has to be taken here too, not via .range().
+// Ties fall back to the other rating measure so the order is stable.
+const AGGREGATE_SORTS = {
+  rating_desc: (a, b) =>
+    (b.rating_avg == null ? -1 : b.rating_avg) - (a.rating_avg == null ? -1 : a.rating_avg) ||
+    b.rating_count - a.rating_count,
+  reviews_desc: (a, b) =>
+    b.rating_count - a.rating_count ||
+    (b.rating_avg == null ? -1 : b.rating_avg) - (a.rating_avg == null ? -1 : a.rating_avg),
+};
+
+// Ceiling on the rows an aggregate sort pulls back before slicing. Well above the
+// current catalogue; past it the ranking only covers the newest ROW_CEILING products,
+// which is the point to move these aggregates into the database instead.
+const AGGREGATE_SORT_CEILING = 500;
+
 // Collapses an embedded product_reviews array into the aggregate a product card/detail page
 // actually needs — published reviews only, rounded to 1 decimal (e.g. "4.3 (12)" Zivame-style,
 // instead of the old static 5-star icon block).
@@ -32,7 +51,7 @@ function ratingSummary(reviews) {
 //   ?color=Black,Blue           comma-separated, OR-matched against variant color
 //   ?size=M,L                   comma-separated, OR-matched against variant size
 //   ?price_min=&price_max=      on base_price
-//   ?sort=price_asc|price_desc|newest
+//   ?sort=price_asc|price_desc|newest|rating_desc|reviews_desc
 //   ?limit=&offset=             pagination (limit capped at 48)
 // All provided filters are combined with AND; multiple values within one filter are OR'd.
 router.get('/products', async (req, res) => {
@@ -97,17 +116,26 @@ router.get('/products', async (req, res) => {
   if (price_min) query = query.gte('base_price', Number(price_min));
   if (price_max) query = query.lte('base_price', Number(price_max));
 
-  const sortOpt = SORT_OPTIONS[sort] || SORT_OPTIONS.newest;
-  query = query.order(sortOpt.column, { ascending: sortOpt.ascending });
-
   const pageLimit = Math.min(Number(limit) || 12, 48);
   const pageOffset = Math.max(Number(offset) || 0, 0);
-  query = query.range(pageOffset, pageOffset + pageLimit - 1);
+  const aggregateSort = AGGREGATE_SORTS[sort];
+
+  if (aggregateSort) {
+    query = query.order('created_at', { ascending: false }).range(0, AGGREGATE_SORT_CEILING - 1);
+  } else {
+    const sortOpt = SORT_OPTIONS[sort] || SORT_OPTIONS.newest;
+    query = query.order(sortOpt.column, { ascending: sortOpt.ascending });
+    query = query.range(pageOffset, pageOffset + pageLimit - 1);
+  }
 
   const { data, error, count } = await query;
   if (error) return res.status(500).json({ error: error.message });
 
-  const products = data.map((p) => ({ ...p, ...ratingSummary(p.product_reviews), product_reviews: undefined }));
+  let products = data.map((p) => ({ ...p, ...ratingSummary(p.product_reviews), product_reviews: undefined }));
+
+  if (aggregateSort) {
+    products = products.sort(aggregateSort).slice(pageOffset, pageOffset + pageLimit);
+  }
 
   res.json({ products, total: count ?? data.length, limit: pageLimit, offset: pageOffset });
 });

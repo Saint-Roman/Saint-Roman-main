@@ -518,15 +518,16 @@
                                         </ul>
                                     </div>
                                     <div class="product-category-sorting-list">
-                                        <select name="sorting_list" class="form-control form-select" id="sorting_list"
-                                            required>
-                                            <option value="" disabled selected>Default Sorting</option>
-                                            <option value="Low_to_High">Low to High</option>
-                                            <option value="High_to_Low">High to Low</option>
-                                            <option value="Popularity">Popularity</option>
-                                            <option value="Best_Sellers">Best Sellers</option>
-                                            <option value="Trending">Trending</option>
-                                            <option value="Most_Reviewed">Most Reviewed</option>
+                                        <!-- Each value is the ?sort= the API takes, so there is no lookup table
+                                             between the two to fall out of step. The old list offered Popularity,
+                                             Best Sellers and Trending, which nothing mapped to and nothing could
+                                             compute: picking one silently returned newest-first. -->
+                                        <select name="sorting_list" class="form-control form-select" id="sorting_list">
+                                            <option value="">Newest First</option>
+                                            <option value="price_asc">Price: Low to High</option>
+                                            <option value="price_desc">Price: High to Low</option>
+                                            <option value="rating_desc">Customer Rating</option>
+                                            <option value="reviews_desc">Most Reviewed</option>
                                         </select>
                                     </div>
                                 </div>
@@ -556,15 +557,6 @@
 
                                     var PAGE_SIZE = 12;
 
-                                    var SORT_MAP = {
-                                        'Low_to_High': 'price_asc',
-                                        'High_to_Low': 'price_desc'
-                                    };
-                                    var REVERSE_SORT_MAP = {
-                                        'price_asc': 'Low_to_High',
-                                        'price_desc': 'High_to_Low'
-                                    };
-
                                     // Query params reflect the full filter/sort/pagination state (not just
                                     // category/tag, which live in the path instead) so a shared or bookmarked
                                     // products URL reproduces exactly what was on screen — same idea as Amazon's
@@ -578,7 +570,7 @@
                                         tags: (initialTag || '').split(',').filter(Boolean),
                                         colors: (initialParams.get('color') || '').split(',').filter(Boolean),
                                         sizes: (initialParams.get('size') || '').split(',').filter(Boolean),
-                                        sort: REVERSE_SORT_MAP[initialParams.get('sort')] ? initialParams.get('sort') : null,
+                                        sort: initialParams.get('sort') || null,
                                         price: (initialParams.get('price_min') || initialParams.get('price_max'))
                                             ? (initialParams.get('price_min') || '') + '-' + (initialParams.get('price_max') || '')
                                             : null,
@@ -1064,7 +1056,7 @@
 
                                     function resetAllFilters() {
                                         state = { category: null, tags: [], colors: [], sizes: [], sort: null, price: null, offset: 0 };
-                                        if (sortEl) sortEl.value = '';
+                                        if (sortEl) sortEl.value = '';  // "Newest First"
                                         expandedSections = {};
                                         syncUrl();
                                         loadFacets();
@@ -1132,7 +1124,7 @@
 
                                     if (sortEl) {
                                         sortEl.addEventListener('change', function () {
-                                            state.sort = SORT_MAP[sortEl.value] || null;
+                                            state.sort = sortEl.value || null;
                                             state.offset = 0;
                                             syncUrl();
                                             loadProducts(false);
@@ -1170,8 +1162,12 @@
                                     }
 
                                     // Reflect a restored ?sort= back into the dropdown so the UI matches the
-                                    // state a shared/bookmarked URL actually asked for.
-                                    if (sortEl && state.sort) sortEl.value = REVERSE_SORT_MAP[state.sort];
+                                    // state a shared/bookmarked URL actually asked for. An unrecognised value
+                                    // leaves the select on "Newest First", which is what the API falls back to.
+                                    if (sortEl && state.sort) {
+                                        sortEl.value = state.sort;
+                                        if (sortEl.value !== state.sort) state.sort = null;
+                                    }
 
                                     loadFacets();
                                     loadProducts(false);
