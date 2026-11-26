@@ -716,10 +716,13 @@
                                     }
 
                                     // ── Group renderers ──────────────────────────────────────────────
-                                    function optionRow(type, group, value, labelHtml, countHtml, checked) {
+                                    function optionRow(type, group, value, labelHtml, countHtml, checked, isEmpty) {
                                         var id = (group + '-' + value).replace(/[^a-zA-Z0-9_-]/g, '_');
                                         var nameAttr = type === 'radio' ? ' name="facet-' + group + '"' : '';
-                                        return '<li><input type="' + type + '" id="' + id + '"' + nameAttr +
+                                        // Still clickable, just muted. A zero here means "nothing matches this
+                                        // ALONGSIDE your other filters" — picking it is a perfectly reasonable
+                                        // way to change direction, so it must not be disabled.
+                                        return '<li' + (isEmpty ? ' class="is-empty"' : '') + '><input type="' + type + '" id="' + id + '"' + nameAttr +
                                             ' data-filter="' + group + '" data-value="' + esc(value) + '"' + (checked ? ' checked' : '') + '>' +
                                             '<label for="' + id + '">' + labelHtml + countHtml + '</label></li>';
                                     }
@@ -736,7 +739,7 @@
                                         return '<ul>' +
                                             optionRow('radio', 'category', '', 'All Categories', '', !state.category) +
                                             items.map(function (c) {
-                                                return optionRow('radio', 'category', c.slug, esc(c.name), countHtml(c.count), state.category === c.slug);
+                                                return optionRow('radio', 'category', c.slug, esc(c.name), countHtml(c.count), state.category === c.slug, !c.count);
                                             }).join('') + '</ul>';
                                     }
 
@@ -752,7 +755,7 @@
                                         return function (items) {
                                             return '<ul>' + items.map(function (item) {
                                                 var value = item[valueKey];
-                                                return optionRow('checkbox', group, value, labelFn(item), countHtml(item.count), state[group].indexOf(value) !== -1);
+                                                return optionRow('checkbox', group, value, labelFn(item), countHtml(item.count), state[group].indexOf(value) !== -1, !item.count);
                                             }).join('') + '</ul>';
                                         };
                                     }
@@ -760,7 +763,7 @@
                                     function renderSwatches(items) {
                                         return '<ul class="facet-swatch-grid">' + items.map(function (item) {
                                             var id = ('colors-' + item.value).replace(/[^a-zA-Z0-9_-]/g, '_');
-                                            return '<li><input type="checkbox" id="' + id + '" data-filter="colors" data-value="' + esc(item.value) + '"' +
+                                            return '<li' + (item.count ? '' : ' class="is-empty"') + '><input type="checkbox" id="' + id + '" data-filter="colors" data-value="' + esc(item.value) + '"' +
                                                 (state.colors.indexOf(item.value) !== -1 ? ' checked' : '') + '>' +
                                                 '<label for="' + id + '" title="' + esc(item.value) + ' (' + item.count + ')">' +
                                                 colorSwatch(item.value, 'facet-swatch-dot') +

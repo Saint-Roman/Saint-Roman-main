@@ -4237,6 +4237,17 @@ header.main-header .container {
 	white-space: nowrap;
 }
 
+/* A facet value that nothing currently matches stays listed and stays clickable —
+   it is a legitimate way to change direction — but reads as unavailable so the eye
+   skips it while scanning for something productive. */
+#filter-panel li.is-empty label {
+	opacity: 0.45;
+}
+
+#filter-panel li.is-empty label:hover {
+	opacity: 0.7;
+}
+
 /* ── Empty results ────────────────────────────────────────────────────── */
 /* A filter combination that matches nothing is a normal state on a small
    catalogue, not an error — it gets the same treatment every large retailer

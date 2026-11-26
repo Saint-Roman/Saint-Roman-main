@@ -148,17 +148,21 @@ router.get('/products', async (req, res) => {
 // Men's Fashion page doesn't list Women's-only colors just because they exist elsewhere
 // in the catalog.
 //
-// Each group is counted with every filter applied EXCEPT its own — the standard
-// faceted-search rule, and what every large retailer's sidebar does. Scoping a group by
-// its own selection collapses it to the one value already chosen, which strands the
-// shopper: picking Luxury left the Collection group holding only Luxury, so there was no
-// way to switch to Winter without clearing everything. It also means a combination that
-// matches nothing still returns a populated Categories and Collection list, instead of an
-// empty sidebar whose only exit is Clear All.
+// Every group always lists EVERY value in the catalogue, whatever is selected. The
+// sidebar is how a shopper changes their mind, so dropping options because the current
+// selection excludes them removes the controls at exactly the moment they are needed —
+// pick Winter and the other collections vanish, pick a category and half the colours go
+// with it, and a combination matching nothing leaves a sidebar with nothing in it.
 //
-//   Categories  <- tag applied, category NOT applied
-//   Collection  <- category applied, tag NOT applied
-//   Color/Size/price <- both applied (nothing else narrows them)
+// What the selection changes is the COUNT beside each value, not whether it is listed.
+// Counts follow the standard faceted-search rule — every filter applied except the
+// group's own — so they answer "how many would I get if I picked this instead", and a
+// value that would return nothing shows (0) rather than disappearing:
+//
+//   Categories  <- counted with tag applied, category not
+//   Collection  <- counted with category applied, tag not
+//   Color/Size  <- counted with both applied
+//   price_range <- the whole catalogue, so the bands don't move underfoot while filtering
 router.get('/facets', async (req, res) => {
   const { category, tag } = req.query;
 
@@ -171,10 +175,9 @@ router.get('/facets', async (req, res) => {
       .maybeSingle();
 
     if (categoryError) return res.status(500).json({ error: categoryError.message });
-    if (!categoryRow) {
-      return res.json({ categories: [], tags: [], colors: [], sizes: [], price_range: { min: 0, max: 0 } });
-    }
-    categoryId = categoryRow.id;
+    // An unknown slug matches no products, but the sidebar still has to list
+    // everything — it is the only way back from a bad link.
+    categoryId = categoryRow ? categoryRow.id : -1;
   }
 
   const tags = String(tag || '').split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
@@ -201,8 +204,9 @@ router.get('/facets', async (req, res) => {
     return data;
   }
 
-  let productsForCategories, productsForTags, productsForFacets;
+  let allProducts, productsForCategories, productsForTags, productsForFacets;
   try {
+    allProducts = await productsWith(false, false);        // the full option list
     productsForCategories = await productsWith(false, true);
     productsForTags = await productsWith(true, false);
     productsForFacets = await productsWith(true, true);
@@ -222,7 +226,9 @@ router.get('/facets', async (req, res) => {
   // counts. Group by a normalized key, but keep the first-seen spelling as the display label.
   // splitWhitespace handles the few variant rows whose size is stored as a space-joined pair
   // ("90 95") — each token becomes its own checkbox instead of one unreadable combined one.
-  function addFacetValue(counts, raw, splitWhitespace) {
+  // registerOnly adds the value at count 0 if it isn't known yet, without counting it —
+  // used by the seeding pass that lists the catalogue's full set of values.
+  function addFacetValue(counts, raw, splitWhitespace, registerOnly) {
     if (!raw) return;
     const cleaned = String(raw).trim().replace(/\s+/g, ' ');
     if (!cleaned) return;
@@ -230,8 +236,31 @@ router.get('/facets', async (req, res) => {
     for (const label of tokens) {
       const key = label.toLowerCase();
       const entry = counts.get(key) || { label, count: 0 };
-      entry.count += 1;
+      if (!registerOnly) entry.count += 1;
       counts.set(key, entry);
+    }
+  }
+
+  // Seed every group from the whole catalogue at count 0, so each one lists all of its
+  // values no matter what is selected, then add the real counts from the scoped sets on
+  // top. A value nobody can reach right now stays listed and reads (0).
+  for (const p of allProducts) {
+    if (p.category && !categoryCounts.has(p.category.slug)) {
+      categoryCounts.set(p.category.slug, { name: p.category.name, count: 0 });
+    }
+    for (const t of p.tags || []) {
+      if (!tagCounts.has(t)) tagCounts.set(t, 0);
+    }
+    for (const v of p.product_variants || []) {
+      addFacetValue(colorCounts, v.color, false, true);
+      addFacetValue(sizeCounts, v.size, true, true);
+    }
+    // Price bands come from the full catalogue so they stay put as filters change,
+    // rather than resegmenting under the shopper on every click.
+    const price = Number(p.base_price);
+    if (!Number.isNaN(price)) {
+      minPrice = minPrice === null ? price : Math.min(minPrice, price);
+      maxPrice = maxPrice === null ? price : Math.max(maxPrice, price);
     }
   }
 
@@ -254,11 +283,6 @@ router.get('/facets', async (req, res) => {
       addFacetValue(colorCounts, v.color, false);
       addFacetValue(sizeCounts, v.size, true);
     }
-    const price = Number(p.base_price);
-    if (!Number.isNaN(price)) {
-      minPrice = minPrice === null ? price : Math.min(minPrice, price);
-      maxPrice = maxPrice === null ? price : Math.max(maxPrice, price);
-    }
   }
 
   res.json({
@@ -274,6 +298,7 @@ router.get('/facets', async (req, res) => {
     sizes: Array.from(sizeCounts.values())
       .map(({ label, count }) => ({ value: label, count }))
       .sort((a, b) => b.count - a.count),
+    // Whole-catalogue range: see the seeding pass above.
     price_range: { min: minPrice ?? 0, max: maxPrice ?? 0 },
   });
 });
