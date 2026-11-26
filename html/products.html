@@ -854,6 +854,15 @@
                                             .then(function (data) {
                                                 facets = data;
                                                 renderSidebar();
+                                                // /products and /facets race — if /products' response (which builds
+                                                // the breadcrumb) won, it ran before `facets` existed and fell back
+                                                // to title-casing the raw slug ("Women S Fashion"). Re-render now
+                                                // that the real category name is available, so it self-corrects
+                                                // regardless of which request finished first.
+                                                if (headingEl) {
+                                                    var hasFilters = state.category || state.tags.length || state.colors.length || state.sizes.length;
+                                                    headingEl.innerHTML = renderResultsBreadcrumb(hasFilters);
+                                                }
                                             })
                                             .catch(function () {
                                                 sidebarEl.innerHTML = '<p>Could not load filters.</p>';
