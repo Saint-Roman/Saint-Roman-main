@@ -4217,8 +4217,7 @@ header.main-header .container {
 
 /* Keyboard focus has to be visible on its own, since the real checkbox is
    hidden and :hover/:checked are the only other cues. */
-.facet-swatch-grid input:focus-visible + label,
-.facet-pill-grid input:focus-visible + label {
+.facet-swatch-grid input:focus-visible + label {
 	outline: 2px solid var(--gold-color-dark);
 	outline-offset: 2px;
 }
@@ -4236,54 +4235,6 @@ header.main-header .container {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-}
-
-/* ── Size pill grid ───────────────────────────────────────────────────── */
-.facet-pill-grid {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
-}
-
-.facet-pill-grid li {
-	margin: 0;
-	position: relative;
-}
-
-.facet-pill-grid input[type=checkbox] {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	opacity: 0;
-	margin: 0;
-}
-
-.facet-pill-grid label {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	min-width: 46px;
-	padding: 8px 12px;
-	border: 1px solid var(--divider-color);
-	border-radius: 6px;
-	font-size: 14px;
-	line-height: 1;
-	cursor: pointer;
-	transition: all 0.2s ease-in-out;
-}
-
-.facet-pill-grid label:hover {
-	border-color: var(--primary-color);
-}
-
-.facet-pill-grid input:checked + label {
-	border-color: var(--primary-color);
-	background-color: var(--primary-color);
-	color: var(--white-color);
-	font-weight: 600;
 }
 
 /* ── Desktop: let the panel scroll itself instead of the page ─────────── */

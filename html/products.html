@@ -574,7 +574,6 @@
                                         category: initialCategory || null,
                                         tags: (initialTag || '').split(',').filter(Boolean),
                                         colors: (initialParams.get('color') || '').split(',').filter(Boolean),
-                                        sizes: (initialParams.get('size') || '').split(',').filter(Boolean),
                                         sort: initialParams.get('sort') || null,
                                         price: (initialParams.get('price_min') || initialParams.get('price_max'))
                                             ? (initialParams.get('price_min') || '') + '-' + (initialParams.get('price_max') || '')
@@ -625,25 +624,7 @@
                                     // group and reveal the rest on demand (Myntra "+12 more", ASOS/H&M
                                     // "Show more"), and render color/size as swatch and pill grids rather
                                     // than one option per line — shorter, and far faster to scan.
-                                    var FACET_CAPS = { Collection: 6, Color: 12, Size: 12 };
-
-                                    // Size facets have to read in size order, not in count order — a list
-                                    // that runs "XS, L, M, 32, S, 95" because those happen to be the
-                                    // stock levels is unreadable. Alpha sizes sort by the conventional
-                                    // run, numeric sizes ascending after them, anything unrecognized last.
-                                    var SIZE_ORDER = ['xxxs', 'xxs', 'xs', 's', 'm', 'l', 'xl', 'xxl', '2xl', 'xxxl', '3xl', '4xl', 'free', 'freesize', 'onesize'];
-                                    function sizeSortKey(value) {
-                                        var k = String(value).trim().toLowerCase().replace(/\s+/g, '');
-                                        var i = SIZE_ORDER.indexOf(k);
-                                        if (i !== -1) return i;
-                                        var n = parseFloat(k);
-                                        if (!isNaN(n)) return 1000 + n;
-                                        return 1000000;
-                                    }
-                                    function bySize(a, b) {
-                                        var d = sizeSortKey(a.value) - sizeSortKey(b.value);
-                                        return d !== 0 ? d : String(a.value).localeCompare(String(b.value));
-                                    }
+                                    var FACET_CAPS = { Collection: 6, Color: 12 };
 
                                     // Price was the one filter the sidebar never offered, even though
                                     // /facets already returns the live price_range and /products already
@@ -711,7 +692,6 @@
                                         if (state.price) out.push({ key: 'price', value: state.price, label: priceLabel(state.price) });
                                         state.tags.forEach(function (t) { out.push({ key: 'tags', value: t, label: readableLabel(t) }); });
                                         state.colors.forEach(function (c) { out.push({ key: 'colors', value: c, label: c }); });
-                                        state.sizes.forEach(function (z) { out.push({ key: 'sizes', value: z, label: 'Size ' + z }); });
                                         return out;
                                     }
 
@@ -789,15 +769,6 @@
                                         }).join('') + '</ul>';
                                     }
 
-                                    function renderPills(items) {
-                                        return '<ul class="facet-pill-grid">' + items.map(function (item) {
-                                            var id = ('sizes-' + item.value).replace(/[^a-zA-Z0-9_-]/g, '_');
-                                            return '<li><input type="checkbox" id="' + id + '" data-filter="sizes" data-value="' + esc(item.value) + '"' +
-                                                (state.sizes.indexOf(item.value) !== -1 ? ' checked' : '') + '>' +
-                                                '<label for="' + id + '" title="' + item.count + ' products">' + esc(item.value) + '</label></li>';
-                                        }).join('') + '</ul>';
-                                    }
-
                                     function facetGroup(title, items, render) {
                                         // A group with nothing to choose between filters nothing — one option
                                         // that every product in view already matches is pure noise, so the
@@ -821,22 +792,12 @@
                                     function renderSidebar() {
                                         if (!facets) return;
 
-                                        var sizes = (facets.sizes || []).slice().sort(bySize);
-
                                         sidebarEl.innerHTML =
                                             '<div id="facet-applied-host">' + chipsMarkup() + '</div>' +
                                             facetGroup('Categories', facets.categories, renderCategories) +
                                             facetGroup('Price', priceBuckets(facets.price_range), renderPrice) +
                                             facetGroup('Collection', facets.tags, renderChecks('tags', 'tag', function (i) { return esc(readableLabel(i.tag)); })) +
-                                            facetGroup('Color', facets.colors, renderSwatches) +
-                                            // Size is category-dependent in a way no other facet is: across the
-                                            // whole catalogue the group merges men's waist sizes with women's
-                                            // band sizes into one list ("32, 34, 36, 90-95, 95") where picking
-                                            // a value means two different things depending on which half of the
-                                            // catalogue it lands in. /facets already scopes sizes to ?category=,
-                                            // so inside Men's or Women's the list is correct on its own — the
-                                            // group just has no meaning until a category is chosen.
-                                            (state.category ? facetGroup('Size', sizes, renderPills) : '');
+                                            facetGroup('Color', facets.colors, renderSwatches);
                                     }
 
                                     function syncInputsFromState() {
@@ -868,10 +829,6 @@
                                         var value = box.getAttribute('data-value');
                                         if (key === 'category') {
                                             state.category = value || null;
-                                            // A size carried across a category change is meaningless — "32" is a
-                                            // waist under Men's and a band under Women's — and with no category
-                                            // the group is hidden, so it would keep filtering invisibly.
-                                            state.sizes = [];
                                             afterFilterChange(true);
                                         } else if (key === 'price') {
                                             state.price = value || null;
@@ -893,7 +850,7 @@
                                         if (chip) {
                                             var ck = chip.getAttribute('data-chip-key');
                                             var cv = chip.getAttribute('data-chip-value');
-                                            if (ck === 'category') { state.category = null; state.sizes = []; }
+                                            if (ck === 'category') state.category = null;
                                             else if (ck === 'price') state.price = null;
                                             else {
                                                 var i = state[ck].indexOf(cv);
@@ -929,7 +886,7 @@
                                     // (single-select) and a lone tag become the pretty path itself
                                     // (/category/<slug>, /tag/<tag>), same shape as the links that
                                     // land here in the first place; anything that can't be a single
-                                    // path segment (multiple tags, colors, sizes) stays a query param
+                                    // path segment (multiple tags, colors) stays a query param
                                     // layered on top, same as ?coupon= already does.
                                     function syncUrl() {
                                         var pathname = '/products';
@@ -945,7 +902,6 @@
                                         }
 
                                         if (state.colors.length) params.set('color', state.colors.join(','));
-                                        if (state.sizes.length) params.set('size', state.sizes.join(','));
                                         if (state.price) {
                                             var pr = priceParams(state.price);
                                             if (pr.min) params.set('price_min', pr.min);
@@ -965,7 +921,6 @@
                                         if (state.price) parts.push({ label: priceLabel(state.price) });
                                         state.tags.forEach(function (t) { parts.push({ label: readableLabel(t) }); });
                                         state.colors.forEach(function (c) { parts.push({ label: c }); });
-                                        state.sizes.forEach(function (s) { parts.push({ label: s }); });
                                         return parts;
                                     }
 
@@ -1023,7 +978,6 @@
                                         if (state.category) params.set('category', state.category);
                                         if (state.tags.length) params.set('tag', state.tags.join(','));
                                         if (state.colors.length) params.set('color', state.colors.join(','));
-                                        if (state.sizes.length) params.set('size', state.sizes.join(','));
                                         if (state.price) {
                                             var prq = priceParams(state.price);
                                             if (prq.min) params.set('price_min', prq.min);
@@ -1041,7 +995,7 @@
                                                 var products = data.products || [];
                                                 total = data.total || 0;
 
-                                                var hasFilters = state.category || state.tags.length || state.colors.length || state.sizes.length || state.price;
+                                                var hasFilters = state.category || state.tags.length || state.colors.length || state.price;
                                                 if (headingEl) {
                                                     headingEl.innerHTML = renderResultsBreadcrumb(hasFilters);
                                                 }
@@ -1071,7 +1025,7 @@
                                     }
 
                                     function resetAllFilters() {
-                                        state = { category: null, tags: [], colors: [], sizes: [], sort: null, price: null, offset: 0 };
+                                        state = { category: null, tags: [], colors: [], sort: null, price: null, offset: 0 };
                                         if (sortEl) sortEl.value = '';  // "Newest First"
                                         expandedSections = {};
                                         syncUrl();
@@ -1148,7 +1102,7 @@
                                     }
 
                                     // Color/Size/Collection options are scoped to the selected category (?category=)
-                                    // so a Men's Fashion page doesn't surface women's-only sizes or colors — re-run
+                                    // so a Men's Fashion page doesn't surface women's-only colors — re-run
                                     // whenever category/tags change, not on every color/size tick (those stay
                                     // multi-selectable within whatever the category already narrowed them to).
                                     function loadFacets() {
@@ -1168,7 +1122,7 @@
                                                 // that the real category name is available, so it self-corrects
                                                 // regardless of which request finished first.
                                                 if (headingEl) {
-                                                    var hasFilters = state.category || state.tags.length || state.colors.length || state.sizes.length || state.price;
+                                                    var hasFilters = state.category || state.tags.length || state.colors.length || state.price;
                                                     headingEl.innerHTML = renderResultsBreadcrumb(hasFilters);
                                                 }
                                             })
