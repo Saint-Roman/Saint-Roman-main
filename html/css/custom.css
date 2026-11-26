@@ -242,7 +242,7 @@ a:focus {
 	text-transform: capitalize;
 	background: transparent;
 	border: 1px solid var(--gold-color-dark);
-	color: var(--gold-color-dark);
+	color: var(--primary-color);
 	border-radius: 5px;
 	padding: 15px 56px 15px 16px;
 	overflow: hidden;
