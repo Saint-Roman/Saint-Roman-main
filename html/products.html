@@ -482,7 +482,17 @@
                             <button type="button" class="filter-drawer-close" id="filter-drawer-close" aria-label="Close filters">&times;</button>
                         </div>
                         <div class="product-category-item-list" id="live-filter-sidebar">
-                            <p class="wow fadeInUp">Loading filters…</p>
+                            <!-- Skeleton, not a "Loading…" line: it reserves roughly the height the
+                                 real facets will take, so the panel doesn't collapse to one row and
+                                 then shove the page down when they arrive. Replaced wholesale by
+                                 renderSidebar(). -->
+                            <div class="facet-skeleton" aria-hidden="true">
+                                <div class="facet-skeleton-group"><span class="facet-skeleton-title"></span><span class="facet-skeleton-row"></span><span class="facet-skeleton-row"></span><span class="facet-skeleton-row"></span><span class="facet-skeleton-row"></span></div>
+                                <div class="facet-skeleton-group"><span class="facet-skeleton-title"></span><span class="facet-skeleton-row"></span><span class="facet-skeleton-row"></span><span class="facet-skeleton-row"></span><span class="facet-skeleton-row"></span><span class="facet-skeleton-row"></span></div>
+                                <div class="facet-skeleton-group"><span class="facet-skeleton-title"></span><span class="facet-skeleton-row"></span><span class="facet-skeleton-row"></span><span class="facet-skeleton-row"></span><span class="facet-skeleton-row"></span><span class="facet-skeleton-row"></span><span class="facet-skeleton-row"></span></div>
+                                <div class="facet-skeleton-group"><span class="facet-skeleton-title"></span><span class="facet-skeleton-row"></span><span class="facet-skeleton-row"></span><span class="facet-skeleton-row"></span><span class="facet-skeleton-row"></span><span class="facet-skeleton-row"></span></div>
+                            </div>
+                            <span class="sr-only">Loading filters…</span>
                         </div>
                         <div class="filter-drawer-footer">
                             <button type="button" class="filter-drawer-apply" id="filter-drawer-apply">Show results</button>

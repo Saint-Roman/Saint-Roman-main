@@ -182,10 +182,11 @@ router.get('/facets', async (req, res) => {
 
   const tags = String(tag || '').split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
 
-  // The three scopes collapse to the same query whenever the filter they differ on isn't
-  // set, so they're fetched once each and shared rather than run three times over.
+  // The four scopes collapse to the same query whenever the filters they differ on
+  // aren't set, so the PROMISE is memoised, not the result: identical scopes then share
+  // one round trip even when all four are started at once.
   const fetched = new Map();
-  async function productsWith(withCategory, withTag) {
+  function productsWith(withCategory, withTag) {
     const useCategory = withCategory && categoryId !== null;
     const useTag = withTag && tags.length > 0;
     const key = `${useCategory}|${useTag}`;
@@ -198,18 +199,25 @@ router.get('/facets', async (req, res) => {
     if (useCategory) q = q.eq('category_id', categoryId);
     if (useTag) q = q.overlaps('tags', tags);
 
-    const { data, error } = await q;
-    if (error) throw error;
-    fetched.set(key, data);
-    return data;
+    const promise = Promise.resolve(q).then(({ data, error }) => {
+      if (error) throw error;
+      return data;
+    });
+    fetched.set(key, promise);
+    return promise;
   }
 
+  // Started together, not one after another. These are independent reads, and awaiting
+  // them in sequence made the sidebar wait for up to four round trips before it could
+  // render anything — the single slowest thing about the page.
   let allProducts, productsForCategories, productsForTags, productsForFacets;
   try {
-    allProducts = await productsWith(false, false);        // the full option list
-    productsForCategories = await productsWith(false, true);
-    productsForTags = await productsWith(true, false);
-    productsForFacets = await productsWith(true, true);
+    [allProducts, productsForCategories, productsForTags, productsForFacets] = await Promise.all([
+      productsWith(false, false),   // the full option list
+      productsWith(false, true),
+      productsWith(true, false),
+      productsWith(true, true),
+    ]);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -223,7 +231,9 @@ router.get('/facets', async (req, res) => {
 
   // Variant colors/sizes are free-text, so "Black", "black" and "Black " (case/whitespace
   // variants of the same value) would otherwise show up as separate checkboxes with split
-  // counts. Group by a normalized key, but keep the first-seen spelling as the display label.
+  // counts. Group by a normalized key, and render a consistent label rather than whichever
+  // spelling happened to be seen first — that produced sidebars reading "Black, grey,
+  // White, blue, peach", capitalised or not according to how each row was typed.
   // splitWhitespace handles the few variant rows whose size is stored as a space-joined pair
   // ("90 95") — each token becomes its own checkbox instead of one unreadable combined one.
   // registerOnly adds the value at count 0 if it isn't known yet, without counting it —
@@ -233,8 +243,16 @@ router.get('/facets', async (req, res) => {
     const cleaned = String(raw).trim().replace(/\s+/g, ' ');
     if (!cleaned) return;
     const tokens = splitWhitespace ? cleaned.split(' ') : [cleaned];
-    for (const label of tokens) {
-      const key = label.toLowerCase();
+    for (const token of tokens) {
+      const key = token.toLowerCase();
+      // Title-case the display label, but leave two kinds of value alone: anything
+      // containing a digit ("32", "90-95") and short all-caps codes ("XL", "S"), which
+      // title-casing would mangle into "Xl".
+      const hasDigit = /\d/.test(token);
+      const isShortCode = token.length <= 3 && token === token.toUpperCase();
+      const label = hasDigit || isShortCode
+        ? token
+        : token.toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase());
       const entry = counts.get(key) || { label, count: 0 };
       if (!registerOnly) entry.count += 1;
       counts.set(key, entry);

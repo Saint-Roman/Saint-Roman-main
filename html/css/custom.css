@@ -4248,6 +4248,53 @@ header.main-header .container {
 	opacity: 0.7;
 }
 
+/* ── Loading skeleton ─────────────────────────────────────────────────── */
+/* Holds the panel's height while /facets is in flight. prefers-reduced-motion
+   drops the shimmer and leaves the static blocks. */
+.facet-skeleton-group {
+	border-bottom: 1px solid var(--divider-color);
+	margin-bottom: 22px;
+	padding-bottom: 22px;
+}
+
+.facet-skeleton-title,
+.facet-skeleton-row {
+	display: block;
+	border-radius: 4px;
+	background: linear-gradient(90deg, #efefef 25%, #f7f7f7 50%, #efefef 75%);
+	background-size: 200% 100%;
+	animation: facet-skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.facet-skeleton-title {
+	width: 45%;
+	height: 13px;
+	margin-bottom: 18px;
+}
+
+.facet-skeleton-row {
+	width: 80%;
+	height: 11px;
+	margin-bottom: 14px;
+}
+
+.facet-skeleton-row:nth-child(3) { width: 65%; }
+.facet-skeleton-row:nth-child(4) { width: 72%; }
+.facet-skeleton-row:last-child { margin-bottom: 0; }
+
+@keyframes facet-skeleton-shimmer {
+	0% { background-position: 200% 0; }
+	100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.facet-skeleton-title,
+	.facet-skeleton-row {
+		animation: none;
+		background: #efefef;
+	}
+}
+
 /* ── Empty results ────────────────────────────────────────────────────── */
 /* A filter combination that matches nothing is a normal state on a small
    catalogue, not an error — it gets the same treatment every large retailer
