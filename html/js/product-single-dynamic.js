@@ -113,7 +113,17 @@
         var sizeOptions = document.getElementById('product-size-options');
         var message = document.getElementById('product-variant-message');
 
-        var selectedColor = colors[0] || null;
+        // Defaults to whichever colour's photo is products.image_url — the same photo every
+        // listing card, the homepage and search results show for this product — not just
+        // colors[0] (whatever order product_variants rows happen to come back in). Opening a
+        // product on a different colour than the one just clicked is exactly the "wait, this
+        // isn't the one I picked" moment this avoids.
+        var primaryColorMatch = product.image_url
+            ? (product.product_images || []).filter(function (img) { return img.url === product.image_url; })[0]
+            : null;
+        var selectedColor = (primaryColorMatch && colors.indexOf(primaryColorMatch.color) !== -1)
+            ? primaryColorMatch.color
+            : (colors[0] || null);
         var selectedSize = sizes[0] || null;
 
         function updateSelection() {
@@ -146,7 +156,7 @@
                     // dark tint) reads fine against a saturated swatch, but is still too faint
                     // for white even unselected — override just the border colour for it.
                     var idleBorder = isWhite ? ';border-color:#000000' : '';
-                    return '<input type="radio" name="color" id="product-color-' + i + '"' + (i === 0 ? ' checked' : '') + '>' +
+                    return '<input type="radio" name="color" id="product-color-' + i + '"' + (color === selectedColor ? ' checked' : '') + '>' +
                         '<label for="product-color-' + i + '" class="color-variant" style="background:' + safeColor + ';--swatch-ring-color:' + ringColor + idleBorder + '" title="' + safeColor + '"></label>';
                 }).join('');
 
