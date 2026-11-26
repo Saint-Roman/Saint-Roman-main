@@ -486,7 +486,12 @@
                         <div class="product-item-list-box">
                             <div class="product-category-filter-header wow fadeInUp">
                                 <div class="product-category-filter-title">
-                                    <h2 id="products-heading">Showing all results</h2>
+                                    <nav class="wow fadeInUp">
+                                        <ol class="breadcrumb" id="products-heading">
+                                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                            <li class="breadcrumb-item active" aria-current="page">All Products</li>
+                                        </ol>
+                                    </nav>
                                 </div>
                                 <div class="product-category-result-info">
                                     <div class="product-category-result-pagination">
@@ -681,13 +686,28 @@
                                         return match ? match.name : readableLabel(slug);
                                     }
 
-                                    function activeFilterLabel() {
+                                    function activeFilterCrumbs() {
                                         var parts = [];
-                                        if (state.category) parts.push(categoryLabel(state.category));
-                                        state.tags.forEach(function (t) { parts.push(readableLabel(t)); });
-                                        state.colors.forEach(function (c) { parts.push(c); });
-                                        state.sizes.forEach(function (s) { parts.push(s); });
-                                        return parts.join(', ');
+                                        if (state.category) parts.push({ label: categoryLabel(state.category), href: '/category/' + encodeURIComponent(state.category) });
+                                        state.tags.forEach(function (t) { parts.push({ label: readableLabel(t) }); });
+                                        state.colors.forEach(function (c) { parts.push({ label: c }); });
+                                        state.sizes.forEach(function (s) { parts.push({ label: s }); });
+                                        return parts;
+                                    }
+
+                                    // Renders the results heading as a breadcrumb trail (Home / Men's Fashion / Winter)
+                                    // instead of a plain "Showing results for X, Y" sentence.
+                                    function renderResultsBreadcrumb(hasFilters) {
+                                        var crumbs = [{ label: 'Home', href: '/' }]
+                                            .concat(hasFilters ? activeFilterCrumbs() : [{ label: 'All Products' }]);
+                                        return crumbs.map(function (crumb, i) {
+                                            var isLast = i === crumbs.length - 1;
+                                            if (isLast || !crumb.href) {
+                                                var activeAttrs = isLast ? ' aria-current="page"' : '';
+                                                return '<li class="breadcrumb-item' + (isLast ? ' active' : '') + '"' + activeAttrs + '>' + crumb.label + '</li>';
+                                            }
+                                            return '<li class="breadcrumb-item"><a href="' + crumb.href + '">' + crumb.label + '</a></li>';
+                                        }).join('');
                                     }
 
                                     function productCard(product) {
@@ -744,9 +764,7 @@
 
                                                 var hasFilters = state.category || state.tags.length || state.colors.length || state.sizes.length;
                                                 if (headingEl) {
-                                                    headingEl.textContent = hasFilters
-                                                        ? 'Showing results for ' + activeFilterLabel()
-                                                        : 'Showing all results';
+                                                    headingEl.innerHTML = renderResultsBreadcrumb(hasFilters);
                                                 }
 
                                                 if (products.length === 0 && !append) {

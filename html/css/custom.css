@@ -3860,6 +3860,27 @@ header.main-header .container {
 	font-size: 18px;
 }
 
+/* Results heading as a breadcrumb trail (Home / Men's Fashion / Winter) instead of a plain
+   "Showing results for X, Y" sentence — built by renderResultsBreadcrumb() in products.html. */
+.product-category-filter-title .breadcrumb {
+	margin: 0;
+}
+
+.product-category-filter-title .breadcrumb-item,
+.product-category-filter-title .breadcrumb-item a {
+	font-size: 18px;
+	text-transform: capitalize;
+}
+
+.product-category-filter-title .breadcrumb-item a {
+	color: var(--text-color);
+}
+
+.product-category-filter-title .breadcrumb-item.active {
+	color: var(--primary-color);
+	font-weight: 600;
+}
+
 .product-category-filter-clear-btn a {
 	font-size: 16px;
 	color: var(--text-color);
