@@ -2918,9 +2918,8 @@ header.main-header .container {
 }
 
 .footer-social-links ul li a:hover {
-	color: var(--gold-color-dark);
-	border-color: var(--white-color);
-	background-color: var(--white-color);
+	color: var(--white-color);
+	background-color: var(--gold-color-dark);
 }
 
 .footer-social-links ul li a i {
@@ -3410,8 +3409,8 @@ header.main-header .container {
 }
 
 .team-item-social-list ul li a:hover {
-	background: var(--white-color);
-	color: var(--gold-color-dark);
+	background: var(--gold-color-dark);
+	color: var(--white-color);
 }
 
 .team-item-social-list ul li a i {
@@ -6940,6 +6939,37 @@ ul.view-order-product-info-list li span {
 .contact-us-social-links ul li a i {
 	font-size: 18px;
 	color: inherit;
+}
+
+/* Social icon hover fills with each platform's own brand color instead of the shared gold —
+   covers every place these icons appear (footer, team cards, the contact page follow-list,
+   and the homepage social-feed overlay icons). Each rule is already more specific than the
+   plain ":hover" rule it overrides (an extra :has()), so source order doesn't matter here. */
+.footer-social-links ul li a:hover:has(.fa-facebook-f),
+.team-item-social-list ul li a:hover:has(.fa-facebook-f),
+.contact-us-social-links ul li a:hover:has(.fa-facebook-f),
+.social-feed-item:hover .icon-box a:has(.fa-facebook-f) {
+	background: #1877F2;
+}
+
+.footer-social-links ul li a:hover:has(.fa-instagram),
+.team-item-social-list ul li a:hover:has(.fa-instagram),
+.contact-us-social-links ul li a:hover:has(.fa-instagram),
+.social-feed-item:hover .icon-box a:has(.fa-instagram) {
+	background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+.footer-social-links ul li a:hover:has(.fa-x-twitter),
+.team-item-social-list ul li a:hover:has(.fa-x-twitter),
+.contact-us-social-links ul li a:hover:has(.fa-x-twitter),
+.social-feed-item:hover .icon-box a:has(.fa-x-twitter) {
+	background: #000000;
+}
+
+.footer-social-links ul li a:hover:has(.fa-pinterest-p),
+.team-item-social-list ul li a:hover:has(.fa-pinterest-p),
+.contact-us-social-links ul li a:hover:has(.fa-pinterest-p) {
+	background: #E60023;
 }
 
 .contact-us-form {
