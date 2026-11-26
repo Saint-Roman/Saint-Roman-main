@@ -69,6 +69,7 @@
 	--divider-color: #16181D1A;
 	--dark-divider-color: #FFFFFF1A;
 	--error-color: rgb(230, 87, 87);
+	--star-color: #FFB800;
 	--default-font: 'Overused Grotesk';
 }
 
@@ -1873,7 +1874,7 @@ header.main-header .container {
 
 .product-item-rating i,
 .rating-badge i {
-	color: var(--primary-color);
+	color: var(--star-color);
 	font-size: 11px;
 }
 
@@ -4559,7 +4560,7 @@ header.main-header .container {
 }
 
 .ratings-summary-score h2 i {
-	color: var(--accent-color);
+	color: var(--star-color);
 	font-size: 30px;
 }
 
@@ -4591,7 +4592,7 @@ header.main-header .container {
 }
 
 .ratings-summary-bar-label i {
-	color: var(--accent-color);
+	color: var(--star-color);
 	font-size: 11px;
 }
 
@@ -4638,7 +4639,7 @@ header.main-header .container {
 }
 
 .customer-review-item-star-pill i {
-	color: var(--accent-color);
+	color: var(--star-color);
 	font-size: 10px;
 }
 
