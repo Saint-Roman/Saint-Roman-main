@@ -3997,6 +3997,420 @@ header.main-header .container {
 	max-height: 0;
 }
 
+/* ──────────────────────────────────────────────────────────────────────────
+   Filter sidebar — applied chips, capped groups, swatch/pill grids, drawer
+
+   The facet panel used to render every value of every group, fully expanded,
+   one option per line: against a real catalogue that is ~2,100px over 45 rows,
+   so Color buried Size below the fold and the sticky sidebar was taller than
+   the viewport it was meant to stick inside. These rules follow what the large
+   fashion retailers settled on — a removable chip per active filter, a capped
+   list with "+ N more", colors as swatches and sizes as pills in grids, and a
+   drawer instead of a stacked column on narrow screens.
+   ────────────────────────────────────────────────────────────────────────── */
+
+.facet-body {
+	overflow: hidden;
+	max-height: 2000px;
+	transition: max-height 0.3s ease-in-out;
+}
+
+/* Denser than the page's generic sidebar rhythm: 20px between every option and a
+   22px group heading is right for a short link list, but across five facet groups
+   it spends most of the panel on whitespace. Scoped to #filter-panel so the other
+   pages sharing .page-single-sidebar keep their original spacing. */
+#filter-panel .product-category-item {
+	margin-bottom: 22px;
+	padding-bottom: 22px;
+}
+
+#filter-panel .product-category-item-title {
+	font-size: 15px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	margin-bottom: 14px;
+}
+
+#filter-panel .product-category-item ul li {
+	margin-bottom: 12px;
+	font-size: 14px;
+}
+
+#filter-panel .product-category-item ul li input[type=checkbox],
+#filter-panel .product-category-item ul li input[type=radio] {
+	width: 16px;
+	height: 16px;
+	accent-color: var(--primary-color);
+}
+
+.product-category-item.collapsed .facet-body {
+	max-height: 0;
+}
+
+/* Visually-hidden text that still reaches a screen reader (the chips' "Remove
+   filter X", where the × glyph alone says nothing out loud). */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* ── Applied filter chips ─────────────────────────────────────────────── */
+.facet-applied {
+	border-bottom: 1px solid var(--divider-color);
+	margin-bottom: 25px;
+	padding-bottom: 20px;
+}
+
+.facet-applied-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	margin-bottom: 12px;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--text-color);
+}
+
+.facet-applied-clear {
+	background: none;
+	border: none;
+	padding: 0;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--gold-color-dark);
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.facet-chip-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.facet-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	background-color: var(--secondary-color);
+	border: 1px solid var(--divider-color);
+	border-radius: 999px;
+	padding: 6px 12px;
+	font-size: 13px;
+	line-height: 1.2;
+	color: var(--primary-color);
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+}
+
+.facet-chip:hover {
+	border-color: var(--gold-color-dark);
+	color: var(--gold-color-dark);
+}
+
+.facet-chip-x {
+	font-size: 16px;
+	line-height: 1;
+}
+
+/* ── "+ N more" ───────────────────────────────────────────────────────── */
+.facet-more {
+	background: none;
+	border: none;
+	padding: 0;
+	margin-top: 14px;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--gold-color-dark);
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+/* ── Color swatch grid ────────────────────────────────────────────────── */
+/* Two columns of swatch + name rather than one checkbox per line: an 18-color
+   palette is 9 rows instead of 18, and the dot carries the recognition so the
+   name is only confirmation. */
+.facet-swatch-grid {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 10px 12px;
+}
+
+.facet-swatch-grid li {
+	margin: 0;
+	position: relative;
+}
+
+.facet-swatch-grid input[type=checkbox] {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	opacity: 0;
+	margin: 0;
+}
+
+.facet-swatch-grid label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	border: 1px solid transparent;
+	border-radius: 999px;
+	padding: 5px 10px 5px 5px;
+	font-size: 14px;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+}
+
+.facet-swatch-grid label:hover {
+	border-color: var(--divider-color);
+}
+
+.facet-swatch-grid input:checked + label {
+	border-color: var(--primary-color);
+	background-color: var(--secondary-color);
+	font-weight: 600;
+}
+
+/* Keyboard focus has to be visible on its own, since the real checkbox is
+   hidden and :hover/:checked are the only other cues. */
+.facet-swatch-grid input:focus-visible + label,
+.facet-pill-grid input:focus-visible + label {
+	outline: 2px solid var(--gold-color-dark);
+	outline-offset: 2px;
+}
+
+.facet-swatch-dot {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	border: 1px solid var(--divider-color);
+	flex-shrink: 0;
+}
+
+.facet-swatch-name {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* ── Size pill grid ───────────────────────────────────────────────────── */
+.facet-pill-grid {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.facet-pill-grid li {
+	margin: 0;
+	position: relative;
+}
+
+.facet-pill-grid input[type=checkbox] {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	opacity: 0;
+	margin: 0;
+}
+
+.facet-pill-grid label {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 46px;
+	padding: 8px 12px;
+	border: 1px solid var(--divider-color);
+	border-radius: 6px;
+	font-size: 14px;
+	line-height: 1;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+}
+
+.facet-pill-grid label:hover {
+	border-color: var(--primary-color);
+}
+
+.facet-pill-grid input:checked + label {
+	border-color: var(--primary-color);
+	background-color: var(--primary-color);
+	color: var(--white-color);
+	font-weight: 600;
+}
+
+/* ── Desktop: let the panel scroll itself instead of the page ─────────── */
+/* .page-single-sidebar is already position:sticky, but a panel taller than the
+   viewport has nothing to stick to — it just scrolls away. Capping it to the
+   viewport and scrolling the overflow internally is what makes sticky mean
+   anything here. */
+@media only screen and (min-width: 992px) {
+	#filter-panel {
+		max-height: calc(100vh - 60px);
+		display: flex;
+		flex-direction: column;
+	}
+
+	#filter-panel .product-category-item-list {
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		padding-right: 6px;
+	}
+
+	.filter-drawer-close,
+	.filter-drawer-footer,
+	.filter-drawer-open {
+		display: none !important;
+	}
+}
+
+/* ── Mobile/tablet: the panel becomes a drawer ────────────────────────── */
+.filter-drawer-open {
+	display: none;
+	align-items: center;
+	gap: 8px;
+	background-color: var(--white-color);
+	border: 1px solid var(--divider-color);
+	border-radius: 8px;
+	padding: 8px 14px;
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--primary-color);
+	cursor: pointer;
+}
+
+.filter-drawer-open img {
+	width: 16px;
+	height: 16px;
+}
+
+.filter-drawer-open-count {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 20px;
+	height: 20px;
+	padding: 0 5px;
+	border-radius: 999px;
+	background-color: var(--primary-color);
+	color: var(--white-color);
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.filter-drawer-close {
+	display: none;
+	background: none;
+	border: none;
+	font-size: 28px;
+	line-height: 1;
+	padding: 0 4px;
+	color: var(--primary-color);
+	cursor: pointer;
+}
+
+.filter-drawer-footer {
+	display: none;
+}
+
+.filter-drawer-backdrop {
+	position: fixed;
+	inset: 0;
+	background-color: rgba(0, 0, 0, 0.45);
+	z-index: 1040;
+}
+
+.filter-drawer-backdrop[hidden] {
+	display: none;
+}
+
+@media only screen and (max-width: 991px) {
+	.filter-drawer-open {
+		display: inline-flex;
+	}
+
+	#filter-panel {
+		position: fixed;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		width: min(92vw, 380px);
+		background-color: var(--white-color);
+		z-index: 1050;
+		margin: 0;
+		padding: 20px;
+		display: flex;
+		flex-direction: column;
+		transform: translateX(-100%);
+		transition: transform 0.3s ease-in-out;
+		visibility: hidden;
+	}
+
+	#filter-panel.is-open {
+		transform: translateX(0);
+		visibility: visible;
+		box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+	}
+
+	#filter-panel .product-category-item-list {
+		flex: 1;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.filter-drawer-close {
+		display: block;
+	}
+
+	.filter-drawer-footer {
+		display: block;
+		border-top: 1px solid var(--divider-color);
+		padding-top: 15px;
+		margin-top: 15px;
+	}
+
+	.filter-drawer-apply {
+		width: 100%;
+		background-color: var(--primary-color);
+		color: var(--white-color);
+		border: none;
+		border-radius: 8px;
+		padding: 14px;
+		font-size: 15px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	body.filter-drawer-locked {
+		overflow: hidden;
+	}
+}
+
+@media only screen and (max-width: 575px) {
+	.facet-swatch-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
 .product-item-list-box .product-category-filter-header {
 	margin-bottom: 20px;
 }
@@ -8046,6 +8460,10 @@ ul.view-order-product-info-list li span {
 		padding: 50px 0;
 	}
 
+	/* products.html's filter panel opts out of this via #filter-panel (an id, so
+	   it wins on specificity regardless of order) and becomes an off-canvas
+	   drawer instead — see the filter-drawer rules earlier in this file. Every
+	   other page that shares this class still stacks in the flow. */
 	.page-single-sidebar {
 		position: initial;
 		margin: 0 0 30px;

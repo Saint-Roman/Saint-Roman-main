@@ -465,7 +465,12 @@
             <!-- <div id="live-banner-hero"></div> -->
             <div class="row">
                 <div class="col-xl-3 col-lg-4">
-                    <div class="page-single-sidebar">
+                    <!-- Below 992px this whole panel becomes a slide-in drawer (see #filter-drawer-open
+                         in the results header and .filter-drawer-* rules in css/custom.css). Stacked in
+                         the flow it pushed the entire product grid below a screen-and-a-half of
+                         checkboxes, which is why every large fashion site puts filters behind a Filter
+                         button on narrow screens instead. -->
+                    <div class="page-single-sidebar" id="filter-panel">
                         <div class="product-category-filter-header wow fadeInUp">
                             <div class="product-category-filter-title">
                                 <img src="images/icon-filter.svg" alt="">
@@ -474,12 +479,17 @@
                             <div class="product-category-filter-clear-btn">
                                 <a href="#">Clear All</a>
                             </div>
+                            <button type="button" class="filter-drawer-close" id="filter-drawer-close" aria-label="Close filters">&times;</button>
                         </div>
                         <div class="product-category-item-list" id="live-filter-sidebar">
                             <p class="wow fadeInUp">Loading filters…</p>
                         </div>
+                        <div class="filter-drawer-footer">
+                            <button type="button" class="filter-drawer-apply" id="filter-drawer-apply">Show results</button>
+                        </div>
                     </div>
                 </div>
+                <div class="filter-drawer-backdrop" id="filter-drawer-backdrop" hidden></div>
 
                 <div class="col-xl-9 col-lg-8">
                     <div class="col-xl-9 col-lg-8">
@@ -494,6 +504,11 @@
                                     </nav>
                                 </div>
                                 <div class="product-category-result-info">
+                                    <button type="button" class="filter-drawer-open" id="filter-drawer-open">
+                                        <img src="images/icon-filter.svg" alt="">
+                                        <span>Filter</span>
+                                        <span class="filter-drawer-open-count" id="filter-drawer-open-count"></span>
+                                    </button>
                                     <div class="product-category-result-pagination">
                                         <ul>
                                             <li><a href="#">1</a></li>
@@ -564,11 +579,16 @@
                                         colors: (initialParams.get('color') || '').split(',').filter(Boolean),
                                         sizes: (initialParams.get('size') || '').split(',').filter(Boolean),
                                         sort: REVERSE_SORT_MAP[initialParams.get('sort')] ? initialParams.get('sort') : null,
+                                        price: (initialParams.get('price_min') || initialParams.get('price_max'))
+                                            ? (initialParams.get('price_min') || '') + '-' + (initialParams.get('price_max') || '')
+                                            : null,
                                         offset: isNaN(initialOffset) ? 0 : Math.max(0, initialOffset) * PAGE_SIZE,
                                     };
 
                                     var facets = null;
                                     var openSections = {};
+                                    // Which capped groups the shopper has expanded via "+ N more".
+                                    var expandedSections = {};
                                     var total = 0;
                                     var appending = false;
 
@@ -589,91 +609,315 @@
                                         yellow: '#e8c547', orange: '#e07a3a', purple: '#6c4a8e', maroon: '#6e1e2d',
                                         cream: '#f2e6cf', olive: '#6b6b3a', gold: '#c9a227', silver: '#c0c0c0'
                                     };
-                                    function colorSwatch(name) {
+
+                                    function colorSwatch(name, cls) {
                                         var hex = COLOR_SWATCHES[String(name).trim().toLowerCase()] || '#e5e5e5';
-                                        return '<span class="facet-color-swatch" style="background-color:' + hex + '" aria-hidden="true"></span>';
+                                        return '<span class="' + (cls || 'facet-color-swatch') + '" style="background-color:' + hex + '" aria-hidden="true"></span>';
+                                    }
+
+                                    function esc(v) {
+                                        return String(v == null ? '' : v)
+                                            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+                                    }
+
+                                    // ── Facet presentation ───────────────────────────────────────────
+                                    // A fully-expanded checkbox column per group is what makes a filter
+                                    // sidebar unusable: against a real catalogue this ran to ~2,100px over
+                                    // 45 rows, so Color alone pushed Size below the fold and the sticky
+                                    // sidebar had nothing left to stick. Large fashion retailers cap each
+                                    // group and reveal the rest on demand (Myntra "+12 more", ASOS/H&M
+                                    // "Show more"), and render color/size as swatch and pill grids rather
+                                    // than one option per line — shorter, and far faster to scan.
+                                    var FACET_CAPS = { Collection: 6, Color: 12, Size: 12 };
+
+                                    // Size facets have to read in size order, not in count order — a list
+                                    // that runs "XS, L, M, 32, S, 95" because those happen to be the
+                                    // stock levels is unreadable. Alpha sizes sort by the conventional
+                                    // run, numeric sizes ascending after them, anything unrecognized last.
+                                    var SIZE_ORDER = ['xxxs', 'xxs', 'xs', 's', 'm', 'l', 'xl', 'xxl', '2xl', 'xxxl', '3xl', '4xl', 'free', 'freesize', 'onesize'];
+                                    function sizeSortKey(value) {
+                                        var k = String(value).trim().toLowerCase().replace(/\s+/g, '');
+                                        var i = SIZE_ORDER.indexOf(k);
+                                        if (i !== -1) return i;
+                                        var n = parseFloat(k);
+                                        if (!isNaN(n)) return 1000 + n;
+                                        return 1000000;
+                                    }
+                                    function bySize(a, b) {
+                                        var d = sizeSortKey(a.value) - sizeSortKey(b.value);
+                                        return d !== 0 ? d : String(a.value).localeCompare(String(b.value));
+                                    }
+
+                                    // Price was the one filter the sidebar never offered, even though
+                                    // /facets already returns the live price_range and /products already
+                                    // accepts price_min/price_max. Rendered as a few preset bands over the
+                                    // catalogue's real spread (Myntra/Flipkart-style "Under X", "X - Y",
+                                    // "Y & above") rather than a dual-handle slider: no extra dependency,
+                                    // and far easier to hit on a phone.
+                                    function priceBuckets(range) {
+                                        var min = Math.floor(Number(range && range.min) || 0);
+                                        var max = Math.ceil(Number(range && range.max) || 0);
+                                        if (!(max > min)) return [];
+                                        var step = (max - min) / 4;
+                                        var round = step > 2000 ? 1000 : step > 500 ? 500 : step > 100 ? 100 : 50;
+                                        var bounds = [min];
+                                        for (var i = 1; i < 4; i++) {
+                                            var e = Math.round((min + step * i) / round) * round;
+                                            if (e > bounds[bounds.length - 1] && e < max) bounds.push(e);
+                                        }
+                                        bounds.push(max);
+                                        var out = [];
+                                        for (var j = 0; j < bounds.length - 1; j++) {
+                                            var lo = bounds[j], hi = bounds[j + 1];
+                                            var isFirst = j === 0, isLast = j === bounds.length - 2;
+                                            out.push({
+                                                value: (isFirst ? '' : lo) + '-' + (isLast ? '' : hi),
+                                                label: isFirst ? 'Under ' + EllroaCurrency.format(hi)
+                                                    : isLast ? EllroaCurrency.format(lo) + ' & above'
+                                                        : EllroaCurrency.format(lo) + ' – ' + EllroaCurrency.format(hi)
+                                            });
+                                        }
+                                        return out.length > 1 ? out : [];
+                                    }
+
+                                    function priceLabel(value) {
+                                        var match = priceBuckets(facets && facets.price_range).filter(function (b) { return b.value === value; })[0];
+                                        if (match) return match.label;
+                                        // A bookmarked or hand-edited ?price_min/?price_max need not line up with
+                                        // the bands generated for the current result set — describe the range it
+                                        // actually asks for rather than falling back to a bare "Price" chip.
+                                        var p = priceParams(value);
+                                        if (p.min && p.max) return EllroaCurrency.format(p.min) + ' – ' + EllroaCurrency.format(p.max);
+                                        if (p.max) return 'Under ' + EllroaCurrency.format(p.max);
+                                        if (p.min) return EllroaCurrency.format(p.min) + ' & above';
+                                        return 'Any Price';
+                                    }
+
+                                    function priceParams(value) {
+                                        var parts = String(value || '').split('-');
+                                        return { min: parts[0] || null, max: parts[1] || null };
+                                    }
+
+                                    function categoryLabel(slug) {
+                                        var match = facets && facets.categories && facets.categories.filter(function (c) { return c.slug === slug; })[0];
+                                        return match ? match.name : readableLabel(slug);
+                                    }
+
+                                    // ── Applied-filter chips ─────────────────────────────────────────
+                                    // "Clear All" alone forces you to hunt back up a 2,000px column to find
+                                    // which boxes are ticked. Every major fashion site keeps the active
+                                    // selection visible as removable chips at the top of the panel, so one
+                                    // filter can be dropped without resetting the rest.
+                                    function appliedFilters() {
+                                        var out = [];
+                                        if (state.category) out.push({ key: 'category', value: state.category, label: categoryLabel(state.category) });
+                                        if (state.price) out.push({ key: 'price', value: state.price, label: priceLabel(state.price) });
+                                        state.tags.forEach(function (t) { out.push({ key: 'tags', value: t, label: readableLabel(t) }); });
+                                        state.colors.forEach(function (c) { out.push({ key: 'colors', value: c, label: c }); });
+                                        state.sizes.forEach(function (z) { out.push({ key: 'sizes', value: z, label: 'Size ' + z }); });
+                                        return out;
+                                    }
+
+                                    function chipsMarkup() {
+                                        var applied = appliedFilters();
+                                        if (!applied.length) return '';
+                                        return '<div class="facet-applied">' +
+                                            '<div class="facet-applied-head"><span>' + applied.length + ' filter' + (applied.length > 1 ? 's' : '') + ' applied</span>' +
+                                            '<button type="button" class="facet-applied-clear" data-facet-clear="1">Clear all</button></div>' +
+                                            '<ul class="facet-chip-list">' + applied.map(function (f) {
+                                                return '<li><button type="button" class="facet-chip" data-chip-key="' + esc(f.key) + '" data-chip-value="' + esc(f.value) + '">' +
+                                                    '<span>' + esc(f.label) + '</span>' +
+                                                    '<span class="facet-chip-x" aria-hidden="true">&times;</span>' +
+                                                    '<span class="sr-only">Remove filter ' + esc(f.label) + '</span>' +
+                                                    '</button></li>';
+                                            }).join('') + '</ul></div>';
+                                    }
+
+                                    function renderChips() {
+                                        var host = document.getElementById('facet-applied-host');
+                                        if (host) host.innerHTML = chipsMarkup();
+                                    }
+
+                                    // ── Group renderers ──────────────────────────────────────────────
+                                    function optionRow(type, group, value, labelHtml, countHtml, checked) {
+                                        var id = (group + '-' + value).replace(/[^a-zA-Z0-9_-]/g, '_');
+                                        var nameAttr = type === 'radio' ? ' name="facet-' + group + '"' : '';
+                                        return '<li><input type="' + type + '" id="' + id + '"' + nameAttr +
+                                            ' data-filter="' + group + '" data-value="' + esc(value) + '"' + (checked ? ' checked' : '') + '>' +
+                                            '<label for="' + id + '">' + labelHtml + countHtml + '</label></li>';
+                                    }
+
+                                    function countHtml(n) {
+                                        return n == null ? '' : ' <span class="facet-count">(' + n + ')</span>';
+                                    }
+
+                                    // Single-select groups are radios, not checkboxes. The old sidebar drew
+                                    // Categories as checkboxes and then silently unticked the siblings on
+                                    // change — a control that looks multi-select, behaves single-select and
+                                    // announces itself wrongly to a screen reader.
+                                    function renderCategories(items) {
+                                        return '<ul>' +
+                                            optionRow('radio', 'category', '', 'All Categories', '', !state.category) +
+                                            items.map(function (c) {
+                                                return optionRow('radio', 'category', c.slug, esc(c.name), countHtml(c.count), state.category === c.slug);
+                                            }).join('') + '</ul>';
+                                    }
+
+                                    function renderPrice(items) {
+                                        return '<ul>' +
+                                            optionRow('radio', 'price', '', 'Any Price', '', !state.price) +
+                                            items.map(function (b) {
+                                                return optionRow('radio', 'price', b.value, esc(b.label), '', state.price === b.value);
+                                            }).join('') + '</ul>';
+                                    }
+
+                                    function renderChecks(group, valueKey, labelFn) {
+                                        return function (items) {
+                                            return '<ul>' + items.map(function (item) {
+                                                var value = item[valueKey];
+                                                return optionRow('checkbox', group, value, labelFn(item), countHtml(item.count), state[group].indexOf(value) !== -1);
+                                            }).join('') + '</ul>';
+                                        };
+                                    }
+
+                                    function renderSwatches(items) {
+                                        return '<ul class="facet-swatch-grid">' + items.map(function (item) {
+                                            var id = ('colors-' + item.value).replace(/[^a-zA-Z0-9_-]/g, '_');
+                                            return '<li><input type="checkbox" id="' + id + '" data-filter="colors" data-value="' + esc(item.value) + '"' +
+                                                (state.colors.indexOf(item.value) !== -1 ? ' checked' : '') + '>' +
+                                                '<label for="' + id + '" title="' + esc(item.value) + ' (' + item.count + ')">' +
+                                                colorSwatch(item.value, 'facet-swatch-dot') +
+                                                '<span class="facet-swatch-name">' + esc(item.value) + '</span>' +
+                                                '</label></li>';
+                                        }).join('') + '</ul>';
+                                    }
+
+                                    function renderPills(items) {
+                                        return '<ul class="facet-pill-grid">' + items.map(function (item) {
+                                            var id = ('sizes-' + item.value).replace(/[^a-zA-Z0-9_-]/g, '_');
+                                            return '<li><input type="checkbox" id="' + id + '" data-filter="sizes" data-value="' + esc(item.value) + '"' +
+                                                (state.sizes.indexOf(item.value) !== -1 ? ' checked' : '') + '>' +
+                                                '<label for="' + id + '" title="' + item.count + ' products">' + esc(item.value) + '</label></li>';
+                                        }).join('') + '</ul>';
+                                    }
+
+                                    function facetGroup(title, items, render) {
+                                        // A group with nothing to choose between filters nothing — one option
+                                        // that every product in view already matches is pure noise, so the
+                                        // whole group is dropped rather than rendered as a dead checkbox.
+                                        if (!items || items.length < 2) return '';
+                                        var cap = FACET_CAPS[title] || 0;
+                                        var expanded = expandedSections[title] === true;
+                                        var visible = (cap && !expanded) ? items.slice(0, cap) : items;
+                                        var hidden = items.length - visible.length;
+                                        var more = '';
+                                        if (cap && (hidden > 0 || expanded)) {
+                                            more = '<button type="button" class="facet-more" data-facet-more="' + esc(title) + '">' +
+                                                (expanded ? 'Show less' : '+ ' + hidden + ' more') + '</button>';
+                                        }
+                                        return '<div class="product-category-item wow fadeInUp' + (openSections[title] === false ? ' collapsed' : '') + '">' +
+                                            '<h2 class="product-category-item-title" data-toggle-section="' + esc(title) + '">' + title + '</h2>' +
+                                            '<div class="facet-body">' + render(visible) + more + '</div>' +
+                                            '</div>';
                                     }
 
                                     function renderSidebar() {
                                         if (!facets) return;
 
-                                        function section(title, items, stateKey, valueKey, labelKey) {
-                                            if (!items.length) return '';
-                                            var rows = items.map(function (item) {
-                                                var value = item[valueKey];
-                                                var id = (stateKey + '-' + value).replace(/[^a-zA-Z0-9_-]/g, '_');
-                                                var checked = state[stateKey].indexOf(value) !== -1 ? 'checked' : '';
-                                                var label = labelKey ? item[labelKey] : readableLabel(String(value));
-                                                var swatch = stateKey === 'colors' ? colorSwatch(value) : '';
-                                                return (
-                                                    '<li>' +
-                                                    '<input type="checkbox" id="' + id + '" data-filter="' + stateKey + '" data-value="' + value + '" ' + checked + '>' +
-                                                    '<label for="' + id + '">' + swatch + label + ' <span class="facet-count">(' + item.count + ')</span></label>' +
-                                                    '</li>'
-                                                );
-                                            }).join('');
-                                            return (
-                                                '<div class="product-category-item wow fadeInUp' + (openSections[title] === false ? ' collapsed' : '') + '">' +
-                                                '<h2 class="product-category-item-title" data-toggle-section="' + title + '">' + title + '</h2>' +
-                                                '<ul>' + rows + '</ul>' +
-                                                '</div>'
-                                            );
-                                        }
+                                        var sizes = (facets.sizes || []).slice().sort(bySize);
 
-                                        var categoryRows = facets.categories.map(function (c) {
-                                            var id = ('category-' + c.slug).replace(/[^a-zA-Z0-9_-]/g, '_');
-                                            var checked = state.category === c.slug ? 'checked' : '';
-                                            return (
-                                                '<li>' +
-                                                '<input type="checkbox" id="' + id + '" data-filter="category" data-value="' + c.slug + '" ' + checked + '>' +
-                                                '<label for="' + id + '">' + c.name + ' <span class="facet-count">(' + c.count + ')</span></label>' +
-                                                '</li>'
-                                            );
-                                        }).join('');
-                                        var categorySection = facets.categories.length
-                                            ? '<div class="product-category-item wow fadeInUp' + (openSections['Categories'] === false ? ' collapsed' : '') + '"><h2 class="product-category-item-title" data-toggle-section="Categories">Categories</h2><ul>' + categoryRows + '</ul></div>'
-                                            : '';
+                                        sidebarEl.innerHTML =
+                                            '<div id="facet-applied-host">' + chipsMarkup() + '</div>' +
+                                            facetGroup('Categories', facets.categories, renderCategories) +
+                                            facetGroup('Price', priceBuckets(facets.price_range), renderPrice) +
+                                            facetGroup('Collection', facets.tags, renderChecks('tags', 'tag', function (i) { return esc(readableLabel(i.tag)); })) +
+                                            facetGroup('Color', facets.colors, renderSwatches) +
+                                            facetGroup('Size', sizes, renderPills);
+                                    }
 
-                                        var tagSection = section('Collection', facets.tags, 'tags', 'tag');
-                                        var colorSection = section('Color', facets.colors, 'colors', 'value');
-                                        var sizeSection = section('Size', facets.sizes, 'sizes', 'value');
-
-                                        sidebarEl.innerHTML = categorySection + tagSection + colorSection + sizeSection;
-
-                                        sidebarEl.querySelectorAll('input[type="checkbox"]').forEach(function (box) {
-                                            box.addEventListener('change', function () {
-                                                var key = box.getAttribute('data-filter');
-                                                var value = box.getAttribute('data-value');
-                                                var rescopeFacets = key === 'category' || key === 'tags';
-                                                if (key === 'category') {
-                                                    state.category = box.checked ? value : null;
-                                                    sidebarEl.querySelectorAll('input[data-filter="category"]').forEach(function (other) {
-                                                        if (other !== box) other.checked = false;
-                                                    });
-                                                } else {
-                                                    var arr = state[key];
-                                                    var idx = arr.indexOf(value);
-                                                    if (box.checked && idx === -1) arr.push(value);
-                                                    if (!box.checked && idx !== -1) arr.splice(idx, 1);
-                                                }
-                                                state.offset = 0;
-                                                syncUrl();
-                                                if (rescopeFacets) loadFacets();
-                                                loadProducts(false);
-                                            });
-                                        });
-
-                                        sidebarEl.querySelectorAll('.product-category-item-title').forEach(function (titleEl) {
-                                            titleEl.addEventListener('click', function () {
-                                                var key = titleEl.getAttribute('data-toggle-section');
-                                                var itemEl = titleEl.closest('.product-category-item');
-                                                var isCollapsed = itemEl.classList.toggle('collapsed');
-                                                openSections[key] = !isCollapsed;
-                                            });
+                                    function syncInputsFromState() {
+                                        sidebarEl.querySelectorAll('input[data-filter]').forEach(function (box) {
+                                            var key = box.getAttribute('data-filter');
+                                            var value = box.getAttribute('data-value');
+                                            if (key === 'category') box.checked = (state.category || '') === value;
+                                            else if (key === 'price') box.checked = (state.price || '') === value;
+                                            else box.checked = state[key].indexOf(value) !== -1;
                                         });
                                     }
 
-                                    // Keeps the address bar meaningful as filters change — category
+                                    function afterFilterChange(rescopeFacets) {
+                                        state.offset = 0;
+                                        syncUrl();
+                                        renderChips();
+                                        refreshDrawerCounts();
+                                        if (rescopeFacets) loadFacets();
+                                        loadProducts(false);
+                                    }
+
+                                    // One delegated listener on the panel instead of re-binding every row
+                                    // on each render — the markup is rebuilt whenever facets rescope, and
+                                    // per-row listeners silently leak across those rebuilds.
+                                    sidebarEl.addEventListener('change', function (e) {
+                                        var box = e.target.closest ? e.target.closest('input[data-filter]') : null;
+                                        if (!box) return;
+                                        var key = box.getAttribute('data-filter');
+                                        var value = box.getAttribute('data-value');
+                                        if (key === 'category') {
+                                            state.category = value || null;
+                                            afterFilterChange(true);
+                                        } else if (key === 'price') {
+                                            state.price = value || null;
+                                            afterFilterChange(false);
+                                        } else {
+                                            var arr = state[key];
+                                            var idx = arr.indexOf(value);
+                                            if (box.checked && idx === -1) arr.push(value);
+                                            if (!box.checked && idx !== -1) arr.splice(idx, 1);
+                                            afterFilterChange(key === 'tags');
+                                        }
+                                    });
+
+                                    sidebarEl.addEventListener('click', function (e) {
+                                        var target = e.target.closest ? e.target : null;
+                                        if (!target) return;
+
+                                        var chip = target.closest('[data-chip-key]');
+                                        if (chip) {
+                                            var ck = chip.getAttribute('data-chip-key');
+                                            var cv = chip.getAttribute('data-chip-value');
+                                            if (ck === 'category') state.category = null;
+                                            else if (ck === 'price') state.price = null;
+                                            else {
+                                                var i = state[ck].indexOf(cv);
+                                                if (i !== -1) state[ck].splice(i, 1);
+                                            }
+                                            syncInputsFromState();
+                                            afterFilterChange(ck === 'category' || ck === 'tags');
+                                            return;
+                                        }
+
+                                        if (target.closest('[data-facet-clear]')) {
+                                            resetAllFilters();
+                                            return;
+                                        }
+
+                                        var more = target.closest('[data-facet-more]');
+                                        if (more) {
+                                            var g = more.getAttribute('data-facet-more');
+                                            expandedSections[g] = !expandedSections[g];
+                                            renderSidebar();
+                                            return;
+                                        }
+
+                                        var titleEl = target.closest('.product-category-item-title');
+                                        if (titleEl) {
+                                            var sectionKey = titleEl.getAttribute('data-toggle-section');
+                                            var itemEl = titleEl.closest('.product-category-item');
+                                            openSections[sectionKey] = !itemEl.classList.toggle('collapsed');
+                                        }
+                                    });
+
+                                                                        // Keeps the address bar meaningful as filters change — category
                                     // (single-select) and a lone tag become the pretty path itself
                                     // (/category/<slug>, /tag/<tag>), same shape as the links that
                                     // land here in the first place; anything that can't be a single
@@ -694,6 +938,11 @@
 
                                         if (state.colors.length) params.set('color', state.colors.join(','));
                                         if (state.sizes.length) params.set('size', state.sizes.join(','));
+                                        if (state.price) {
+                                            var pr = priceParams(state.price);
+                                            if (pr.min) params.set('price_min', pr.min);
+                                            if (pr.max) params.set('price_max', pr.max);
+                                        }
                                         if (state.sort) params.set('sort', state.sort);
                                         if (state.offset > 0) params.set('page', Math.floor(state.offset / PAGE_SIZE) + 1);
 
@@ -702,14 +951,10 @@
                                         window.history.replaceState(null, '', newUrl);
                                     }
 
-                                    function categoryLabel(slug) {
-                                        var match = facets && facets.categories && facets.categories.filter(function (c) { return c.slug === slug; })[0];
-                                        return match ? match.name : readableLabel(slug);
-                                    }
-
                                     function activeFilterCrumbs() {
                                         var parts = [];
                                         if (state.category) parts.push({ label: categoryLabel(state.category), href: '/category/' + encodeURIComponent(state.category) });
+                                        if (state.price) parts.push({ label: priceLabel(state.price) });
                                         state.tags.forEach(function (t) { parts.push({ label: readableLabel(t) }); });
                                         state.colors.forEach(function (c) { parts.push({ label: c }); });
                                         state.sizes.forEach(function (s) { parts.push({ label: s }); });
@@ -771,6 +1016,11 @@
                                         if (state.tags.length) params.set('tag', state.tags.join(','));
                                         if (state.colors.length) params.set('color', state.colors.join(','));
                                         if (state.sizes.length) params.set('size', state.sizes.join(','));
+                                        if (state.price) {
+                                            var prq = priceParams(state.price);
+                                            if (prq.min) params.set('price_min', prq.min);
+                                            if (prq.max) params.set('price_max', prq.max);
+                                        }
                                         if (state.sort) params.set('sort', state.sort);
                                         params.set('limit', PAGE_SIZE);
                                         params.set('offset', state.offset);
@@ -783,7 +1033,7 @@
                                                 var products = data.products || [];
                                                 total = data.total || 0;
 
-                                                var hasFilters = state.category || state.tags.length || state.colors.length || state.sizes.length;
+                                                var hasFilters = state.category || state.tags.length || state.colors.length || state.sizes.length || state.price;
                                                 if (headingEl) {
                                                     headingEl.innerHTML = renderResultsBreadcrumb(hasFilters);
                                                 }
@@ -796,6 +1046,8 @@
                                                     var html = products.map(productCard).join('');
                                                     listEl.innerHTML = append ? listEl.innerHTML + html : html;
                                                 }
+
+                                                refreshDrawerCounts();
 
                                                 var shown = append ? state.offset + products.length : products.length;
                                                 if (paginationEl) {
@@ -810,15 +1062,60 @@
                                             });
                                     }
 
+                                    function resetAllFilters() {
+                                        state = { category: null, tags: [], colors: [], sizes: [], sort: null, price: null, offset: 0 };
+                                        if (sortEl) sortEl.value = '';
+                                        expandedSections = {};
+                                        syncUrl();
+                                        loadFacets();
+                                        loadProducts(false);
+                                    }
+
+                                    // ── Mobile filter drawer ─────────────────────────────────────────
+                                    // Open/close only; the panel is the same DOM as the desktop sidebar, so
+                                    // nothing about the facets themselves changes between the two layouts.
+                                    var drawerPanel = document.getElementById('filter-panel');
+                                    var drawerBackdrop = document.getElementById('filter-drawer-backdrop');
+                                    var drawerOpenBtn = document.getElementById('filter-drawer-open');
+                                    var drawerCountEl = document.getElementById('filter-drawer-open-count');
+                                    var drawerApplyBtn = document.getElementById('filter-drawer-apply');
+
+                                    function setDrawer(open) {
+                                        if (!drawerPanel) return;
+                                        drawerPanel.classList.toggle('is-open', open);
+                                        if (drawerBackdrop) drawerBackdrop.hidden = !open;
+                                        document.body.classList.toggle('filter-drawer-locked', open);
+                                        if (drawerOpenBtn) drawerOpenBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                                    }
+
+                                    if (drawerOpenBtn) drawerOpenBtn.addEventListener('click', function () { setDrawer(true); });
+                                    if (drawerBackdrop) drawerBackdrop.addEventListener('click', function () { setDrawer(false); });
+                                    if (drawerApplyBtn) drawerApplyBtn.addEventListener('click', function () { setDrawer(false); });
+                                    var drawerCloseBtn = document.getElementById('filter-drawer-close');
+                                    if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', function () { setDrawer(false); });
+                                    document.addEventListener('keydown', function (e) {
+                                        if (e.key === 'Escape' && drawerPanel && drawerPanel.classList.contains('is-open')) setDrawer(false);
+                                    });
+
+                                    // Badge on the Filter button + the drawer's own "Show N results" button,
+                                    // so the active filter count and the result count are both visible
+                                    // without opening or closing the panel.
+                                    function refreshDrawerCounts() {
+                                        var n = appliedFilters().length;
+                                        if (drawerCountEl) {
+                                            drawerCountEl.textContent = n ? String(n) : '';
+                                            drawerCountEl.style.display = n ? '' : 'none';
+                                        }
+                                        if (drawerApplyBtn) {
+                                            drawerApplyBtn.textContent = total ? 'Show ' + total + ' result' + (total > 1 ? 's' : '') : 'Show results';
+                                        }
+                                    }
+
                                     var clearAllLink = document.querySelector('.product-category-filter-clear-btn a');
                                     if (clearAllLink) {
                                         clearAllLink.addEventListener('click', function (e) {
                                             e.preventDefault();
-                                            state = { category: null, tags: [], colors: [], sizes: [], sort: null, offset: 0 };
-                                            if (sortEl) sortEl.value = '';
-                                            syncUrl();
-                                            loadFacets();
-                                            loadProducts(false);
+                                            resetAllFilters();
                                         });
                                     }
 
@@ -863,7 +1160,7 @@
                                                 // that the real category name is available, so it self-corrects
                                                 // regardless of which request finished first.
                                                 if (headingEl) {
-                                                    var hasFilters = state.category || state.tags.length || state.colors.length || state.sizes.length;
+                                                    var hasFilters = state.category || state.tags.length || state.colors.length || state.sizes.length || state.price;
                                                     headingEl.innerHTML = renderResultsBreadcrumb(hasFilters);
                                                 }
                                             })
