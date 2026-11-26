@@ -676,9 +676,14 @@
                                         window.history.replaceState(null, '', newUrl);
                                     }
 
+                                    function categoryLabel(slug) {
+                                        var match = facets && facets.categories && facets.categories.filter(function (c) { return c.slug === slug; })[0];
+                                        return match ? match.name : readableLabel(slug);
+                                    }
+
                                     function activeFilterLabel() {
                                         var parts = [];
-                                        if (state.category) parts.push(readableLabel(state.category));
+                                        if (state.category) parts.push(categoryLabel(state.category));
                                         state.tags.forEach(function (t) { parts.push(readableLabel(t)); });
                                         state.colors.forEach(function (c) { parts.push(c); });
                                         state.sizes.forEach(function (s) { parts.push(s); });
