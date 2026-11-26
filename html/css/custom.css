@@ -384,34 +384,33 @@ a:focus {
 	margin: 40px auto;
 }
 
-/* "Orbit ring" style: a thin static ring track (.loading-ring-track) plus one thicker arc
-   segment (.loading-ring-arc) that sweeps around it, instead of the previous two-tone border
-   spinning in place. An SVG stroke is what gives the arc its round, evenly-curved ends — a
-   plain CSS border/conic-gradient can't produce that shape, only hard square corners. Rotating
-   the whole <svg> (not the individual <circle>) keeps the rotation centered reliably, since a
-   plain element's transform-origin defaults to its own center while an SVG child's doesn't. */
+/* Two rings, layered: a static gray track (.loading-ring, an SVG circle — doesn't rotate) plus
+   a bigger, thin black ring around the outside of it (.loading-outer-ring) that rotates. The
+   outer ring is plain CSS border, not a stroke: two opposite sides colored and two left
+   transparent, so turning it reads as a half-colored ring sweeping around — the same look the
+   original single-ring spinner had before today's changes, just moved outside the gray ring
+   instead of replacing it, and with no gray track of its own. */
 .loading-ring {
 	display: block;
-	animation: rotate-loading 1.5s linear 0s infinite normal;
-	transform-origin: 50% 50%;
-}
-
-.loading-ring-track,
-.loading-ring-arc {
-	fill: none;
 }
 
 .loading-ring-track {
+	fill: none;
 	stroke: var(--divider-color);
 	stroke-width: 2;
 }
 
-.loading-ring-arc {
-	stroke: var(--primary-color);
-	stroke-width: 4;
-	stroke-linecap: round;
-	/* Circumference at r=56 is ~351.9; a 98px dash draws roughly a 100° arc, the rest is gap. */
-	stroke-dasharray: 98 254;
+.loading-outer-ring {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 140px;
+	height: 140px;
+	margin: -70px 0 0 -70px;
+	border-radius: 50%;
+	border: 1px solid transparent;
+	border-color: transparent var(--primary-color) transparent var(--primary-color);
+	animation: rotate-loading 1.5s linear 0s infinite normal;
 }
 
 #loading-icon {
