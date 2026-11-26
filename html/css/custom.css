@@ -71,12 +71,14 @@
 	--error-color: rgb(230, 87, 87);
 	--star-color: #FFB800;
 	--default-font: 'Overused Grotesk';
-	/* Brand gold, sampled from the "SR" monogram logo — used as the site's real accent color
-	   (CTAs, active states) instead of leaving gold confined to the logo itself.
-	   -dark is a deeper shade for text/borders on light backgrounds (AA contrast); the bright
-	   shade is for fills/backgrounds where a thin-text contrast ratio doesn't apply. */
+	/* Brand gold, used as the site's real accent color (CTAs, active states, icon-circle
+	   hovers) instead of leaving gold confined to the logo itself. -dark is a richer, more
+	   saturated "metallic gold" (not just a darker/muted tone) for borders and fills that sit
+	   under a white icon/arrow glyph — it still clears the 3:1 contrast a graphical element
+	   needs against white, just vividly gold rather than brownish. The bright shade is for
+	   fills with no glyph on top, where even that 3:1 floor doesn't apply. */
 	--gold-color: #C6A664;
-	--gold-color-dark: #867044;
+	--gold-color-dark: #B8860B;
 }
 
 /****************************************/
