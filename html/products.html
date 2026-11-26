@@ -538,6 +538,11 @@
                             </div>
 
                             <script src="js/route-params.js"></script>
+                            <!-- Must load BEFORE the inline script below, not with the rest of the
+                                 bundle at the foot of the page: this script starts fetching as soon
+                                 as the parser reaches it, and both priceBuckets() and productCard()
+                                 call EllroaCurrency.format() from inside those responses. -->
+                            <script src="js/currency.js"></script>
                             <script>
                                 (function () {
                                     var API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
@@ -824,7 +829,14 @@
                                             facetGroup('Price', priceBuckets(facets.price_range), renderPrice) +
                                             facetGroup('Collection', facets.tags, renderChecks('tags', 'tag', function (i) { return esc(readableLabel(i.tag)); })) +
                                             facetGroup('Color', facets.colors, renderSwatches) +
-                                            facetGroup('Size', sizes, renderPills);
+                                            // Size is category-dependent in a way no other facet is: across the
+                                            // whole catalogue the group merges men's waist sizes with women's
+                                            // band sizes into one list ("32, 34, 36, 90-95, 95") where picking
+                                            // a value means two different things depending on which half of the
+                                            // catalogue it lands in. /facets already scopes sizes to ?category=,
+                                            // so inside Men's or Women's the list is correct on its own — the
+                                            // group just has no meaning until a category is chosen.
+                                            (state.category ? facetGroup('Size', sizes, renderPills) : '');
                                     }
 
                                     function syncInputsFromState() {
@@ -856,6 +868,10 @@
                                         var value = box.getAttribute('data-value');
                                         if (key === 'category') {
                                             state.category = value || null;
+                                            // A size carried across a category change is meaningless — "32" is a
+                                            // waist under Men's and a band under Women's — and with no category
+                                            // the group is hidden, so it would keep filtering invisibly.
+                                            state.sizes = [];
                                             afterFilterChange(true);
                                         } else if (key === 'price') {
                                             state.price = value || null;
@@ -877,7 +893,7 @@
                                         if (chip) {
                                             var ck = chip.getAttribute('data-chip-key');
                                             var cv = chip.getAttribute('data-chip-value');
-                                            if (ck === 'category') state.category = null;
+                                            if (ck === 'category') { state.category = null; state.sizes = []; }
                                             else if (ck === 'price') state.price = null;
                                             else {
                                                 var i = state[ck].indexOf(cv);
@@ -1332,7 +1348,6 @@
         <script src="js/jquery.mb.YTPlayer.min.js"></script>
         <script src="js/wow.min.js"></script>
         <script src="js/function.js"></script>
-        <script src="js/currency.js"></script>
         <script src="js/products-hero-dynamic.js"></script>
         <script src="js/mega-menu-dynamic.js"></script>
 </body>
