@@ -1798,6 +1798,9 @@ header.main-header .container {
 	aspect-ratio: 1 / 1.273;
 	object-fit: cover;
 	border-radius: 10px 10px 0 0;
+	/* A thin edge so a product photo on a plain/white background doesn't blend into the page
+	   around it — easier to tell where one card's image ends and the next begins. */
+	border: 1px solid #000;
 }
 
 .product-item-action {
@@ -4675,6 +4678,9 @@ header.main-header .container {
 	border-radius: 10px;
 	aspect-ratio: 1 / 1.275;
 	object-fit: cover;
+	/* Same reasoning as .product-item-image img above — a thin edge so the thumbnail strip
+	   stays easy to make out against the page's white background. */
+	border: 1px solid #000;
 }
 
 .product-single-image-item {
@@ -4691,6 +4697,7 @@ header.main-header .container {
 	width: 100%;
 	aspect-ratio: 1 / 1.265;
 	object-fit: cover;
+	border: 1px solid #000;
 }
 
 .product-single-info-content {
