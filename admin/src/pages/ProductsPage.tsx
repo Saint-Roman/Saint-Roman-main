@@ -611,182 +611,133 @@ export function ProductsPage() {
             <DialogHeader>
               <DialogTitle>{editingId ? 'Edit product' : 'New product'}</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="p-name">Name</Label>
-                <Input id="p-name" value={name} onChange={(e) => setName(e.target.value)} required />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+              {/* ── Basic Information ── */}
+              <div className="flex flex-col gap-4 rounded-lg border p-4">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                  Basic Information
+                </h3>
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="p-sku">SKU</Label>
-                  <Input id="p-sku" value={sku} onChange={(e) => setSku(e.target.value)} />
+                  <Label htmlFor="p-name">Name</Label>
+                  <Input id="p-name" value={name} onChange={(e) => setName(e.target.value)} required />
                 </div>
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="p-price">Base price</Label>
-                  <Input
-                    id="p-price"
-                    type="number"
-                    value={basePrice}
-                    onChange={(e) => setBasePrice(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="p-cost">Cost price (for Profit Report, not shown publicly)</Label>
-                  <Input
-                    id="p-cost"
-                    type="number"
-                    value={costPrice}
-                    onChange={(e) => setCostPrice(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="p-brand">Brand</Label>
-                  <Input id="p-brand" value={brand} onChange={(e) => setBrand(e.target.value)} />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Barcode</Label>
-                  {editingId ? (
-                    barcode ? (
-                      <div className="flex flex-col gap-2 rounded-md border p-2">
-                        <BarcodeSvg value={barcode} height={40} fontSize={11} />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            printBarcodeLabels([
-                              { id: editingId, name, sku, barcode, base_price: Number(basePrice) || 0 },
-                            ])
-                          }
-                        >
-                          Print label
-                        </Button>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">Generating…</p>
-                    )
-                  ) : (
-                    <p className="text-sm text-muted-foreground">Auto-generated after you save</p>
-                  )}
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="p-hsn">HSN code</Label>
-                  <Input id="p-hsn" value={hsnCode} onChange={(e) => setHsnCode(e.target.value)} />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="p-gst">GST %</Label>
-                  <Input
-                    id="p-gst"
-                    type="number"
-                    value={gstPercent}
-                    onChange={(e) => setGstPercent(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2">
-                  <Label>Category</Label>
-                  <Select value={categoryId} onValueChange={(value) => setCategoryId(value ?? '')}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a category">
-                        {(value: string) => categoriesData?.categories.find((c) => c.id === value)?.name}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categoriesData?.categories.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
-                          {c.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Status</Label>
-                  <Select value={status} onValueChange={(value) => setStatus((value as Product['status']) ?? 'draft')}>
-                    <SelectTrigger>
-                      <SelectValue>
-                        {(value: Product['status']) =>
-                          ({ draft: 'Draft', active: 'Active', archived: 'Archived' })[value]
-                        }
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="draft">Draft</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="archived">Archived</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="p-short-description">Short Description</Label>
-                <Textarea
-                  id="p-short-description"
-                  rows={2}
-                  value={shortDescription}
-                  onChange={(e) => setShortDescription(e.target.value)}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Shown beside the product image on the storefront — keep it to 2-3 short lines. Write the
-                  full write-up below; it appears in the "Product Description" tab instead, so the two
-                  shouldn't repeat each other.
-                </p>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="p-description">Description</Label>
-                <Textarea
-                  id="p-description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-              </div>
-
-              {/* ── Additional Information (storefront spec table) ── */}
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <Label>Additional Information</Label>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSpecs((prev) => [...prev, { label: '', value: '' }])}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Add specification
-                  </Button>
-                </div>
-                {specs.length === 0 && (
-                  <p className="text-sm text-muted-foreground">No specifications added.</p>
-                )}
-                {specs.map((spec, index) => (
-                  <div key={index} className="flex gap-2">
-                    <Input
-                      placeholder="Label (e.g. Material)"
-                      value={spec.label}
-                      onChange={(e) => updateSpec(index, { label: e.target.value })}
-                    />
-                    <Input
-                      placeholder="Value (e.g. Cotton)"
-                      value={spec.value}
-                      onChange={(e) => updateSpec(index, { value: e.target.value })}
-                    />
-                    <Button type="button" variant="ghost" size="sm" onClick={() => removeSpec(index)}>
-                      <X className="h-4 w-4" />
-                    </Button>
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="p-sku">SKU</Label>
+                    <Input id="p-sku" value={sku} onChange={(e) => setSku(e.target.value)} />
                   </div>
-                ))}
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="p-price">Base price</Label>
+                    <Input
+                      id="p-price"
+                      type="number"
+                      value={basePrice}
+                      onChange={(e) => setBasePrice(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="p-cost">Cost price</Label>
+                    <Input
+                      id="p-cost"
+                      type="number"
+                      value={costPrice}
+                      onChange={(e) => setCostPrice(e.target.value)}
+                    />
+                    <p className="text-xs text-muted-foreground">For Profit Report, not shown publicly.</p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="p-brand">Brand</Label>
+                    <Input id="p-brand" value={brand} onChange={(e) => setBrand(e.target.value)} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="p-hsn">HSN code</Label>
+                    <Input id="p-hsn" value={hsnCode} onChange={(e) => setHsnCode(e.target.value)} />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="p-gst">GST %</Label>
+                    <Input
+                      id="p-gst"
+                      type="number"
+                      value={gstPercent}
+                      onChange={(e) => setGstPercent(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Barcode</Label>
+                    {editingId ? (
+                      barcode ? (
+                        <div className="flex flex-col gap-2 rounded-md border p-2">
+                          <BarcodeSvg value={barcode} height={40} fontSize={11} />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              printBarcodeLabels([
+                                { id: editingId, name, sku, barcode, base_price: Number(basePrice) || 0 },
+                              ])
+                            }
+                          >
+                            Print label
+                          </Button>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">Generating…</p>
+                      )
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Auto-generated after you save</p>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              {/* ── Tags section ── */}
-              <div className="flex flex-col gap-2">
-                <Label>Tags (collections)</Label>
+              {/* ── Organization (where this product shows up, and whether it's live) ── */}
+              <div className="flex flex-col gap-4 rounded-lg border p-4">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                  Organization
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <Label>Category</Label>
+                    <Select value={categoryId} onValueChange={(value) => setCategoryId(value ?? '')}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category">
+                          {(value: string) => categoriesData?.categories.find((c) => c.id === value)?.name}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categoriesData?.categories.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Status</Label>
+                    <Select value={status} onValueChange={(value) => setStatus((value as Product['status']) ?? 'draft')}>
+                      <SelectTrigger>
+                        <SelectValue>
+                          {(value: Product['status']) =>
+                            ({ draft: 'Draft', active: 'Active', archived: 'Archived' })[value]
+                          }
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="draft">Draft</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="archived">Archived</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* ── Tags section ── */}
+                <div className="flex flex-col gap-2">
+                  <Label>Tags (collections)</Label>
 
                 {selectedTags.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
@@ -855,11 +806,77 @@ export function ProductsPage() {
                     Add tag
                   </Button>
                 </div>
+                </div>
               </div>
 
-              <div className="flex flex-col gap-2">
+              {/* ── Content & Descriptions ── */}
+              <div className="flex flex-col gap-4 rounded-lg border p-4">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                  Content &amp; Descriptions
+                </h3>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="p-short-description">Short Description</Label>
+                  <Textarea
+                    id="p-short-description"
+                    rows={2}
+                    value={shortDescription}
+                    onChange={(e) => setShortDescription(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Shown beside the product image on the storefront — keep it to 2-3 short lines. Write the
+                    full write-up below; it appears in the "Product Description" tab instead, so the two
+                    shouldn't repeat each other.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="p-description">Description</Label>
+                  <Textarea
+                    id="p-description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </div>
+
+                {/* ── Additional Information (storefront spec table) ── */}
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <Label>Additional Information</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSpecs((prev) => [...prev, { label: '', value: '' }])}
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Add specification
+                    </Button>
+                  </div>
+                  {specs.length === 0 && (
+                    <p className="text-sm text-muted-foreground">No specifications added.</p>
+                  )}
+                  {specs.map((spec, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        placeholder="Label (e.g. Material)"
+                        value={spec.label}
+                        onChange={(e) => updateSpec(index, { label: e.target.value })}
+                      />
+                      <Input
+                        placeholder="Value (e.g. Cotton)"
+                        value={spec.value}
+                        onChange={(e) => updateSpec(index, { value: e.target.value })}
+                      />
+                      <Button type="button" variant="ghost" size="sm" onClick={() => removeSpec(index)}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2 rounded-lg border p-4">
                 <div className="flex items-center justify-between">
-                  <Label>Variants</Label>
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Variants</h3>
                   <Button
                     type="button"
                     variant="outline"
@@ -917,6 +934,15 @@ export function ProductsPage() {
                   </Button>
                 </div>
 
+                {variants.length > 0 && (
+                  <div className="grid grid-cols-5 gap-2 px-1">
+                    <Label className="text-xs text-muted-foreground">Size</Label>
+                    <Label className="text-xs text-muted-foreground">Cup</Label>
+                    <Label className="text-xs text-muted-foreground">Color</Label>
+                    <Label className="text-xs text-muted-foreground">Price</Label>
+                    <Label className="text-xs text-muted-foreground">Stock</Label>
+                  </div>
+                )}
                 {variants.map((variant, index) => (
                   <div key={index} className="grid grid-cols-5 gap-2">
                     <Input
@@ -951,8 +977,8 @@ export function ProductsPage() {
               </div>
 
               {/* ── Images, one main + up to 3 side photos per colour above ── */}
-              <div className="flex flex-col gap-3">
-                <Label>Images</Label>
+              <div className="flex flex-col gap-3 rounded-lg border p-4">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Images</h3>
                 {colorGroups.map((color) => (
                   <div key={color ?? '_default'} className="flex flex-col gap-2 rounded-md border p-3">
                     <span className="text-sm font-medium capitalize">{color ? `${color} photos` : 'Product photos'}</span>
@@ -979,8 +1005,8 @@ export function ProductsPage() {
 
               {/* ── Reviews — own table/endpoint, managed live against this product, not part
                    of the product Save below. Only available once the product exists. ── */}
-              <div className="flex flex-col gap-2">
-                <Label>Reviews</Label>
+              <div className="flex flex-col gap-2 rounded-lg border p-4">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Reviews</h3>
                 {!editingId && (
                   <p className="text-sm text-muted-foreground">Save the product first to add reviews.</p>
                 )}
