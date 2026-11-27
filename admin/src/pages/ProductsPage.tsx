@@ -607,7 +607,7 @@ export function ProductsPage() {
         <h1 className="text-2xl font-semibold">Products</h1>
         <Dialog open={open} onOpenChange={handleOpenChange}>
           <DialogTrigger render={<Button>New product</Button>} />
-          <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto">
+          <DialogContent className="max-h-[85vh] max-w-5xl overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingId ? 'Edit product' : 'New product'}</DialogTitle>
             </DialogHeader>
